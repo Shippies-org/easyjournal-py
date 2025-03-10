@@ -6,7 +6,7 @@ A sophisticated academic journal submission platform leveraging intelligent tech
 
 ## Repository Information
 
-- **GitHub Repository**: [https://github.com/Shippies-org/easyjournal](https://github.com/Shippies-org/easyjournal)
+- **GitHub Repository**: [https://github.com/Shippies-org/easyjournal-py](https://github.com/Shippies-org/easyjournal-py)
 
 ## Project Overview
 
@@ -40,8 +40,8 @@ EasyJournal is a comprehensive platform designed to streamline the academic publ
 
 1. Clone the repository:
    ```
-   git clone https://github.com/Shippies-org/easyjournal.git
-   cd easyjournal
+   git clone https://github.com/Shippies-org/easyjournal-py.git
+   cd easyjournal-py
    ```
 
 2. Set up environment variables (see `.env.example`)
