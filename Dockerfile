@@ -32,8 +32,8 @@ COPY . .
 RUN mkdir -p uploads uploads/demo data \
     && chmod -R 777 uploads
 
-# Create volume for persistent data
-VOLUME ["/app/uploads", "/app/data"]
+# Volumes are defined in docker-compose.yml instead
+# This prevents 'ContainerConfig' KeyError
 
 # Expose port
 EXPOSE 5000

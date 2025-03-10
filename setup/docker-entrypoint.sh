@@ -1,29 +1,54 @@
 #!/bin/bash
 set -e
 
-# Wait for the database to be ready if using PostgreSQL or MySQL
-if [[ $DATABASE_URL == postgresql://* || $DATABASE_URL == mysql://* ]]; then
-  echo "Waiting for database to be ready..."
-  # Extract host and port from DATABASE_URL
-  if [[ $DATABASE_URL == postgresql://* ]]; then
-    DB_HOST=$(echo $DATABASE_URL | awk -F[@//] '{print $4}' | awk -F[:] '{print $1}')
-    DB_PORT=$(echo $DATABASE_URL | awk -F[@//] '{print $4}' | awk -F[:] '{print $2}' | awk -F[/] '{print $1}')
-    DB_PORT=${DB_PORT:-5432}
-    echo "PostgreSQL host: $DB_HOST, port: $DB_PORT"
-  elif [[ $DATABASE_URL == mysql://* ]]; then
-    DB_HOST=$(echo $DATABASE_URL | awk -F[@//] '{print $4}' | awk -F[:] '{print $1}')
-    DB_PORT=$(echo $DATABASE_URL | awk -F[@//] '{print $4}' | awk -F[:] '{print $2}' | awk -F[/] '{print $1}')
-    DB_PORT=${DB_PORT:-3306}
-    echo "MySQL host: $DB_HOST, port: $DB_PORT"
-  fi
+# Install netcat if not present
+if ! command -v nc &> /dev/null; then
+  echo "Installing netcat for database connection checks..."
+  apt-get update && apt-get install -y netcat-openbsd && apt-get clean
+fi
 
-  # Wait for DB to become available
-  until nc -z -v -w30 $DB_HOST $DB_PORT; do
-    echo "Waiting for database connection..."
+# Handle database connection
+echo "Checking database connection..."
+
+# Use environment variables directly if available
+if [ -n "$DB_HOST" ]; then
+  HOST=$DB_HOST
+  PORT=${DB_PORT:-5432}
+  echo "Using provided DB_HOST: $HOST and port: $PORT"
+# Extract from DATABASE_URL if those aren't set
+elif [[ $DATABASE_URL == postgresql://* || $DATABASE_URL == mysql://* ]]; then
+  echo "Extracting database info from DATABASE_URL: $DATABASE_URL"
+  if [[ $DATABASE_URL == postgresql://* ]]; then
+    HOST=$(echo $DATABASE_URL | sed -E 's/.*\@([^:]+):[0-9]+\/.*/\1/')
+    PORT=$(echo $DATABASE_URL | sed -E 's/.*\@[^:]+:([0-9]+)\/.*/\1/')
+    PORT=${PORT:-5432}
+    echo "PostgreSQL host: $HOST, port: $PORT"
+  elif [[ $DATABASE_URL == mysql://* ]]; then
+    HOST=$(echo $DATABASE_URL | sed -E 's/.*\@([^:]+):[0-9]+\/.*/\1/')
+    PORT=$(echo $DATABASE_URL | sed -E 's/.*\@[^:]+:([0-9]+)\/.*/\1/')
+    PORT=${PORT:-3306}
+    echo "MySQL host: $HOST, port: $PORT"
+  fi
+else
+  echo "No database connection information found in environment"
+  HOST=""
+fi
+
+# Wait for DB to become available if host is defined
+if [ -n "$HOST" ]; then
+  echo "Waiting for database at $HOST:$PORT..."
+  for i in {1..30}; do
+    if nc -z -w5 $HOST $PORT; then
+      echo "✓ Database is up and running!"
+      break
+    fi
+    echo "Waiting for database connection... (attempt $i/30)"
     sleep 2
+    if [ $i -eq 30 ]; then
+      echo "⚠️ Warning: Could not connect to database after 30 attempts"
+      echo "⚠️ The application will still try to start, but may fail if database is required"
+    fi
   done
-  
-  echo "Database is up and running!"
 fi
 
 # Create necessary directories
