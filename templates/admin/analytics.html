@@ -1,4 +1,4 @@
-{% extends 'layouts/base.html' %}
+{% extends 'layouts/sidebar_layout.html' %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -54,8 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 {% endblock %}
 
-{% block content %}
-<div class="container py-4">
+{% block sidebar_content %}
     <h1 class="mb-4">Site Analytics</h1>
     
     <!-- Time Range Selection -->
