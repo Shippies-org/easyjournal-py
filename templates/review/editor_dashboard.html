@@ -12,7 +12,7 @@
 
 <!-- Submission Statistics -->
 <div class="row mb-4">
-    <div class="col-md-3">
+    <div class="col">
         <div class="card border-primary h-100">
             <div class="card-body text-center">
                 <h5 class="card-title">New Submissions</h5>
@@ -24,7 +24,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col">
         <div class="card border-warning h-100">
             <div class="card-body text-center">
                 <h5 class="card-title">In Review</h5>
@@ -36,7 +36,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col">
         <div class="card border-info h-100">
             <div class="card-body text-center">
                 <h5 class="card-title">Ready for Decision</h5>
@@ -48,7 +48,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col">
         <div class="card border-success h-100">
             <div class="card-body text-center">
                 <h5 class="card-title">Recently Revised</h5>
@@ -60,22 +60,7 @@
             </div>
         </div>
     </div>
-</div>
-
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card border-success h-100">
-            <div class="card-body text-center">
-                <h5 class="card-title">Accepted Articles</h5>
-                <p class="display-4 mb-0">{{ accepted_submissions|length }}</p>
-                <p class="text-muted">Ready for publication</p>
-            </div>
-            <div class="card-footer bg-success text-white text-center">
-                <i class="bi bi-journal-check me-1"></i> Accepted
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
+    <div class="col">
         <div class="card border-dark h-100">
             <div class="card-body text-center">
                 <h5 class="card-title">Published Articles</h5>
@@ -84,17 +69,6 @@
             </div>
             <div class="card-footer bg-dark text-white text-center">
                 <i class="bi bi-journal-richtext me-1"></i> Published
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card border-primary h-100">
-            <div class="card-body">
-                <h5 class="card-title">Publishing Management</h5>
-                <p>Manage the publication process for accepted articles.</p>
-                <a href="{{ url_for('review.publishing_dashboard') }}" class="btn btn-primary">
-                    <i class="bi bi-journal-bookmark"></i> Go to Publishing Dashboard
-                </a>
             </div>
         </div>
     </div>
