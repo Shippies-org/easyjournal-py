@@ -66,7 +66,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h2 class="h5 mb-0">Full Article</h2>
-                    <a href="{{ url_for('main.serve_uploads', filename=article.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
+                    <a href="{{ url_for('serve_uploads', filename=article.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
                         <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
                     </a>
                 </div>
@@ -74,7 +74,7 @@
                     <!-- Embed the article if it's a PDF -->
                     {% if article.file_path.endswith('.pdf') %}
                     <div class="pdf-embed">
-                        <iframe src="{{ url_for('main.serve_uploads', filename=article.file_path) }}" width="100%" height="600px"></iframe>
+                        <iframe src="{{ url_for('serve_uploads', filename=article.file_path) }}" width="100%" height="600px"></iframe>
                     </div>
                     {% else %}
                     <div class="alert alert-info">
