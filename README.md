@@ -2,6 +2,19 @@
 
 ![EasyJournal Logo](generated-icon.png)
 
+## EasyJournal: A Practical Publishing Experiment
+
+EasyJournal was created as an experimental publishing platform built by a publishing expert (with a bit of AI help and no engineers involved). It's designed to get your journal online quickly—in a very short time—without any headaches or heavy costs.
+
+To be clear, the underlying code isn't perfect—it's an experimental prototype, not industrial-strength software. But it works, and it's free for anyone who wants to try it out.
+
+### What I've learned:
+AI can accelerate the initial build dramatically. However, turning AI-generated prototypes into scalable, robust software still requires traditional engineering expertise.
+
+For more information see https://robotscooking.com
+
+---
+
 A sophisticated academic journal submission platform leveraging intelligent technology to optimize the research publication workflow.
 
 ## Repository Information
