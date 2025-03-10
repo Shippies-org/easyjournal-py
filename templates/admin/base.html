@@ -1,5 +1,41 @@
 {% extends 'layouts/base.html' %}
 
 {% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="dropdown d-inline-block me-2">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="adminActionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-gear-fill me-2"></i>Admin Actions
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="adminActionDropdown">
+                    <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-speedometer me-2"></i>Dashboard</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.users') }}"><i class="bi bi-people me-2"></i>User Management</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.issues') }}"><i class="bi bi-journal-bookmark me-2"></i>Issue Management</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.plugins') }}"><i class="bi bi-puzzle me-2"></i>Plugin Management</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.branding_settings') }}"><i class="bi bi-palette me-2"></i>Branding</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.content_settings') }}"><i class="bi bi-file-earmark-text me-2"></i>Content Settings</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.gdpr_settings') }}"><i class="bi bi-shield-check me-2"></i>GDPR Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.analytics') }}"><i class="bi bi-graph-up me-2"></i>Analytics</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('admin.doi_health_check') }}"><i class="bi bi-patch-check me-2"></i>DOI Health Check</a></li>
+                </ul>
+            </div>
+            
+            <div class="dropdown d-inline-block">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="quickAccessDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-lightning-charge-fill me-2"></i>Quick Access
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="quickAccessDropdown">
+                    <li><a class="dropdown-item" href="{{ url_for('review.editor_dashboard') }}"><i class="bi bi-journal-text me-2"></i>Editor Dashboard</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.dashboard') }}"><i class="bi bi-house me-2"></i>User Dashboard</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.browse') }}"><i class="bi bi-book me-2"></i>Browse Articles</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
     {% block admin_content %}{% endblock %}
+</div>
 {% endblock %}
