@@ -22,7 +22,7 @@ from plugins.jats_plugin.models import JATSXMLRecord, JATSAPISettings
 
 # Create a blueprint for JATS XML routes
 jats_bp = Blueprint('jats', __name__, url_prefix='/jats',
-                    template_folder='templates')
+                    template_folder='plugins/jats_plugin/templates')
 
 
 def get_jats_upload_folder():
