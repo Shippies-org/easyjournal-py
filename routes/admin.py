@@ -340,16 +340,36 @@ def add_publication(issue_id):
 @admin_required
 def plugins():
     """Render the plugin management page."""
+    # Get all plugin settings from database
     plugin_settings = PluginSetting.query.order_by(PluginSetting.plugin_name, PluginSetting.setting_key).all()
     
-    # Group settings by plugin
-    plugins = {}
-    for setting in plugin_settings:
-        if setting.plugin_name not in plugins:
-            plugins[setting.plugin_name] = []
-        plugins[setting.plugin_name].append(setting)
+    # Get all loaded plugins from the plugin system
+    from plugin_system import PluginSystem
+    loaded_plugins_info = PluginSystem.get_plugin_info()
     
-    return render_template('admin/plugins.html', title='Plugin Management', plugins=plugins)
+    # Group settings by plugin
+    plugins_data = {}
+    
+    # First add all loaded plugins (even if they have no settings)
+    for plugin_name, plugin_info in loaded_plugins_info.items():
+        plugins_data[plugin_name] = {
+            'info': plugin_info,
+            'settings': []
+        }
+    
+    # Then add any settings for plugins
+    for setting in plugin_settings:
+        if setting.plugin_name not in plugins_data:
+            # Create entry for plugins with settings but not loaded
+            plugins_data[setting.plugin_name] = {
+                'info': {'name': setting.plugin_name, 'path': '', 'hooks': []},
+                'settings': []
+            }
+        
+        # Add this setting to the plugin
+        plugins_data[setting.plugin_name]['settings'].append(setting)
+    
+    return render_template('admin/plugins.html', title='Plugin Management', plugins=plugins_data)
 
 
 @admin_bp.route('/plugin/setting/edit/<int:setting_id>', methods=['GET', 'POST'])

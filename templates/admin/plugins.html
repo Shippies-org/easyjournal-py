@@ -7,47 +7,75 @@
     
     {% if plugins %}
         <p class="lead mb-4">
-            Manage settings for installed plugins. These settings control the behavior of plugins that extend the functionality of the system.
+            Manage installed plugins and their settings. These plugins extend the functionality of the journal system.
         </p>
         
         <div class="row">
-            {% for plugin_name, settings in plugins.items() %}
+            {% for plugin_name, plugin_data in plugins.items() %}
                 <div class="col-md-6 mb-4">
                     <div class="card h-100">
                         <div class="card-header bg-primary text-white">
                             <h5 class="card-title mb-0">{{ plugin_name }}</h5>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Setting</th>
-                                            <th>Value</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for setting in settings %}
-                                            <tr>
-                                                <td>{{ setting.setting_key }}</td>
-                                                <td>
-                                                    {% if setting.setting_value|length > 40 %}
-                                                        {{ setting.setting_value[:40] }}...
-                                                    {% else %}
-                                                        {{ setting.setting_value }}
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <a href="{{ url_for('admin.edit_plugin_setting', setting_id=setting.id) }}" class="btn btn-sm btn-outline-primary">
-                                                        <i class="bi bi-pencil-fill"></i> Edit
-                                                    </a>
-                                                </td>
-                                            </tr>
+                            <!-- Plugin info -->
+                            <div class="mb-3">
+                                <h6>Plugin Information</h6>
+                                <p class="mb-2">
+                                    <span class="badge bg-success">Loaded</span>
+                                    <small class="text-muted">{{ plugin_data.info.path }}</small>
+                                </p>
+                                
+                                {% if plugin_data.info.hooks %}
+                                <p class="mb-2">
+                                    <small class="text-muted">
+                                        <strong>Registered Hooks:</strong> 
+                                        {% for hook in plugin_data.info.hooks %}
+                                            <span class="badge bg-secondary">{{ hook }}</span>
                                         {% endfor %}
-                                    </tbody>
-                                </table>
+                                    </small>
+                                </p>
+                                {% endif %}
                             </div>
+                            
+                            <!-- Settings Table (if any) -->
+                            {% if plugin_data.settings %}
+                                <div class="table-responsive">
+                                    <h6>Plugin Settings</h6>
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Setting</th>
+                                                <th>Value</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for setting in plugin_data.settings %}
+                                                <tr>
+                                                    <td>{{ setting.setting_key }}</td>
+                                                    <td>
+                                                        {% if setting.setting_value|length > 40 %}
+                                                            {{ setting.setting_value[:40] }}...
+                                                        {% else %}
+                                                            {{ setting.setting_value }}
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ url_for('admin.edit_plugin_setting', setting_id=setting.id) }}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-pencil-fill"></i> Edit
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-light">
+                                    <small>This plugin has no configurable settings.</small>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

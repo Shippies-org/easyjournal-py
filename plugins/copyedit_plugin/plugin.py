@@ -4,6 +4,18 @@ Copy Editing Plugin
 This plugin adds copy editing functionality to the journal system, 
 allowing users to download, upload, and comment on Word documents.
 """
+
+# Plugin metadata
+PLUGIN_INFO = {
+    'name': 'Copy Editing Plugin',
+    'description': 'Adds copy editing functionality to the journal system, allowing editors to assign copyeditors to submissions, and for copyeditors to download, edit, and upload Word documents with comments.',
+    'version': '1.0.0',
+    'author': 'EasyJournal Team',
+    'website': 'https://easyjournal.example.com',
+    'documentation': 'https://easyjournal.example.com/docs/plugins/copyediting',
+    'min_version': '1.0.0',
+    'license': 'MIT',
+}
 import os
 import re
 import logging
@@ -24,13 +36,8 @@ logger = logging.getLogger(__name__)
 copyedit_bp = Blueprint('copyedit', __name__, url_prefix='/copyedit', 
                        template_folder='templates')
 
-# Plugin metadata
-PLUGIN_INFO = {
-    'name': 'Copy Editing Plugin',
-    'version': '1.0.0',
-    'description': 'Adds copy editing functionality to download, upload and comment on Word documents',
-    'author': 'EasyJournal'
-}
+# Log output
+logger = logging.getLogger(__name__)
 
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {'doc', 'docx', 'rtf', 'txt'}
