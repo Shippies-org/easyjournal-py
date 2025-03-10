@@ -142,6 +142,14 @@ class Submission(db.Model):
     revisions = db.relationship('Revision', backref='submission', lazy='dynamic')
     publication = db.relationship('Publication', uselist=False, backref='submission')
     
+    def is_accepted(self):
+        """Check if the submission has been accepted."""
+        return self.status == 'accepted'
+    
+    def is_published(self):
+        """Check if the submission has been published."""
+        return self.publication is not None and self.publication.is_published()
+    
     def __repr__(self):
         return f'<Submission {self.id} "{self.title}" ({self.status})>'
 
@@ -244,13 +252,28 @@ class Publication(db.Model):
     page_start = db.Column(db.Integer)
     page_end = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    published_at = db.Column(db.DateTime)
+    status = db.Column(db.String(20), default='scheduled', nullable=False)  # scheduled, published, unpublished
     
     __table_args__ = (
         db.UniqueConstraint('submission_id', 'issue_id', name='uix_submission_issue'),
     )
     
+    def is_published(self):
+        """Check if this article is published."""
+        return self.status == 'published' and self.published_at is not None
+    
+    def publish(self):
+        """Publish this article."""
+        self.status = 'published'
+        self.published_at = datetime.utcnow()
+        
+    def unpublish(self):
+        """Unpublish this article."""
+        self.status = 'unpublished'
+    
     def __repr__(self):
-        return f'<Publication {self.id} Submission {self.submission_id} in Issue {self.issue_id}>'
+        return f'<Publication {self.id} Submission {self.submission_id} in Issue {self.issue_id} ({self.status})>'
 
 
 class Notification(db.Model):

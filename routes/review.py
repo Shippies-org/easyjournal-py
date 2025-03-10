@@ -10,7 +10,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 
 from app import db
-from models import Submission, Review, EditorDecision, User
+from models import Submission, Review, EditorDecision, User, Publication, Issue
 from forms.review import ReviewForm, AssignReviewerForm, EditorDecisionForm
 
 # Create a blueprint for review routes
@@ -31,6 +31,10 @@ def editor_dashboard():
     in_review_submissions = Submission.query.filter_by(status='under_review').order_by(Submission.submitted_at).all()
     ready_for_decision = Submission.query.filter_by(status='reviewed').order_by(Submission.updated_at).all()
     recently_revised = Submission.query.filter_by(status='revision_submitted').order_by(Submission.updated_at).all()
+    accepted_submissions = Submission.query.filter_by(status='accepted').order_by(Submission.updated_at.desc()).limit(5).all()
+    
+    # Count published articles
+    total_published = db.session.query(Publication).filter_by(status='published').count()
     
     return render_template(
         'review/editor_dashboard.html',
@@ -38,7 +42,9 @@ def editor_dashboard():
         new_submissions=new_submissions,
         in_review_submissions=in_review_submissions,
         ready_for_decision=ready_for_decision,
-        recently_revised=recently_revised
+        recently_revised=recently_revised,
+        accepted_submissions=accepted_submissions,
+        total_published=total_published
     )
 
 
@@ -305,3 +311,167 @@ def make_decision(submission_id):
         reviews=reviews,
         completed_reviews=completed_reviews
     )
+
+
+@review_bp.route('/publishing')
+@login_required
+def publishing_dashboard():
+    """Render the publishing dashboard for managing accepted articles."""
+    # Ensure user is an editor
+    if not current_user.is_editor() and not current_user.is_admin():
+        flash('You do not have permission to access the publishing dashboard.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    # Get accepted submissions not yet assigned to an issue
+    accepted_submissions = Submission.query.filter_by(status='accepted')\
+        .outerjoin(Publication)\
+        .filter(Publication.id == None)\
+        .order_by(Submission.updated_at.desc()).all()
+    
+    # Get submissions assigned to issues but not yet published
+    scheduled_publications = Publication.query.filter_by(status='scheduled')\
+        .join(Submission)\
+        .join(Issue)\
+        .order_by(Issue.volume.desc(), Issue.issue_number.desc(), Publication.created_at.desc()).all()
+    
+    # Get published submissions
+    published_submissions = Publication.query.filter_by(status='published')\
+        .join(Submission)\
+        .join(Issue)\
+        .order_by(Publication.published_at.desc()).all()
+    
+    # Get unpublished submissions (those that were once published but now are not)
+    unpublished_submissions = Publication.query.filter_by(status='unpublished')\
+        .join(Submission)\
+        .join(Issue)\
+        .order_by(Publication.created_at.desc()).all()
+    
+    # Get all available issues for assignment
+    available_issues = Issue.query.filter(Issue.status != 'archived')\
+        .order_by(Issue.volume.desc(), Issue.issue_number.desc()).all()
+    
+    return render_template(
+        'review/publishing_dashboard.html',
+        title='Publishing Dashboard',
+        accepted_submissions=accepted_submissions,
+        scheduled_publications=scheduled_publications,
+        published_submissions=published_submissions,
+        unpublished_submissions=unpublished_submissions,
+        available_issues=available_issues
+    )
+
+
+@review_bp.route('/assign_to_issue/<int:submission_id>/<int:issue_id>')
+@login_required
+def assign_to_issue(submission_id, issue_id):
+    """Assign an accepted article to an issue."""
+    # Ensure user is an editor
+    if not current_user.is_editor() and not current_user.is_admin():
+        flash('You do not have permission to assign articles to issues.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    submission = Submission.query.get_or_404(submission_id)
+    issue = Issue.query.get_or_404(issue_id)
+    
+    # Ensure submission is accepted
+    if submission.status != 'accepted':
+        flash('Only accepted submissions can be assigned to an issue.', 'danger')
+        return redirect(url_for('review.publishing_dashboard'))
+    
+    # Check if already assigned to any issue
+    if submission.publication:
+        flash('This submission is already assigned to an issue.', 'danger')
+        return redirect(url_for('review.publishing_dashboard'))
+    
+    # Create new publication
+    publication = Publication(
+        submission_id=submission_id,
+        issue_id=issue_id,
+        status='scheduled'
+    )
+    
+    db.session.add(publication)
+    db.session.commit()
+    
+    flash(f'Article "{submission.title}" has been scheduled for publication in {issue.title}.', 'success')
+    return redirect(url_for('review.publishing_dashboard'))
+
+
+@review_bp.route('/publish/<int:publication_id>')
+@login_required
+def publish_article(publication_id):
+    """Publish an article."""
+    # Ensure user is an editor
+    if not current_user.is_editor() and not current_user.is_admin():
+        flash('You do not have permission to publish articles.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    publication = Publication.query.get_or_404(publication_id)
+    
+    # Publish the article
+    publication.publish()
+    db.session.commit()
+    
+    flash(f'Article "{publication.submission.title}" has been published successfully.', 'success')
+    return redirect(url_for('review.publishing_dashboard'))
+
+
+@review_bp.route('/unpublish/<int:publication_id>')
+@login_required
+def unpublish_article(publication_id):
+    """Unpublish an article."""
+    # Ensure user is an editor
+    if not current_user.is_editor() and not current_user.is_admin():
+        flash('You do not have permission to unpublish articles.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    publication = Publication.query.get_or_404(publication_id)
+    
+    # Unpublish the article
+    publication.unpublish()
+    db.session.commit()
+    
+    flash(f'Article "{publication.submission.title}" has been unpublished.', 'success')
+    return redirect(url_for('review.publishing_dashboard'))
+
+
+@review_bp.route('/revert_decision/<int:submission_id>')
+@login_required
+def revert_decision(submission_id):
+    """Revert the decision on a submission back to 'reviewed' status."""
+    # Ensure user is an editor
+    if not current_user.is_editor() and not current_user.is_admin():
+        flash('You do not have permission to revert decisions.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    submission = Submission.query.get_or_404(submission_id)
+    
+    # Ensure submission is accepted and not already published
+    if submission.status != 'accepted' or submission.publication:
+        flash('Only accepted submissions that are not assigned to an issue can have their decision reverted.', 'danger')
+        return redirect(url_for('review.publishing_dashboard'))
+    
+    # Get the last decision
+    last_decision = EditorDecision.query.filter_by(submission_id=submission_id)\
+        .order_by(EditorDecision.created_at.desc()).first()
+    
+    if last_decision:
+        # Add a new decision entry for audit trail
+        new_decision = EditorDecision(
+            submission_id=submission_id,
+            editor_id=current_user.id,
+            decision='reverted',
+            comments=f'Decision reverted from "{last_decision.decision}" back to review status.'
+        )
+        db.session.add(new_decision)
+        
+        # Update submission status
+        submission.status = 'reviewed'
+        submission.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        flash(f'Decision for "{submission.title}" has been reverted back to review status.', 'success')
+    else:
+        flash('No decision found to revert.', 'danger')
+    
+    return redirect(url_for('review.publishing_dashboard'))
