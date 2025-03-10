@@ -39,6 +39,13 @@
                         <i class="bi bi-check-square me-1"></i> Make Decision
                     </a>
                 {% endif %}
+                
+                <!-- Plugin hooks for submission actions -->
+                {% if submission.status in ['accepted', 'published'] %}
+                    {% for action_html in plugin_system.execute_hook('submission_view_actions', {'submission': submission}) %}
+                        {{ action_html|safe }}
+                    {% endfor %}
+                {% endif %}
             </div>
         {% endif %}
         

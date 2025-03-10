@@ -52,7 +52,7 @@ class JATSAPISettings(db.Model):
         settings = cls.query.first()
         if settings is None:
             settings = cls(
-                api_url='https://api.example.com/jats-conversion',
+                api_url='https://html-api-adam394.replit.app/',
                 timeout=30
             )
             db.session.add(settings)
