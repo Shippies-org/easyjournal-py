@@ -13,6 +13,7 @@ from app import db
 from models import Submission, Review, EditorDecision, User, Publication, Issue
 from forms.review import ReviewForm, AssignReviewerForm, EditorDecisionForm
 from forms.admin import IssueForm
+from plugin_system import PluginSystem
 
 # Create a blueprint for review routes
 review_bp = Blueprint('review', __name__, url_prefix='/review')
@@ -192,12 +193,20 @@ def view_submission_for_review(submission_id):
     # Get editor decisions
     decisions = EditorDecision.query.filter_by(submission_id=submission_id).order_by(EditorDecision.created_at.desc()).all()
     
+    # Execute plugins hook for submission view actions
+    submission_actions = PluginSystem.execute_hook('submission_view_actions', {
+        'submission': submission,
+        'user': current_user
+    })
+    
     return render_template(
         'review/view_submission.html',
         title=submission.title,
         submission=submission,
         reviews=reviews,
-        decisions=decisions
+        decisions=decisions,
+        plugin_system=PluginSystem,
+        submission_actions=submission_actions
     )
 
 

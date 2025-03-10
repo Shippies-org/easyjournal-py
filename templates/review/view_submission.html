@@ -42,9 +42,11 @@
                 
                 <!-- Plugin hooks for submission actions -->
                 {% if submission.status in ['accepted', 'published'] %}
-                    {% for action_html in plugin_system.execute_hook('submission_view_actions', {'submission': submission}) %}
-                        {{ action_html|safe }}
-                    {% endfor %}
+                    {% if submission_actions %}
+                        {% for action_html in submission_actions %}
+                            {{ action_html|safe }}
+                        {% endfor %}
+                    {% endif %}
                 {% endif %}
             </div>
         {% endif %}
