@@ -117,8 +117,18 @@ def generate_xml(submission_id):
         db.session.commit()
         
         try:
-            # Get the file path
-            file_path = os.path.join(current_app.root_path, submission.file_path)
+            # Get the file path - handle the file path stored in the submission
+            # In the system, file_path in Submission model is just the filename, 
+            # and files are stored in config.UPLOAD_FOLDER
+            upload_folder = os.path.join(current_app.root_path, 'uploads')
+            file_path = os.path.join(upload_folder, submission.file_path)
+            
+            # Check if file exists
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"Submission file not found at {file_path} (looking for '{submission.file_path}' in {upload_folder})")
+                
+            # Log file path for debugging
+            current_app.logger.debug(f"Processing file at path: {file_path}")
             
             # Prepare metadata
             metadata = {
