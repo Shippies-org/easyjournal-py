@@ -113,7 +113,8 @@ class PluginSystem:
             return []
         
         plugin_dirs = [d for d in os.listdir(plugins_dir) 
-                    if os.path.isdir(os.path.join(plugins_dir, d)) and not d.startswith('__')]
+                    if os.path.isdir(os.path.join(plugins_dir, d)) and not d.startswith('__') 
+                    and d != 'jats_plugin']
         
         loaded = []
         
