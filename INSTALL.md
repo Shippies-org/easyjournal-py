@@ -1,143 +1,146 @@
-# Academic Journal Submission System - Installation Guide
+# EasyJournal - Installation Guide
 
-This document provides instructions for installing and setting up the Academic Journal Submission System.
+This document provides instructions for installing and setting up the EasyJournal Academic Journal Submission System.
 
-## Prerequisites
+## Installation Options
 
-- Python 3.7 or higher
-- SQLite3 (default) or PostgreSQL/MySQL (optional)
-- PHP 7.4 or higher (optional, for PHP plugins)
+EasyJournal offers two installation methods:
+1. **Docker**: Recommended for production and easy deployment
+2. **Manual Installation**: For development or customization
 
-## 1. Clone the Repository
+## Option 1: Docker Installation (Recommended)
 
-```bash
-git clone https://github.com/yourusername/academic-journal-system.git
-cd academic-journal-system
-```
+### Prerequisites
+- Docker and Docker Compose
+- Git (optional)
 
-## 2. Install Python Dependencies
+### Quick Start with Docker
 
-```bash
-pip install -r requirements.txt
-```
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/Shippies-org/easyjournal-py.git
+   cd easyjournal-py
+   ```
 
-## 3. Configuration
+2. **Configure Environment**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` file to set your desired configuration. The default values work for most users.
 
-Copy the example environment file and modify it as needed:
+3. **Build and Start the Application**
+   ```bash
+   docker-compose up -d
+   ```
 
-```bash
-cp .env.example .env
-```
+4. **Access the Application**
+   The application will be available at http://localhost:5000
 
-Edit the `.env` file to configure the application settings:
+### Docker Notes
+- Default admin login: admin@example.com / adminpassword
+- Demo mode is enabled by default with pre-populated data
+- PostgreSQL data is stored in a Docker volume and persists between container restarts
+- You can view logs with `docker-compose logs -f app`
+- To stop: `docker-compose down`
 
-- `APP_ENV`: Set to `production` for production environments
-- `SECRET_KEY`: Change to a secure random string for production
-- `DEMO_MODE`: Set to `False` in production
-- `DB_TYPE`: Choose your database type (`sqlite`, `postgresql`, or `mysql`)
-- Configure database connection settings if using PostgreSQL or MySQL
-- Configure email settings for notifications
+## Option 2: Manual Installation
 
-## 4. Database Setup
+### Prerequisites
+- Python 3.10 or higher
+- SQLite (default) or PostgreSQL
+- Git (optional)
 
-### SQLite (Default)
+### Step-by-Step Manual Installation
 
-For SQLite, the system will create the database file automatically. To initialize the schema:
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/Shippies-org/easyjournal-py.git
+   cd easyjournal-py
+   ```
 
-```bash
-sqlite3 journal.db < setup/database_schema.sql
-```
+2. **Install Dependencies**
+   ```bash
+   bash setup/install_dependencies.sh
+   ```
 
-### PostgreSQL
+3. **Configure Environment**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` file to set your configuration.
+   - For SQLite (default): `DATABASE_URL=sqlite:///instance/journal.db`
+   - For PostgreSQL: `DATABASE_URL=postgresql://user:password@localhost:5432/journal_db`
 
-For PostgreSQL, first create a database and user:
+4. **Initialize Database**
+   For SQLite (this happens automatically on first run):
+   ```bash
+   mkdir -p instance
+   touch instance/journal.db
+   ```
 
-```bash
-psql -U postgres
-CREATE DATABASE journal;
-CREATE USER journal_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE journal TO journal_user;
-\q
+   For PostgreSQL, create a database and user first:
+   ```bash
+   psql -U postgres
+   CREATE DATABASE journal_db;
+   CREATE USER journal_user WITH PASSWORD 'your_password';
+   GRANT ALL PRIVILEGES ON DATABASE journal_db TO journal_user;
+   \q
+   ```
 
-# Then import the schema
-psql -U journal_user -d journal -f setup/database_schema.sql
-```
+5. **Start the Application**
+   ```bash
+   python main.py
+   ```
+   The application will be available at http://localhost:5000
 
-## 5. Create Admin User
+## Advanced Configuration
 
-```bash
-python setup/create_admin.py
-```
+### Demo Mode
+Demo mode creates test accounts and sample data. It's enabled by default.
+- To disable: Set `DEMO_MODE=False` in `.env`
 
-You'll be prompted to enter an admin name, email, and password. Alternatively, you can provide these as command-line arguments:
+### Production Deployment
+For production, configure these settings in `.env`:
+- `SESSION_SECRET`: Set a strong, random secret key
+- `DEMO_MODE`: Set to `False`
+- `FLASK_DEBUG`: Set to `0`
 
-```bash
-python setup/create_admin.py --name "Admin User" --email "admin@example.com" --password "secure_password"
-```
-
-## 6. (Optional) Seed Demo Data
-
-For development or testing environments, you can seed the database with sample data:
-
-```bash
-python setup/seed_demo_data.py
-```
-
-To reset the database before seeding:
-
-```bash
-python setup/seed_demo_data.py --reset
-```
-
-## 7. Start the Application
-
-### Development
-
-```bash
-python main.py
-```
-
-The application will be available at http://localhost:5000
-
-### Production
-
-For production deployment, we recommend using Gunicorn:
-
+Use Gunicorn with multiple workers:
 ```bash
 gunicorn --bind 0.0.0.0:5000 --workers 4 main:app
 ```
 
-Use a reverse proxy like Nginx or Apache to handle HTTPS and static files.
+For HTTPS, use a reverse proxy like Nginx.
 
-## 8. (Optional) Set Up Plugins
+### Database Selection
+- **SQLite**: Best for development or small deployments
+- **PostgreSQL**: Recommended for production use
+  
+The Docker setup uses PostgreSQL by default.
 
-Place PHP or Python plugins in the `plugins` directory following the structure outlined in `plugins/README.md`.
+## Plugins & Customization
+- Place plugins in the `plugins` directory
+- Each plugin should have a `plugin.py` with a `register_plugin()` function
+- See the included welcome plugin for an example
 
 ## Troubleshooting
 
+### Docker Issues
+- Ensure Docker and Docker Compose are properly installed
+- Verify ports 5000 and 5432 are not in use by other applications
+- Check container logs: `docker-compose logs app` or `docker-compose logs db`
+- For permission issues: `sudo chmod -R 777 uploads` in the project directory
+
 ### Database Connection Issues
+- Verify credentials in `.env` match your database setup
+- Check PostgreSQL is running and accessible
+- For SQLite, ensure the instance directory exists and is writable
 
-- Verify database connection settings in `.env`
-- Check database user permissions
-- For PostgreSQL or MySQL, verify the database server is running
+### Permission Problems
+- Make sure the uploads directory is writable: `chmod -R 777 uploads`
+- For Docker, ensure the user has permission to access Docker volumes
 
-### Application Startup Errors
-
-- Check Python version (`python --version`)
-- Verify all dependencies are installed (`pip list`)
-- Check log files for error messages
-
-### Permission Issues
-
-- Ensure the upload directory is writable by the application
-- Check file permissions for the database file
-
-## Upgrading
-
-To upgrade to a new version:
-
-1. Back up your database and configuration
-2. Pull the latest code
-3. Update dependencies: `pip install -r requirements.txt`
-4. Run database migrations if provided
-5. Restart the application
+## Support & Contributions
+- Report issues on GitHub
+- Contributions welcome via pull requests
+- Documentation available at easyjournal.org
