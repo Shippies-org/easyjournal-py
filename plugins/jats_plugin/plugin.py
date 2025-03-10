@@ -16,7 +16,9 @@ from werkzeug.utils import secure_filename
 from app import db
 from models import Submission, Publication
 from plugin_system import PluginSystem
-from .models import JATSXMLRecord, JATSAPISettings
+
+# Import models directly without relative import
+from plugins.jats_plugin.models import JATSXMLRecord, JATSAPISettings
 
 # Create a blueprint for JATS XML routes
 jats_bp = Blueprint('jats', __name__, url_prefix='/jats',
