@@ -1,17 +1,17 @@
-{% extends 'base.html' %}
+{% extends 'review/base.html' %}
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block content %}
+{% block review_content %}
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-book-open me-2"></i> Issue Management</h2>
+        <h2><i class="bi bi-journals me-2"></i> Issue Management</h2>
         <div>
             <a href="{{ url_for('review.publishing_dashboard') }}" class="btn btn-outline-primary me-2">
-                <i class="fas fa-arrow-left me-1"></i> Publishing Dashboard
+                <i class="bi bi-arrow-left me-1"></i> Publishing Dashboard
             </a>
             <a href="{{ url_for('issues.new_issue') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i> New Issue
+                <i class="bi bi-plus-circle me-1"></i> New Issue
             </a>
         </div>
     </div>
@@ -61,10 +61,10 @@
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="{{ url_for('issues.edit_issue', issue_id=issue.id) }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-edit"></i> Edit
+                                                <i class="bi bi-pencil-square"></i> Edit
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteIssueModal{{ issue.id }}">
-                                                <i class="fas fa-trash"></i> Delete
+                                                <i class="bi bi-trash"></i> Delete
                                             </button>
                                         </div>
                                         
