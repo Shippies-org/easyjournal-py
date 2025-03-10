@@ -33,8 +33,12 @@ from plugins.copyedit_plugin.models import CopyEdit, CopyEditComment
 logger = logging.getLogger(__name__)
 
 # Create a blueprint for the copy editing routes
+# Specify the absolute template folder path to ensure templates are found
+import os
+blueprint_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = os.path.join(blueprint_dir, 'templates')
 copyedit_bp = Blueprint('copyedit', __name__, url_prefix='/copyedit', 
-                       template_folder='templates')
+                       template_folder=template_dir)
 
 # Log output
 logger = logging.getLogger(__name__)
@@ -60,13 +64,22 @@ def index():
     # Editor or admin can see all copy editing assignments
     if current_user.is_editor() or current_user.is_admin():
         copyedits = CopyEdit.query.all()
+        
+        # Get submissions that have been accepted but not yet assigned to copyeditors
+        accepted_submissions = Submission.query.filter_by(status='accepted').all()
+        # Filter out submissions that already have copyedits assigned
+        assigned_submission_ids = db.session.query(CopyEdit.submission_id).all()
+        assigned_submission_ids = [s[0] for s in assigned_submission_ids]
+        submissions = [s for s in accepted_submissions if s.id not in assigned_submission_ids]
     else:
         # Other users only see their own assignments
         copyedits = CopyEdit.query.filter_by(copyeditor_id=current_user.id).all()
+        submissions = []
     
     return render_template('copyedit/dashboard.html', 
                           title='Copy Editing Dashboard',
-                          copyedits=copyedits)
+                          copyedits=copyedits,
+                          submissions=submissions)
 
 @copyedit_bp.route('/assign/<int:submission_id>', methods=['GET', 'POST'])
 @login_required
