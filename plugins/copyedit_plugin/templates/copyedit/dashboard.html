@@ -1,0 +1,74 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Copy Editing Dashboard | {{ g.site_name|default('EasyJournal') }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">Copy Editing Dashboard</h1>
+        
+        {% if current_user.is_editor() or current_user.is_admin() %}
+        <div>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0">Copy Editing Assignments</h2>
+        </div>
+        <div class="card-body">
+            {% if copyedits %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Article Title</th>
+                            <th>Copyeditor</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for copyedit in copyedits %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('main.article_detail', submission_id=copyedit.submission.id) }}">
+                                    {{ copyedit.submission.title }}
+                                </a>
+                            </td>
+                            <td>{{ copyedit.copyeditor.name }}</td>
+                            <td>
+                                {% if copyedit.status == 'assigned' %}
+                                <span class="badge bg-warning">Assigned</span>
+                                {% elif copyedit.status == 'in_progress' %}
+                                <span class="badge bg-info">In Progress</span>
+                                {% elif copyedit.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ copyedit.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <a href="{{ url_for('copyedit.view_copyedit', copyedit_id=copyedit.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-eye me-1"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                No copy editing assignments found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
