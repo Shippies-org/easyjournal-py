@@ -52,7 +52,7 @@ class JATSAPISettings(db.Model):
         settings = cls.query.first()
         if settings is None:
             settings = cls(
-                api_url='https://html-api-adam394.replit.app/',
+                api_url='https://html-api-adam394.replit.app/upload',
                 timeout=30
             )
             db.session.add(settings)
