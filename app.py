@@ -101,12 +101,14 @@ def create_app():
     from routes.submission import submission_bp
     from routes.review import review_bp
     from routes.admin import admin_bp
+    from routes.review_issues import issue_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(submission_bp)
     app.register_blueprint(review_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(issue_bp)
     
     # User loader for flask-login
     from models import User

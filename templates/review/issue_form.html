@@ -1,92 +1,149 @@
-{% extends 'review/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}{{ title }} - EasyJournal{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
-{% block review_content %}
-<div class="row mb-4">
-    <div class="col">
-        <h1 class="h3">{{ title }}</h1>
-        <p class="text-muted">{% if issue %}Update{% else %}Create a new{% endif %} journal issue</p>
-    </div>
-    <div class="col-auto">
-        <a href="{{ url_for('review.editor_issues') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-2"></i>Back to Issues
-        </a>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-body">
-        <form method="post" novalidate>
-            {{ form.hidden_tag() }}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary bg-gradient text-white">
+                    <h2 class="fs-5 mb-0">
+                        {% if issue %}
+                            <i class="fas fa-edit me-2"></i> Edit Issue
+                        {% else %}
+                            <i class="fas fa-plus me-2"></i> New Issue
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.volume.label(class="form-label") }}
+                                    {{ form.volume(class="form-control" + (" is-invalid" if form.volume.errors else ""), type="number", min="1") }}
+                                    {% if form.volume.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.volume.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Volume number (e.g., 1, 2, 3)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.issue_number.label(class="form-label") }}
+                                    {{ form.issue_number(class="form-control" + (" is-invalid" if form.issue_number.errors else ""), type="number", min="1") }}
+                                    {% if form.issue_number.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.issue_number.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Issue number within the volume (e.g., 1, 2, 3)</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Descriptive title for this issue (e.g., "Spring 2025", "Special Issue on Climate Science")</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows=5) }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Optional description or theme of this issue</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.status.label(class="form-label") }}
+                                    {{ form.status(class="form-select" + (" is-invalid" if form.status.errors else "")) }}
+                                    {% if form.status.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.status.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    {{ form.publication_date.label(class="form-label") }}
+                                    {{ form.publication_date(class="form-control" + (" is-invalid" if form.publication_date.errors else ""), type="date") }}
+                                    {% if form.publication_date.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.publication_date.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Optional. Set when the issue will be published.</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('issues.editor_issues') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Issues
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> 
+                                {% if issue %}
+                                    Update Issue
+                                {% else %}
+                                    Create Issue
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
             
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        {{ form.volume.label(class="form-label") }}
-                        {{ form.volume(class="form-control" + (" is-invalid" if form.volume.errors else "")) }}
-                        {% for error in form.volume.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">The volume number for this issue</div>
+            {% if issue %}
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-light">
+                        <h3 class="fs-6 mb-0">Issue Details</h3>
                     </div>
-                    
-                    <div class="form-group mb-3">
-                        {{ form.issue_number.label(class="form-label") }}
-                        {{ form.issue_number(class="form-control" + (" is-invalid" if form.issue_number.errors else "")) }}
-                        {% for error in form.issue_number.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">The issue number within this volume</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Created:</strong> {{ issue.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                <p><strong>Articles:</strong> {{ issue.publications.count() }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-0"><strong>Full Citation Format:</strong></p>
+                                <p class="font-monospace text-muted">{{ issue.title }}, Volume {{ issue.volume }}, Issue {{ issue.issue_number }}{% if issue.publication_date %}, {{ issue.publication_date.strftime('%B %Y') }}{% endif %}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        {{ form.status.label(class="form-label") }}
-                        {{ form.status(class="form-select" + (" is-invalid" if form.status.errors else "")) }}
-                        {% for error in form.status.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">Current status of this issue</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        {{ form.publication_date.label(class="form-label") }}
-                        {{ form.publication_date(class="form-control" + (" is-invalid" if form.publication_date.errors else ""), type="date") }}
-                        {% for error in form.publication_date.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">Optional publication date (leave blank if unknown)</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-group mb-3">
-                {{ form.title.label(class="form-label") }}
-                {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
-                {% for error in form.title.errors %}
-                    <div class="invalid-feedback">{{ error }}</div>
-                {% endfor %}
-                <div class="form-text">Title or theme of this issue (e.g., "Spring 2025" or "Special Issue on AI")</div>
-            </div>
-            
-            <div class="form-group mb-4">
-                {{ form.description.label(class="form-label") }}
-                {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows=5) }}
-                {% for error in form.description.errors %}
-                    <div class="invalid-feedback">{{ error }}</div>
-                {% endfor %}
-                <div class="form-text">Optional description of this issue's focus or contents</div>
-            </div>
-            
-            <div class="d-flex justify-content-end">
-                <a href="{{ url_for('review.editor_issues') }}" class="btn btn-outline-secondary me-2">Cancel</a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save me-2"></i>{{ 'Update' if issue else 'Create' }} Issue
-                </button>
-            </div>
-        </form>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

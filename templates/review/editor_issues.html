@@ -1,107 +1,146 @@
-{% extends 'review/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Issue Management - EasyJournal{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
-{% block review_content %}
-<div class="row mb-4">
-    <div class="col">
-        <h1 class="h3">Issue Management</h1>
-        <p class="text-muted">Create and manage journal issues</p>
-    </div>
-    <div class="col-auto">
-        <div class="btn-group">
-            <a href="{{ url_for('review.editor_dashboard') }}" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-book-open me-2"></i> Issue Management</h2>
+        <div>
+            <a href="{{ url_for('review.publishing_dashboard') }}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-arrow-left me-1"></i> Publishing Dashboard
             </a>
-            <a href="{{ url_for('review.new_issue') }}" class="btn btn-primary">
-                <i class="bi bi-journal-plus me-2"></i>Create New Issue
+            <a href="{{ url_for('issues.new_issue') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> New Issue
             </a>
         </div>
     </div>
-</div>
-
-<div class="card">
-    <div class="card-body">
-        {% if issues %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Volume/Issue</th>
-                            <th>Status</th>
-                            <th>Publication Date</th>
-                            <th>Article Count</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for issue in issues %}
+    
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary bg-gradient text-white">
+            <h3 class="fs-5 mb-0">All Journal Issues</h3>
+        </div>
+        <div class="card-body">
+            {% if issues %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
                             <tr>
-                                <td>{{ issue.title }}</td>
-                                <td>Vol. {{ issue.volume }}, No. {{ issue.issue_number }}</td>
-                                <td>
-                                    <span class="badge rounded-pill bg-{{ 'success' if issue.status == 'published' else 'warning' if issue.status == 'in_progress' else 'secondary' }}">
-                                        {{ issue.status|replace('_', ' ')|title }}
-                                    </span>
-                                </td>
-                                <td>{{ issue.publication_date.strftime('%Y-%m-%d') if issue.publication_date else 'TBD' }}</td>
-                                <td>{{ issue.publications.count() }}</td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('review.edit_issue', issue_id=issue.id) }}" class="btn btn-outline-primary">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteIssueModal{{ issue.id }}">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                    
-                                    <!-- Delete Confirmation Modal -->
-                                    <div class="modal fade" id="deleteIssueModal{{ issue.id }}" tabindex="-1" aria-labelledby="deleteIssueModalLabel{{ issue.id }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteIssueModalLabel{{ issue.id }}">Confirm Deletion</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p>Are you sure you want to delete the issue "{{ issue.title }}"?</p>
-                                                    <p class="text-danger">This action cannot be undone.</p>
-                                                    {% if issue.publications.count() > 0 %}
-                                                        <div class="alert alert-warning">
-                                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                                            Warning: This issue contains {{ issue.publications.count() }} article(s). Deleting it will remove all associated publications.
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    <form action="{{ url_for('review.delete_issue', issue_id=issue.id) }}" method="POST" class="d-inline">
-                                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                                    </form>
+                                <th>Vol.</th>
+                                <th>Issue</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Publication Date</th>
+                                <th>Articles</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for issue in issues %}
+                                <tr>
+                                    <td>{{ issue.volume }}</td>
+                                    <td>{{ issue.issue_number }}</td>
+                                    <td>{{ issue.title }}</td>
+                                    <td>
+                                        {% if issue.status == 'planned' %}
+                                            <span class="badge bg-info">Planned</span>
+                                        {% elif issue.status == 'in_progress' %}
+                                            <span class="badge bg-warning">In Progress</span>
+                                        {% elif issue.status == 'published' %}
+                                            <span class="badge bg-success">Published</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if issue.publication_date %}
+                                            {{ issue.publication_date.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            Not set
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ issue.publications.count() }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('issues.edit_issue', issue_id=issue.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteIssueModal{{ issue.id }}">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteIssueModal{{ issue.id }}" tabindex="-1" aria-labelledby="deleteIssueModalLabel{{ issue.id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title" id="deleteIssueModalLabel{{ issue.id }}">Confirm Deletion</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete Issue <strong>{{ issue.volume }}.{{ issue.issue_number }} - {{ issue.title }}</strong>?</p>
+                                                        {% if issue.publications.count() > 0 %}
+                                                            <div class="alert alert-warning">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i> This issue contains {{ issue.publications.count() }} article(s). Deleting this issue will remove all article associations.
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form action="{{ url_for('issues.delete_issue', issue_id=issue.id) }}" method="post">
+                                                            <button type="submit" class="btn btn-danger">Delete Issue</button>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div class="text-center py-4">
-                <div class="mb-3">
-                    <i class="bi bi-journals" style="font-size: 3rem;"></i>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <h3>No Issues Created</h3>
-                <p class="text-muted">You haven't created any journal issues yet.</p>
-                <a href="{{ url_for('review.new_issue') }}" class="btn btn-primary mt-2">
-                    <i class="bi bi-journal-plus me-2"></i>Create First Issue
-                </a>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> No issues have been created yet.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-secondary bg-gradient text-white">
+            <h3 class="fs-5 mb-0">Issue Management Guide</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="fs-6">Issue Status</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex align-items-center">
+                            <span class="badge bg-info me-2">Planned</span>
+                            Issue is being planned, articles can be assigned
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <span class="badge bg-warning me-2">In Progress</span>
+                            Issue is being prepared for publication
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <span class="badge bg-success me-2">Published</span>
+                            Issue has been published and is visible to readers
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="fs-6">Workflow Tips</h4>
+                    <ol>
+                        <li>Create a new issue with volume and issue number</li>
+                        <li>Assign accepted articles to the issue from the Publishing Dashboard</li>
+                        <li>Update issue status to "In Progress" when building the issue</li>
+                        <li>Set publication date and change status to "Published" when ready</li>
+                    </ol>
+                </div>
             </div>
-        {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
