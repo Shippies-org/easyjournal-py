@@ -195,11 +195,15 @@ def generate_xml(submission_id):
         
         return redirect(url_for('jats.index'))
     
+    # Get API settings
+    api_settings = JATSAPISettings.get_settings()
+    
     return render_template(
         'jats/generate.html',
         title='Generate JATS XML',
         submission=submission,
-        xml_record=xml_record
+        xml_record=xml_record,
+        api_settings=api_settings
     )
 
 
