@@ -99,12 +99,12 @@
                                 <i class="bi bi-arrow-return-left"></i>
                             </a>
                             
-                            <!-- Dropdown for issue assignment -->
-                            <div class="btn-group btn-group-sm">
-                                <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Assign to Issue">
-                                    <i class="bi bi-journal-plus"></i>
+                            <!-- Assign to Issue button -->
+                            <div class="btn-group btn-group-sm dropend">
+                                <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Assign to Issue">
+                                    <i class="bi bi-journal-plus"></i> Assign to Issue
                                 </button>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1050;">
                                     {% if available_issues %}
                                         {% for issue in available_issues %}
                                         <li>
@@ -164,7 +164,7 @@
                             <a href="{{ url_for('review.view_submission_for_review', submission_id=publication.submission.id) }}" class="btn btn-outline-primary" title="View Details">
                                 <i class="bi bi-eye"></i>
                             </a>
-                            <a href="{{ url_for('review.publish_article', publication_id=publication.id) }}" class="btn btn-outline-success" title="Publish Article">
+                            <a href="{{ url_for('review.publish_article', publication_id=publication.id) }}" class="btn btn-success" title="Publish Article">
                                 <i class="bi bi-journal-arrow-up"></i> Publish
                             </a>
                         </div>
@@ -262,7 +262,7 @@
                             <a href="{{ url_for('review.view_submission_for_review', submission_id=publication.submission.id) }}" class="btn btn-outline-primary" title="View Details">
                                 <i class="bi bi-eye"></i>
                             </a>
-                            <a href="{{ url_for('review.publish_article', publication_id=publication.id) }}" class="btn btn-outline-success" title="Re-publish Article">
+                            <a href="{{ url_for('review.publish_article', publication_id=publication.id) }}" class="btn btn-success" title="Re-publish Article">
                                 <i class="bi bi-journal-arrow-up"></i> Re-publish
                             </a>
                         </div>
