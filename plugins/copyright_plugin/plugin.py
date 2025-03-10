@@ -176,6 +176,7 @@ def add_navigation_items(args):
 
 def seed_license_types():
     """Seed database with common license types if they don't exist."""
+    from flask import current_app
     from app import db
     from plugins.copyright_plugin.models import LicenseType
     
@@ -229,11 +230,12 @@ def register_plugin():
     Register this plugin with the plugin system.
     This function is called when the plugin is loaded.
     """
-    # Import app here to avoid circular imports
-    from app import app, db
+    # Import current_app instead of app to avoid circular imports
+    from flask import current_app
+    from app import db
     
     # Register the blueprint
-    app.register_blueprint(bp)
+    current_app.register_blueprint(bp)
     
     # Register hooks
     PluginSystem.register_hook('getFooterContent', add_footer_content, 10, 'copyright_plugin')
@@ -241,9 +243,9 @@ def register_plugin():
     PluginSystem.register_hook('getNavItems', add_navigation_items, 10, 'copyright_plugin')
     
     # Create database tables
-    with app.app_context():
+    with current_app.app_context():
         db.create_all()
         seed_license_types()
     
     # Log that the plugin has been registered
-    app.logger.info("Copyright plugin registered")
+    current_app.logger.info("Copyright plugin registered")
