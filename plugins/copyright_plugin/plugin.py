@@ -12,10 +12,8 @@ from werkzeug.utils import secure_filename
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort, current_app
 from flask_login import login_required, current_user
 
-from app import db
-from models import Submission
+from flask import current_app
 from plugin_system import PluginSystem
-from plugins.copyright_plugin.models import Copyright, LicenseType
 
 # Create a blueprint for the copyright plugin
 bp = Blueprint('copyright', __name__, url_prefix='/copyright')
@@ -35,6 +33,7 @@ def index():
         abort(403)
     
     # Get license types and recent copyright records
+    from plugins.copyright_plugin.models import Copyright, LicenseType
     licenses = LicenseType.query.all()
     recent_records = Copyright.query.order_by(Copyright.updated_at.desc()).limit(5).all()
     
@@ -59,6 +58,7 @@ def edit_license(license_id):
     if not current_user.is_admin():
         abort(403)
     
+    from plugins.copyright_plugin.models import LicenseType
     license_type = LicenseType.query.get_or_404(license_id)
     # Form handling would go here
     return render_template('copyright/edit_license.html', license=license_type)
@@ -70,6 +70,7 @@ def view_record(record_id):
     if not (current_user.is_admin() or current_user.is_editor()):
         abort(403)
     
+    from plugins.copyright_plugin.models import Copyright
     record = Copyright.query.get_or_404(record_id)
     return render_template('copyright/view_record.html', record=record)
 
@@ -80,6 +81,7 @@ def assign_copyright(submission_id):
     if not (current_user.is_admin() or current_user.is_editor()):
         abort(403)
     
+    from models import Submission
     submission = Submission.query.get_or_404(submission_id)
     # Form handling would go here
     return render_template('copyright/assign_copyright.html', submission=submission)
@@ -114,6 +116,8 @@ def add_article_copyright_info(args):
     """
     if not args.get('submission'):
         return args
+    
+    from plugins.copyright_plugin.models import Copyright
     
     submission = args.get('submission')
     content = args.get('content', '')
@@ -172,6 +176,9 @@ def add_navigation_items(args):
 
 def seed_license_types():
     """Seed database with common license types if they don't exist."""
+    from app import db
+    from plugins.copyright_plugin.models import LicenseType
+    
     licenses = [
         {
             'name': 'Creative Commons Attribution 4.0',
@@ -223,7 +230,7 @@ def register_plugin():
     This function is called when the plugin is loaded.
     """
     # Import app here to avoid circular imports
-    from app import app
+    from app import app, db
     
     # Register the blueprint
     app.register_blueprint(bp)

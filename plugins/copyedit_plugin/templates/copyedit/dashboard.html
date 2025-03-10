@@ -1,74 +1,103 @@
-{% extends 'layouts/base.html' %}
+{% extends "layouts/base.html" %}
 
-{% block title %}Copy Editing Dashboard | {{ g.site_name|default('EasyJournal') }}{% endblock %}
+{% block title %}Copy Editing{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 mb-0">Copy Editing Dashboard</h1>
-        
-        {% if current_user.is_editor() or current_user.is_admin() %}
-        <div>
-            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary me-2">
-                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
-            </a>
+<div class="container py-4">
+    <h1 class="mb-4">Copy Editing Dashboard</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Copy Editing Information</h5>
+                </div>
+                <div class="card-body">
+                    <p>The copy editing process ensures that articles meet the journal's standards for clarity, grammar, and formatting before publication.</p>
+                    
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Copy Editor Responsibilities</h5>
+                        <ul>
+                            <li>Check for grammar, spelling, and punctuation</li>
+                            <li>Ensure consistent formatting and style</li>
+                            <li>Verify that references follow the journal's citation style</li>
+                            <li>Improve clarity and readability without changing meaning</li>
+                            <li>Communicate with authors about necessary changes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endif %}
     </div>
     
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h2 class="h5 mb-0">Copy Editing Assignments</h2>
-        </div>
-        <div class="card-body">
-            {% if copyedits %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Article Title</th>
-                            <th>Copyeditor</th>
-                            <th>Status</th>
-                            <th>Last Updated</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">My Copy Editing Assignments</h5>
+                </div>
+                <div class="card-body">
+                    {% if copyedits %}
+                    <div class="list-group">
                         {% for copyedit in copyedits %}
-                        <tr>
-                            <td>
-                                <a href="{{ url_for('main.article_detail', submission_id=copyedit.submission.id) }}">
-                                    {{ copyedit.submission.title }}
-                                </a>
-                            </td>
-                            <td>{{ copyedit.copyeditor.name }}</td>
-                            <td>
-                                {% if copyedit.status == 'assigned' %}
-                                <span class="badge bg-warning">Assigned</span>
-                                {% elif copyedit.status == 'in_progress' %}
-                                <span class="badge bg-info">In Progress</span>
-                                {% elif copyedit.status == 'completed' %}
-                                <span class="badge bg-success">Completed</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ copyedit.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>
-                                <a href="{{ url_for('copyedit.view_copyedit', copyedit_id=copyedit.id) }}" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-eye me-1"></i> View
-                                </a>
-                            </td>
-                        </tr>
+                        <a href="{{ url_for('copyedit.view_copyedit', copyedit_id=copyedit.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ copyedit.submission.title }}</h6>
+                                <small>
+                                    {% if copyedit.status == 'assigned' %}
+                                    <span class="badge bg-warning">Assigned</span>
+                                    {% elif copyedit.status == 'in_progress' %}
+                                    <span class="badge bg-info">In Progress</span>
+                                    {% elif copyedit.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <p class="mb-1">Authors: {{ copyedit.submission.authors }}</p>
+                            <small>Assigned: {{ copyedit.created_at.strftime('%Y-%m-%d') }}</small>
+                        </a>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-light">
+                        <p class="mb-0">You have no copy editing assignments.</p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            {% else %}
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                No copy editing assignments found.
-            </div>
-            {% endif %}
         </div>
+        
+        {% if current_user.is_admin() or current_user.is_editor() %}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Submissions Ready for Copy Editing</h5>
+                </div>
+                <div class="card-body">
+                    {% if submissions %}
+                    <div class="list-group">
+                        {% for submission in submissions %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ submission.title }}</h6>
+                                <small>Submitted: {{ submission.submitted_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <p class="mb-1">Authors: {{ submission.authors }}</p>
+                            <a href="{{ url_for('copyedit.assign_copyeditor', submission_id=submission.id) }}" class="btn btn-sm btn-primary mt-2">
+                                <i class="bi bi-person-plus-fill"></i> Assign Copy Editor
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-light">
+                        <p class="mb-0">No submissions are currently ready for copy editing.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
