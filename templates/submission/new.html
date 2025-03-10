@@ -1,0 +1,150 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}New Submission - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">
+                    <i class="bi bi-file-earmark-plus me-2"></i>
+                    New Submission
+                </h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        All fields marked with * are required. Please carefully review your submission before submitting it.
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }} *
+                        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.authors.label(class="form-label") }} *
+                        {{ form.authors(class="form-control" + (" is-invalid" if form.authors.errors else "")) }}
+                        {% if form.authors.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.authors.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                List all authors in the order they should appear, separated by commas.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.abstract.label(class="form-label") }} *
+                        {{ form.abstract(class="form-control" + (" is-invalid" if form.abstract.errors else ""), rows=5) }}
+                        {% if form.abstract.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.abstract.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                A concise summary of your article (100-2000 characters).
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.keywords.label(class="form-label") }}
+                        {{ form.keywords(class="form-control" + (" is-invalid" if form.keywords.errors else "")) }}
+                        {% if form.keywords.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.keywords.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                5-8 keywords that describe your article's topic, separated by commas.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.category.label(class="form-label") }} *
+                        {{ form.category(class="form-select" + (" is-invalid" if form.category.errors else "")) }}
+                        {% if form.category.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.category.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.file.label(class="form-label") }} *
+                        {{ form.file(class="form-control" + (" is-invalid" if form.file.errors else "")) }}
+                        {% if form.file.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.file.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                Accepted file formats: PDF, DOC, DOCX, TXT, RTF. Maximum file size: 16MB.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.cover_letter.label(class="form-label") }}
+                        {{ form.cover_letter(class="form-control" + (" is-invalid" if form.cover_letter.errors else ""), rows=5) }}
+                        {% if form.cover_letter.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.cover_letter.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                Optional. A letter to the editor explaining why your article is suitable for publication.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="confirmCheck" required>
+                            <label class="form-check-label" for="confirmCheck">
+                                I confirm that this submission is original, has not been published elsewhere, and is not under consideration by another journal.
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('submission.author_dashboard') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i> Submit Article
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

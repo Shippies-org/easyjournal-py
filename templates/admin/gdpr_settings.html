@@ -1,0 +1,200 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_content %}
+<div class="container mt-4">
+    <h1 class="mb-4">GDPR Compliance Settings</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <!-- GDPR Consent Settings Form -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">GDPR Consent and Privacy Settings</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.gdpr_settings') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="form-group mb-3">
+                            {{ form.consent_text.label(class="form-label") }}
+                            {{ form.consent_text(class="form-control", rows=6) }}
+                            <small class="form-text text-muted">{{ form.consent_text.description }}</small>
+                            {% if form.consent_text.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.consent_text.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.privacy_policy.label(class="form-label") }}
+                            {{ form.privacy_policy(class="form-control", rows=12) }}
+                            <small class="form-text text-muted">{{ form.privacy_policy.description }}</small>
+                            {% if form.privacy_policy.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.privacy_policy.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            {{ form.require_existing_users_consent(class="form-check-input") }}
+                            {{ form.require_existing_users_consent.label(class="form-check-label") }}
+                            <div class="form-text">{{ form.require_existing_users_consent.description }}</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Consent Statistics -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">Consent Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="position-relative" style="width: 150px; height: 150px;">
+                            <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                <h2 class="mb-0">{{ consent_percentage }}%</h2>
+                                <small>Consented</small>
+                            </div>
+                            <canvas id="consentChart" width="150" height="150"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4>{{ consented_users }}</h4>
+                            <small class="text-muted">Consented Users</small>
+                        </div>
+                        <div class="col-6">
+                            <h4>{{ total_users }}</h4>
+                            <small class="text-muted">Total Users</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Export Tool -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Data Export Tool</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.export_user_data') }}">
+                        {{ data_export_form.hidden_tag() }}
+                        
+                        <div class="form-group mb-3">
+                            {{ data_export_form.email.label(class="form-label") }}
+                            {{ data_export_form.email(class="form-control") }}
+                            <small class="form-text text-muted">{{ data_export_form.email.description }}</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ data_export_form.notes.label(class="form-label") }}
+                            {{ data_export_form.notes(class="form-control", rows=3) }}
+                            <small class="form-text text-muted">{{ data_export_form.notes.description }}</small>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ data_export_form.submit(class="btn btn-info") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Data Deletion Tool -->
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Data Deletion Tool</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.delete_user_data') }}">
+                        {{ data_deletion_form.hidden_tag() }}
+                        
+                        <div class="form-group mb-3">
+                            {{ data_deletion_form.email.label(class="form-label") }}
+                            {{ data_deletion_form.email(class="form-control") }}
+                            <small class="form-text text-muted">{{ data_deletion_form.email.description }}</small>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ data_deletion_form.reason.label(class="form-label") }}
+                            {{ data_deletion_form.reason(class="form-control", rows=3) }}
+                            <small class="form-text text-muted">{{ data_deletion_form.reason.description }}</small>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            {{ data_deletion_form.confirmation(class="form-check-input") }}
+                            {{ data_deletion_form.confirmation.label(class="form-check-label") }}
+                            <div class="form-text">{{ data_deletion_form.confirmation.description }}</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ data_deletion_form.submit(class="btn btn-danger") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Consent chart
+        var ctx = document.getElementById('consentChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Consented', 'Not Consented'],
+                datasets: [{
+                    data: [{{ consented_users }}, {{ total_users - consented_users }}],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(220, 53, 69, 0.8)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                var value = context.raw || 0;
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                var percentage = Math.round((value / total) * 100);
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

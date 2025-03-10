@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="{{ g.system_theme or 'dark' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ g.site_name|default('EasyJournal') }} - Academic Publishing Platform{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('serve_css', filename='custom.css') }}" rel="stylesheet">
+    
+    <!-- Theme CSS -->
+    <link href="{{ url_for('serve_css', filename='themes.css') }}" rel="stylesheet">
+    
+    {% if g.override_theme and g.primary_color %}
+    <!-- Custom Brand Colors -->
+    <style>
+        :root {
+            {% if g.primary_color %}--bs-primary: {{ g.primary_color }};{% endif %}
+            {% if g.secondary_color %}--bs-secondary: {{ g.secondary_color }};{% endif %}
+            {% if g.accent_color %}--bs-success: {{ g.accent_color }};{% endif %}
+            
+            {% if g.primary_color %}
+            --bs-primary-rgb: {{ g.primary_color|replace('#', '')|regex_replace('(..)(..)(..)', '\\1, \\2, \\3')|regex_replace('([0-9a-f])([0-9a-f])', '\\1\\2')|int(base=16)|int_to_rgb }};
+            {% endif %}
+            
+            {% if g.secondary_color %}
+            --bs-secondary-rgb: {{ g.secondary_color|replace('#', '')|regex_replace('(..)(..)(..)', '\\1, \\2, \\3')|regex_replace('([0-9a-f])([0-9a-f])', '\\1\\2')|int(base=16)|int_to_rgb }};
+            {% endif %}
+            
+            {% if g.accent_color %}
+            --bs-success-rgb: {{ g.accent_color|replace('#', '')|regex_replace('(..)(..)(..)', '\\1, \\2, \\3')|regex_replace('([0-9a-f])([0-9a-f])', '\\1\\2')|int(base=16)|int_to_rgb }};
+            {% endif %}
+            
+            --bs-link-color: {{ g.primary_color or '#007bff' }};
+            --bs-link-hover-color: {{ g.accent_color or '#28a745' }};
+        }
+        
+        .bg-primary {
+            background-color: var(--bs-primary) !important;
+        }
+        
+        .bg-secondary {
+            background-color: var(--bs-secondary) !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+        
+        .btn-secondary {
+            background-color: var(--bs-secondary);
+            border-color: var(--bs-secondary);
+        }
+    </style>
+    {% endif %}
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                {% if g.logo_url and not g.use_logo_text == 'true' %}
+                    <img src="{{ g.logo_url }}" alt="{{ g.site_name|default('EasyJournal') }}" height="30">
+                {% elif g.use_logo_text == 'true' and g.logo_text %}
+                    {{ g.logo_text }}
+                {% else %}
+                    <i class="bi bi-journal-text me-2"></i>
+                    {{ g.site_name|default('EasyJournal') }}
+                {% endif %}
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.browse') }}">Browse Articles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.about') }}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin() %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Admin
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                    <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin.analytics', period='week') }}"><i class="bi bi-graph-up me-2"></i>Site Analytics</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin.users') }}">Manage Users</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin.issues') }}">Manage Issues</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin.plugins') }}">Manage Plugins</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin.branding_settings') }}"><i class="bi bi-brush me-2"></i>Branding & Content</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('admin.gdpr_settings') }}"><i class="bi bi-shield-lock me-2"></i>GDPR Settings</a></li>
+                                    <li class="dropdown-submenu">
+                                        <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-palette me-2"></i>System Theme
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item {% if g.system_theme == 'dark' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='dark') }}">Dark</a></li>
+                                            <li><a class="dropdown-item {% if g.system_theme == 'light' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='light') }}">Light</a></li>
+                                            <li><a class="dropdown-item {% if g.system_theme == 'journal' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='journal') }}">Journal</a></li>
+                                            <li><a class="dropdown-item {% if g.system_theme == 'modern' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='modern') }}">Modern</a></li>
+                                            <li><a class="dropdown-item {% if g.system_theme == 'elegant' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='elegant') }}">Elegant</a></li>
+                                            <li><a class="dropdown-item {% if g.system_theme == 'high-contrast' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='high-contrast') }}">High Contrast</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                        {% if current_user.is_editor() %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('review.editor_dashboard') }}">Editor Dashboard</a>
+                            </li>
+                        {% endif %}
+                        {% if current_user.is_reviewer() %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('review.reviewer_dashboard') }}">Reviews</a>
+                            </li>
+                        {% endif %}
+                        {% if current_user.is_author() %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="submissionDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Submissions
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="submissionDropdown">
+                                    <li><a class="dropdown-item" href="{{ url_for('submission.author_dashboard') }}">My Submissions</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('submission.new_submission') }}">New Submission</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin() %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-gear-fill me-1"></i>
+                                Admin
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin.analytics', period='week') }}"><i class="bi bi-graph-up me-2"></i>Site Analytics</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}">User Management</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin.issues') }}">Issue Management</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin.plugins') }}">Plugin Management</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin.branding_settings') }}"><i class="bi bi-brush me-2"></i>Branding & Content</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin.gdpr_settings') }}"><i class="bi bi-shield-lock me-2"></i>GDPR Settings</a></li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-palette me-2"></i>System Theme
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item {% if g.system_theme == 'dark' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='dark') }}">Dark</a></li>
+                                        <li><a class="dropdown-item {% if g.system_theme == 'light' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='light') }}">Light</a></li>
+                                        <li><a class="dropdown-item {% if g.system_theme == 'journal' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='journal') }}">Journal</a></li>
+                                        <li><a class="dropdown-item {% if g.system_theme == 'modern' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='modern') }}">Modern</a></li>
+                                        <li><a class="dropdown-item {% if g.system_theme == 'elegant' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='elegant') }}">Elegant</a></li>
+                                        <li><a class="dropdown-item {% if g.system_theme == 'high-contrast' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='high-contrast') }}">High Contrast</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle me-1"></i>
+                                {{ current_user.name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('main.profile') }}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container content-wrapper">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>{{ g.site_name|default('EasyJournal') }}</h5>
+                    <p class="text-muted small">{{ g.site_description|default('A comprehensive platform for academic publishing workflow management.') }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('main.about') }}" class="text-decoration-none text-muted">About</a></li>
+                        <li><a href="{{ url_for('main.contact') }}" class="text-decoration-none text-muted">Contact</a></li>
+                        <li><a href="{{ url_for('main.browse') }}" class="text-decoration-none text-muted">Browse Articles</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Legal</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-decoration-none text-muted">Terms of Service</a></li>
+                        <li><a href="{{ url_for('main.privacy_policy') }}" class="text-decoration-none text-muted">Privacy Policy</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-3 bg-secondary">
+            <div class="row">
+                <div class="col-md-6">
+                    <small class="text-muted">&copy; {{ now.year }} Adam Hyde. MIT Licensed.</small>
+                    <br>
+                    <small class="text-muted">
+                        <a href="https://github.com/Shippies-org/easyjournal" target="_blank" class="text-decoration-none text-muted">
+                            <i class="bi bi-github me-1"></i>GitHub Repository
+                        </a>
+                    </small>
+                </div>
+                <div class="col-md-6 text-end">
+                    {% if g.twitter_url %}<a href="{{ g.twitter_url }}" class="text-decoration-none text-muted me-3" target="_blank"><i class="bi bi-twitter"></i></a>{% endif %}
+                    {% if g.facebook_url %}<a href="{{ g.facebook_url }}" class="text-decoration-none text-muted me-3" target="_blank"><i class="bi bi-facebook"></i></a>{% endif %}
+                    {% if g.linkedin_url %}<a href="{{ g.linkedin_url }}" class="text-decoration-none text-muted" target="_blank"><i class="bi bi-linkedin"></i></a>{% endif %}
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    
+    <!-- Theme Selector JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle dropdown submenus
+            const dropdownItems = document.querySelectorAll('.dropdown-submenu > a.dropdown-toggle');
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    const submenu = this.nextElementSibling;
+                    const isOpen = submenu.classList.contains('show');
+                    
+                    // Close all open dropdowns
+                    document.querySelectorAll('.dropdown-submenu .dropdown-menu.show').forEach(menu => {
+                        if (menu !== submenu) {
+                            menu.classList.remove('show');
+                        }
+                    });
+                    
+                    // Toggle the clicked dropdown
+                    if (isOpen) {
+                        submenu.classList.remove('show');
+                    } else {
+                        submenu.classList.add('show');
+                    }
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown-submenu')) {
+                    document.querySelectorAll('.dropdown-submenu .dropdown-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+    
+    <!-- GDPR Consent Modal (Shown when g.show_consent_modal is true) -->
+    {% if current_user.is_authenticated and g.show_consent_modal is defined and g.show_consent_modal %}
+        {% include 'auth/consent_modal.html' %}
+    {% endif %}
+</body>
+</html>

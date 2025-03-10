@@ -1,0 +1,117 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}About - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5 mb-4">About EasyJournal</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Our Mission</h2>
+                <p class="lead">EasyJournal is dedicated to advancing knowledge and promoting scholarly communication through an accessible, transparent, and rigorous academic publishing platform.</p>
+                <p>Our mission is to streamline the academic publishing process while maintaining the highest standards of peer review and editorial integrity. We believe that research should be widely accessible, and we are committed to facilitating the efficient dissemination of scholarly work across disciplines.</p>
+                <p>EasyJournal serves as a bridge between researchers, reviewers, editors, and readers, creating a collaborative environment that fosters academic excellence and innovation.</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Open Source</h2>
+                <p>EasyJournal is proudly open source. Our codebase is available on GitHub and we welcome contributions from the community.</p>
+                <div class="mt-3">
+                    <a href="https://github.com/Shippies-org/easyjournal" target="_blank" class="btn btn-outline-primary">
+                        <i class="bi bi-github me-2"></i>View on GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Editorial Policies</h2>
+                <h5>Peer Review Process</h5>
+                <p>All submissions to EasyJournal undergo a rigorous peer review process:</p>
+                <ol>
+                    <li>Initial screening by editors for scope and basic quality</li>
+                    <li>Double-blind peer review by at least two subject matter experts</li>
+                    <li>Editorial decision based on reviewer recommendations</li>
+                    <li>Revisions and re-review as necessary</li>
+                    <li>Final decision and publication</li>
+                </ol>
+                
+                <h5>Publication Ethics</h5>
+                <p>EasyJournal adheres to the highest standards of publication ethics, including:</p>
+                <ul>
+                    <li>Original content free from plagiarism</li>
+                    <li>Proper attribution and citation of sources</li>
+                    <li>Disclosure of conflicts of interest</li>
+                    <li>Ethical research methodologies</li>
+                    <li>Transparency in reporting results</li>
+                </ul>
+                
+                <h5>Copyright and Licensing</h5>
+                <p>Authors retain copyright of their work while granting EasyJournal a license to publish and distribute the content. We support open access publication models and offer flexible licensing options.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Journal Information</h3>
+                <dl class="row">
+                    <dt class="col-sm-5">Established:</dt>
+                    <dd class="col-sm-7">2023</dd>
+                    
+                    <dt class="col-sm-5">Publication Frequency:</dt>
+                    <dd class="col-sm-7">Quarterly</dd>
+                    
+                    <dt class="col-sm-5">Open Access:</dt>
+                    <dd class="col-sm-7">Yes</dd>
+                    
+                    <dt class="col-sm-5">Indexed In:</dt>
+                    <dd class="col-sm-7">Google Scholar, CrossRef, DOAJ</dd>
+                    
+                    <dt class="col-sm-5">ISSN (Online):</dt>
+                    <dd class="col-sm-7">2023-XXXX</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Editorial Board</h3>
+                <h5>Editor-in-Chief</h5>
+                <p>Prof. Jane Smith<br>University of Excellence</p>
+                
+                <h5>Associate Editors</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">Dr. John Doe<br>Research Institute of Science</li>
+                    <li class="mb-2">Prof. Maria Garcia<br>National University</li>
+                    <li class="mb-2">Dr. Robert Johnson<br>International College</li>
+                    <li class="mb-2">Prof. Sarah Chen<br>Technical University</li>
+                </ul>
+                <a href="#" class="btn btn-outline-primary btn-sm mt-2">View Full Editorial Board</a>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body text-center py-4">
+                <h3 class="card-title mb-3">Join Our Community</h3>
+                <p class="mb-4">Interested in contributing as an author, reviewer, or editor?</p>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary mb-2">Register Now</a>
+                <div class="mt-3">
+                    <a href="#" class="btn btn-outline-secondary btn-sm me-2"><i class="bi bi-twitter me-1"></i>Follow</a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm"><i class="bi bi-envelope me-1"></i>Subscribe</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

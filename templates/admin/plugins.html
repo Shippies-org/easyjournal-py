@@ -1,0 +1,66 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Plugin Management</h1>
+    
+    {% if plugins %}
+        <p class="lead mb-4">
+            Manage settings for installed plugins. These settings control the behavior of plugins that extend the functionality of the system.
+        </p>
+        
+        <div class="row">
+            {% for plugin_name, settings in plugins.items() %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">{{ plugin_name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Setting</th>
+                                            <th>Value</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for setting in settings %}
+                                            <tr>
+                                                <td>{{ setting.setting_key }}</td>
+                                                <td>
+                                                    {% if setting.setting_value|length > 40 %}
+                                                        {{ setting.setting_value[:40] }}...
+                                                    {% else %}
+                                                        {{ setting.setting_value }}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <a href="{{ url_for('admin.edit_plugin_setting', setting_id=setting.id) }}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-pencil-fill"></i> Edit
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <h4 class="alert-heading">No plugins installed</h4>
+            <p>There are currently no plugins installed or no plugin settings available to manage.</p>
+            <hr>
+            <p class="mb-0">Plugins can be installed by placing them in the <code>plugins</code> directory and restarting the application.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

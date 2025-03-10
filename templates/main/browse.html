@@ -1,0 +1,176 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Browse Articles - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5 mb-4">Browse Articles</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-9">
+        <!-- Search and Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form class="row g-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search by title, author, keywords..." name="search">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="category">
+                            <option value="">All Categories</option>
+                            <option value="biology">Biology</option>
+                            <option value="chemistry">Chemistry</option>
+                            <option value="physics">Physics</option>
+                            <option value="mathematics">Mathematics</option>
+                            <option value="computer_science">Computer Science</option>
+                            <option value="engineering">Engineering</option>
+                            <option value="medicine">Medicine</option>
+                            <option value="social_sciences">Social Sciences</option>
+                            <option value="humanities">Humanities</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="sort">
+                            <option value="date_desc">Newest First</option>
+                            <option value="date_asc">Oldest First</option>
+                            <option value="title_asc">Title A-Z</option>
+                            <option value="title_desc">Title Z-A</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Articles List -->
+        {% if articles %}
+            <div class="list-group mb-4">
+                {% for article in articles %}
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between mb-2">
+                        <h5 class="mb-1">
+                            <a href="{{ url_for('main.article_detail', submission_id=article.id) }}" class="text-decoration-none">
+                                {{ article.title }}
+                            </a>
+                        </h5>
+                        <small class="text-muted">
+                            Vol. {{ article.publication.issue.volume }}, 
+                            Issue {{ article.publication.issue.issue_number }}
+                        </small>
+                    </div>
+                    <p class="mb-1"><strong>Authors:</strong> {{ article.authors }}</p>
+                    <p class="mb-1">{{ article.abstract | truncate(200) }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div>
+                            <span class="badge bg-secondary me-1">{{ article.category }}</span>
+                            {% if article.keywords %}
+                                {% for keyword in article.keywords.split(',') %}
+                                    <span class="badge bg-light text-dark me-1">{{ keyword.strip() }}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">Published: {{ article.publication.created_at.strftime('%b %d, %Y') }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if pagination and pagination.pages > 1 %}
+            <nav aria-label="Article pagination">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if pagination.page == 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('main.browse', page=pagination.page-1, **request.args) if pagination.page > 1 else '#' }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    
+                    {% for p in range(1, pagination.pages + 1) %}
+                        {% if p == pagination.page %}
+                            <li class="page-item active"><a class="page-link" href="#">{{ p }}</a></li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('main.browse', page=p, **request.args) }}">{{ p }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <li class="page-item {% if pagination.page == pagination.pages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('main.browse', page=pagination.page+1, **request.args) if pagination.page < pagination.pages else '#' }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i> No articles found matching your criteria. Try adjusting your search filters.
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-3">
+        <!-- Most Viewed Articles -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Most Viewed</h5>
+            </div>
+            <div class="card-body">
+                {% if popular_articles %}
+                    <div class="list-group list-group-flush">
+                        {% for article in popular_articles %}
+                        <a href="{{ url_for('main.article_detail', submission_id=article.id) }}" class="list-group-item list-group-item-action px-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ article.title | truncate(40) }}</h6>
+                            </div>
+                            <small class="text-muted">{{ article.authors | truncate(30) }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No data available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('main.browse', category='biology') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        Biology
+                        <span class="badge bg-primary rounded-pill">14</span>
+                    </a>
+                    <a href="{{ url_for('main.browse', category='chemistry') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        Chemistry
+                        <span class="badge bg-primary rounded-pill">8</span>
+                    </a>
+                    <a href="{{ url_for('main.browse', category='physics') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        Physics
+                        <span class="badge bg-primary rounded-pill">11</span>
+                    </a>
+                    <a href="{{ url_for('main.browse', category='computer_science') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        Computer Science
+                        <span class="badge bg-primary rounded-pill">22</span>
+                    </a>
+                    <a href="{{ url_for('main.browse', category='mathematics') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+                        Mathematics
+                        <span class="badge bg-primary rounded-pill">7</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

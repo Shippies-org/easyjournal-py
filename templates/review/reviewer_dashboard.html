@@ -1,0 +1,174 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Reviewer Dashboard - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">Reviewer Dashboard</h1>
+        <p class="text-muted">Review assigned manuscripts and provide feedback to authors</p>
+    </div>
+</div>
+
+<!-- Review Overview -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-warning h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Pending Reviews</h5>
+                <p class="display-4 mb-0">{{ pending_reviews|length }}</p>
+                <p class="text-muted">Waiting for your feedback</p>
+            </div>
+            <div class="card-footer bg-warning text-center">
+                <i class="bi bi-hourglass-split me-1"></i> Needs Attention
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-success h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Completed Reviews</h5>
+                <p class="display-4 mb-0">{{ completed_reviews|length }}</p>
+                <p class="text-muted">Your contribution to science</p>
+            </div>
+            <div class="card-footer bg-success text-white text-center">
+                <i class="bi bi-check-circle me-1"></i> Well Done!
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Reviews Section -->
+{% if pending_reviews %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Pending Reviews</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Assigned</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in pending_reviews %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=review.submission_id) }}" class="text-decoration-none">
+                            {{ review.submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ review.submission.category|replace('_', ' ')|title }}</td>
+                    <td>{{ review.assigned_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if review.is_overdue() %}
+                            <span class="text-danger font-weight-bold">
+                                {{ review.due_date.strftime('%Y-%m-%d') }} (Overdue)
+                            </span>
+                        {% else %}
+                            {{ review.due_date.strftime('%Y-%m-%d') }}
+                            {% set days_left = (review.due_date - now()).days %}
+                            {% if days_left <= 7 %}
+                                <span class="badge bg-warning">{{ days_left }} days left</span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if review.is_overdue() %}
+                            <span class="badge bg-danger">Overdue</span>
+                        {% else %}
+                            <span class="badge bg-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=review.submission_id) }}" class="btn btn-outline-primary" title="View Manuscript">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('review.complete_review', review_id=review.id) }}" class="btn btn-outline-success" title="Complete Review">
+                                <i class="bi bi-check-square"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Completed Reviews Section -->
+{% if completed_reviews %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Completed Reviews</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Completed</th>
+                    <th>Your Recommendation</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in completed_reviews %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=review.submission_id) }}" class="text-decoration-none">
+                            {{ review.submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ review.submission.category|replace('_', ' ')|title }}</td>
+                    <td>{{ review.completed_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if review.decision == 'accept' %}
+                            <span class="badge bg-success">Accept</span>
+                        {% elif review.decision == 'minor_revisions' %}
+                            <span class="badge bg-info">Minor Revisions</span>
+                        {% elif review.decision == 'major_revisions' %}
+                            <span class="badge bg-warning">Major Revisions</span>
+                        {% elif review.decision == 'reject' %}
+                            <span class="badge bg-danger">Reject</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ review.decision|replace('_', ' ')|title }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=review.submission_id) }}" class="btn btn-outline-primary" title="View Manuscript">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- No Reviews Message -->
+{% if not pending_reviews and not completed_reviews %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <div class="mb-3">
+            <i class="bi bi-journal-text" style="font-size: 3rem;"></i>
+        </div>
+        <h3>No Reviews Assigned</h3>
+        <p class="text-muted">You don't have any review assignments at this time.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

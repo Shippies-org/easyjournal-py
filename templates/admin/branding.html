@@ -1,0 +1,646 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Branding Settings - Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-colorpicker@3.4.0/dist/css/bootstrap-colorpicker.min.css">
+<style>
+    .color-preview {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        vertical-align: middle;
+        margin-right: 10px;
+    }
+    
+    .tab-content {
+        background-color: var(--bs-body-bg);
+        border-left: 1px solid var(--bs-border-color);
+        border-right: 1px solid var(--bs-border-color);
+        border-bottom: 1px solid var(--bs-border-color);
+        border-bottom-left-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+        padding: 1.5rem;
+    }
+    
+    .nav-tabs .nav-link {
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+    }
+    
+    .current-logo, .current-banner {
+        max-height: 150px;
+        max-width: 100%;
+        margin-bottom: 15px;
+        border: 1px solid var(--bs-border-color);
+        padding: 10px;
+        border-radius: 4px;
+    }
+    
+    /* Banner Preview Styles */
+    .banner-preview-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .banner-preview {
+        width: 100%;
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+    
+    .banner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    
+    .banner-overlay h2 {
+        font-size: 1.75rem;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        margin-bottom: 0.5rem;
+    }
+    
+    .banner-overlay p {
+        font-size: 1rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        max-width: 80%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Journal Branding & Settings</h1>
+            <p class="lead">Customize your journal's appearance, content, and policies.</p>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="brandingTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="branding-tab" data-bs-toggle="tab" data-bs-target="#branding" type="button" role="tab" aria-controls="branding" aria-selected="true">
+                                <i class="bi bi-palette me-2"></i>Branding & Appearance
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="content-tab" data-bs-toggle="tab" data-bs-target="#content" type="button" role="tab" aria-controls="content" aria-selected="false">
+                                <i class="bi bi-file-text me-2"></i>Content & Policies
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-0">
+                    <div class="tab-content" id="brandingTabsContent">
+                        <!-- Branding & Appearance Tab -->
+                        <div class="tab-pane fade show active" id="branding" role="tabpanel" aria-labelledby="branding-tab">
+                            <form method="POST" action="{{ url_for('admin.branding_settings') }}" enctype="multipart/form-data">
+                                {{ branding_form.hidden_tag() }}
+                                
+                                <div class="mb-4">
+                                    <h5>Journal Identity</h5>
+                                    <hr>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            {{ branding_form.site_name.label(class="form-label") }}
+                                            {{ branding_form.site_name(class="form-control") }}
+                                            {% if branding_form.site_name.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in branding_form.site_name.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            {{ branding_form.site_description.label(class="form-label") }}
+                                            {{ branding_form.site_description(class="form-control", rows=3) }}
+                                            {% if branding_form.site_description.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in branding_form.site_description.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h5>Brand Colors</h5>
+                                    <hr>
+                                    
+                                    <div class="mb-3">
+                                        {{ branding_form.override_theme(class="form-check-input") }}
+                                        {{ branding_form.override_theme.label(class="form-check-label") }}
+                                        <small class="form-text text-muted d-block">
+                                            When enabled, the system theme will be replaced with these custom colors.
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <span class="color-preview primary-preview"></span>
+                                                </span>
+                                                {{ branding_form.primary_color.label(class="form-label") }}
+                                                {{ branding_form.primary_color(class="form-control colorpicker") }}
+                                            </div>
+                                            {% if branding_form.primary_color.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in branding_form.primary_color.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="form-text text-muted">{{ branding_form.primary_color.description }}</small>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <span class="color-preview secondary-preview"></span>
+                                                </span>
+                                                {{ branding_form.secondary_color.label(class="form-label") }}
+                                                {{ branding_form.secondary_color(class="form-control colorpicker") }}
+                                            </div>
+                                            {% if branding_form.secondary_color.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in branding_form.secondary_color.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="form-text text-muted">{{ branding_form.secondary_color.description }}</small>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <span class="color-preview accent-preview"></span>
+                                                </span>
+                                                {{ branding_form.accent_color.label(class="form-label") }}
+                                                {{ branding_form.accent_color(class="form-control colorpicker") }}
+                                            </div>
+                                            {% if branding_form.accent_color.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in branding_form.accent_color.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="form-text text-muted">{{ branding_form.accent_color.description }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h5>Logo</h5>
+                                    <hr>
+                                    
+                                    {% if logo_url %}
+                                        <div class="mb-3">
+                                            <p>Current Logo:</p>
+                                            <img src="{{ logo_url }}" alt="Current Logo" class="current-logo">
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="mb-3">
+                                        {{ branding_form.custom_logo.label(class="form-label") }}
+                                        {{ branding_form.custom_logo(class="form-control") }}
+                                        {% if branding_form.custom_logo.errors %}
+                                            <div class="text-danger">
+                                                {% for error in branding_form.custom_logo.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">Recommended size: 200x60px. SVG format is preferred for best quality.</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        {{ branding_form.use_logo_text(class="form-check-input") }}
+                                        {{ branding_form.use_logo_text.label(class="form-check-label") }}
+                                    </div>
+                                    
+                                    <div class="mb-3" id="logoTextField">
+                                        {{ branding_form.logo_text.label(class="form-label") }}
+                                        {{ branding_form.logo_text(class="form-control") }}
+                                        {% if branding_form.logo_text.errors %}
+                                            <div class="text-danger">
+                                                {% for error in branding_form.logo_text.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h5>Homepage Banner</h5>
+                                    <hr>
+                                    
+                                    {% if banner_url %}
+                                        <div class="mb-4">
+                                            <div class="card">
+                                                <div class="card-header">Current Banner Preview</div>
+                                                <div class="card-body p-0">
+                                                    <div class="banner-preview-container">
+                                                        <div class="banner-preview" style="background-image: url('{{ banner_url }}');">
+                                                            <div class="banner-overlay">
+                                                                <div class="text-center">
+                                                                    <h2 class="text-white">{{ branding_form.banner_title.data|default(branding_form.site_name.data, true) }}</h2>
+                                                                    <p class="text-white mb-0">{{ branding_form.banner_subtitle.data|default(branding_form.site_description.data, true) }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="mb-3">
+                                        {{ branding_form.banner_image.label(class="form-label") }}
+                                        {{ branding_form.banner_image(class="form-control", onchange="previewBanner(this)") }}
+                                        {% if branding_form.banner_image.errors %}
+                                            <div class="text-danger">
+                                                {% for error in branding_form.banner_image.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <div class="mt-2 p-2 bg-light rounded">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-info-circle text-primary me-2"></i>
+                                                <div>
+                                                    <strong>Optimal Banner Requirements:</strong>
+                                                    <ul class="mb-0 ps-3 mt-1">
+                                                        <li><strong>Recommended dimensions:</strong> 1920x600 pixels (16:5 aspect ratio)</li>
+                                                        <li><strong>Minimum width:</strong> 1200 pixels</li>
+                                                        <li><strong>File formats:</strong> JPG, PNG</li>
+                                                        <li><strong>File size:</strong> Less than 2MB</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- New Banner Preview for upload -->
+                                    <div id="bannerPreviewContainer" class="mb-4" style="display: none;">
+                                        <div class="card">
+                                            <div class="card-header">New Banner Preview</div>
+                                            <div class="card-body p-0">
+                                                <div class="banner-preview-container">
+                                                    <div id="bannerPreview" class="banner-preview">
+                                                        <div class="banner-overlay">
+                                                            <div class="text-center">
+                                                                <h2 class="text-white">{{ branding_form.banner_title.data|default(branding_form.site_name.data, true) }}</h2>
+                                                                <p class="text-white mb-0">{{ branding_form.banner_subtitle.data|default(branding_form.site_description.data, true) }}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            {{ branding_form.banner_title.label(class="form-label") }}
+                                            {{ branding_form.banner_title(class="form-control") }}
+                                            {% if branding_form.banner_title.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in branding_form.banner_title.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            {{ branding_form.banner_subtitle.label(class="form-label") }}
+                                            {{ branding_form.banner_subtitle(class="form-control") }}
+                                            {% if branding_form.banner_subtitle.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in branding_form.banner_subtitle.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    {{ branding_form.submit(class="btn btn-primary") }}
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Content & Policies Tab -->
+                        <div class="tab-pane fade" id="content" role="tabpanel" aria-labelledby="content-tab">
+                            <form method="POST" action="{{ url_for('admin.content_settings') }}">
+                                {{ content_form.hidden_tag() }}
+                                
+                                <div class="mb-4">
+                                    <h5>About Page Content</h5>
+                                    <hr>
+                                    
+                                    <div class="mb-3">
+                                        {{ content_form.about_content.label(class="form-label") }}
+                                        {{ content_form.about_content(class="form-control", rows=6) }}
+                                        {% if content_form.about_content.errors %}
+                                            <div class="text-danger">
+                                                {% for error in content_form.about_content.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">This content will be displayed on the About page. HTML is supported.</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h5>Policies & Guidelines</h5>
+                                    <hr>
+                                    
+                                    <div class="mb-3">
+                                        {{ content_form.submission_guidelines.label(class="form-label") }}
+                                        {{ content_form.submission_guidelines(class="form-control", rows=6) }}
+                                        {% if content_form.submission_guidelines.errors %}
+                                            <div class="text-danger">
+                                                {% for error in content_form.submission_guidelines.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        {{ content_form.review_policy.label(class="form-label") }}
+                                        {{ content_form.review_policy(class="form-control", rows=6) }}
+                                        {% if content_form.review_policy.errors %}
+                                            <div class="text-danger">
+                                                {% for error in content_form.review_policy.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        {{ content_form.ethics_policy.label(class="form-label") }}
+                                        {{ content_form.ethics_policy(class="form-control", rows=6) }}
+                                        {% if content_form.ethics_policy.errors %}
+                                            <div class="text-danger">
+                                                {% for error in content_form.ethics_policy.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        {{ content_form.author_guidelines.label(class="form-label") }}
+                                        {{ content_form.author_guidelines(class="form-control", rows=6) }}
+                                        {% if content_form.author_guidelines.errors %}
+                                            <div class="text-danger">
+                                                {% for error in content_form.author_guidelines.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h5>Contact Information</h5>
+                                    <hr>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            {{ content_form.contact_email.label(class="form-label") }}
+                                            {{ content_form.contact_email(class="form-control") }}
+                                            {% if content_form.contact_email.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in content_form.contact_email.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            {{ content_form.contact_phone.label(class="form-label") }}
+                                            {{ content_form.contact_phone(class="form-control") }}
+                                            {% if content_form.contact_phone.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in content_form.contact_phone.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        {{ content_form.contact_address.label(class="form-label") }}
+                                        {{ content_form.contact_address(class="form-control", rows=3) }}
+                                        {% if content_form.contact_address.errors %}
+                                            <div class="text-danger">
+                                                {% for error in content_form.contact_address.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <h5>Social Media</h5>
+                                    <hr>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            {{ content_form.twitter_url.label(class="form-label") }}
+                                            {{ content_form.twitter_url(class="form-control") }}
+                                            {% if content_form.twitter_url.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in content_form.twitter_url.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            {{ content_form.facebook_url.label(class="form-label") }}
+                                            {{ content_form.facebook_url(class="form-control") }}
+                                            {% if content_form.facebook_url.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in content_form.facebook_url.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            {{ content_form.linkedin_url.label(class="form-label") }}
+                                            {{ content_form.linkedin_url(class="form-control") }}
+                                            {% if content_form.linkedin_url.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in content_form.linkedin_url.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    {{ content_form.submit(class="btn btn-primary") }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-colorpicker@3.4.0/dist/js/bootstrap-colorpicker.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize color pickers
+        $('.colorpicker').each(function() {
+            $(this).colorpicker({
+                format: 'hex'
+            }).on('colorpickerChange', function(e) {
+                const input = e.target;
+                const color = e.color.toString();
+                
+                if (input.id === 'primary_color') {
+                    $('.primary-preview').css('background-color', color);
+                } else if (input.id === 'secondary_color') {
+                    $('.secondary-preview').css('background-color', color);
+                } else if (input.id === 'accent_color') {
+                    $('.accent-preview').css('background-color', color);
+                }
+            });
+            
+            // Set initial preview colors
+            const input = $(this);
+            if (input.attr('id') === 'primary_color') {
+                $('.primary-preview').css('background-color', input.val() || '#007bff');
+            } else if (input.attr('id') === 'secondary_color') {
+                $('.secondary-preview').css('background-color', input.val() || '#6c757d');
+            } else if (input.attr('id') === 'accent_color') {
+                $('.accent-preview').css('background-color', input.val() || '#28a745');
+            }
+        });
+        
+        // Toggle logo text field based on checkbox
+        const useLogoTextCheckbox = document.getElementById('use_logo_text');
+        const logoTextField = document.getElementById('logoTextField');
+        
+        function toggleLogoTextField() {
+            if (useLogoTextCheckbox.checked) {
+                logoTextField.style.display = 'block';
+            } else {
+                logoTextField.style.display = 'none';
+            }
+        }
+        
+        useLogoTextCheckbox.addEventListener('change', toggleLogoTextField);
+        toggleLogoTextField(); // Initial state
+        
+        // Banner title and subtitle dynamic update
+        const bannerTitleInput = document.getElementById('banner_title');
+        const bannerSubtitleInput = document.getElementById('banner_subtitle');
+        const siteNameInput = document.getElementById('site_name');
+        const siteDescriptionInput = document.getElementById('site_description');
+        
+        if (bannerTitleInput) {
+            bannerTitleInput.addEventListener('input', function() {
+                document.querySelectorAll('.banner-overlay h2').forEach(el => {
+                    el.textContent = this.value || (siteNameInput ? siteNameInput.value : '');
+                });
+            });
+        }
+        
+        if (bannerSubtitleInput) {
+            bannerSubtitleInput.addEventListener('input', function() {
+                document.querySelectorAll('.banner-overlay p').forEach(el => {
+                    el.textContent = this.value || (siteDescriptionInput ? siteDescriptionInput.value : '');
+                });
+            });
+        }
+        
+        // Initialize banner titles from site name/description if blank
+        if (siteNameInput) {
+            siteNameInput.addEventListener('input', function() {
+                if (!bannerTitleInput || !bannerTitleInput.value) {
+                    document.querySelectorAll('.banner-overlay h2').forEach(el => {
+                        el.textContent = this.value;
+                    });
+                }
+            });
+        }
+        
+        if (siteDescriptionInput) {
+            siteDescriptionInput.addEventListener('input', function() {
+                if (!bannerSubtitleInput || !bannerSubtitleInput.value) {
+                    document.querySelectorAll('.banner-overlay p').forEach(el => {
+                        el.textContent = this.value;
+                    });
+                }
+            });
+        }
+    });
+    
+    // Function to preview banner image when selected
+    function previewBanner(input) {
+        const previewContainer = document.getElementById('bannerPreviewContainer');
+        const preview = document.getElementById('bannerPreview');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.style.backgroundImage = 'url(' + e.target.result + ')';
+                previewContainer.style.display = 'block';
+                
+                // Scroll to preview
+                setTimeout(() => {
+                    previewContainer.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }, 100);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

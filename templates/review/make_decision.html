@@ -1,0 +1,226 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Editorial Decision - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('review.editor_dashboard') }}">Editor Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}">View Submission</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Make Decision</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h1 class="h3 mb-0">Submission Details</h1>
+    </div>
+    <div class="card-body">
+        <h2 class="h4 mb-3">{{ submission.title }}</h2>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Authors:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ submission.authors }}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Category:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ submission.category|replace('_', ' ')|title }}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Submitted by:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ submission.author.name }} from {{ submission.author.institution }}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Submitted on:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ submission.submitted_at.strftime('%Y-%m-%d') }}
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="alert alert-info mb-0 flex-grow-1">
+                <i class="bi bi-info-circle me-2"></i>
+                Based on peer reviews, provide your editorial decision below
+            </div>
+            <div class="ms-3">
+                <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-primary">
+                    <i class="bi bi-file-text me-1"></i> View Full Submission
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reviewer Recommendations Summary -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Reviewer Recommendations</h2>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Reviewer</th>
+                        <th>Institution</th>
+                        <th>Completed</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in completed_reviews %}
+                    <tr>
+                        <td>{{ review.reviewer.name }}</td>
+                        <td>{{ review.reviewer.institution }}</td>
+                        <td>{{ review.completed_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if review.decision == 'accept' %}
+                                <span class="badge bg-success">Accept</span>
+                            {% elif review.decision == 'minor_revisions' %}
+                                <span class="badge bg-info">Minor Revisions</span>
+                            {% elif review.decision == 'major_revisions' %}
+                                <span class="badge bg-warning">Major Revisions</span>
+                            {% elif review.decision == 'reject' %}
+                                <span class="badge bg-danger">Reject</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ review.decision|replace('_', ' ')|title }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Decision Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Your Decision</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('review.make_decision', submission_id=submission.id) }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-4">
+                <label for="decision" class="form-label">Decision <span class="text-danger">*</span></label>
+                <small class="text-muted d-block mb-2">
+                    Choose your editorial decision for this manuscript.
+                </small>
+                {{ form.decision(class="form-select", id="decision") }}
+                {% if form.decision.errors %}
+                    {% for error in form.decision.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label for="comments" class="form-label">Comments <span class="text-danger">*</span></label>
+                <small class="text-muted d-block mb-2">
+                    Provide detailed comments explaining your decision. These comments will be shared with the author.
+                </small>
+                {{ form.comments(class="form-control", rows=10, id="comments") }}
+                {% if form.comments.errors %}
+                    {% for error in form.comments.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="alert alert-info">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="bi bi-info-circle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="alert-heading h6">Decision Guidelines</h5>
+                        <p class="mb-1">When making your decision, consider:</p>
+                        <ul class="mb-0">
+                            <li>The overall quality and significance of the research</li>
+                            <li>Methodological soundness and scientific rigor</li>
+                            <li>Clarity and organization of presentation</li>
+                            <li>Reviewer recommendations and concerns</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-secondary me-2">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i> Submit Decision
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Review Details Accordion -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Review Details</h2>
+    </div>
+    <div class="card-body p-0">
+        <div class="accordion" id="reviewAccordion">
+            {% for review in completed_reviews %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ loop.index }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                        <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                            <div>
+                                Review by {{ review.reviewer.name }}
+                            </div>
+                            <div>
+                                {% if review.decision == 'accept' %}
+                                    <span class="badge bg-success">Accept</span>
+                                {% elif review.decision == 'minor_revisions' %}
+                                    <span class="badge bg-info">Minor Revisions</span>
+                                {% elif review.decision == 'major_revisions' %}
+                                    <span class="badge bg-warning">Major Revisions</span>
+                                {% elif review.decision == 'reject' %}
+                                    <span class="badge bg-danger">Reject</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ review.decision|replace('_', ' ')|title }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </button>
+                </h2>
+                <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#reviewAccordion">
+                    <div class="accordion-body">
+                        <p class="mb-2"><strong>Completed:</strong> {{ review.completed_at.strftime('%Y-%m-%d') }}</p>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                {% if review.content %}
+                                    {{ review.content|nl2br }}
+                                {% else %}
+                                    <em class="text-muted">No review content provided.</em>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

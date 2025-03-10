@@ -1,0 +1,349 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ submission.title }} - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {% if current_user.is_editor() or current_user.is_admin() %}
+                <li class="breadcrumb-item"><a href="{{ url_for('review.editor_dashboard') }}">Editor Dashboard</a></li>
+            {% elif current_user.is_reviewer() %}
+                <li class="breadcrumb-item"><a href="{{ url_for('review.reviewer_dashboard') }}">Reviewer Dashboard</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">View Submission</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">{{ submission.title }}</h1>
+        <p class="text-muted">
+            Submitted on {{ submission.submitted_at.strftime('%Y-%m-%d') }} 
+            {% if submission.status == 'resubmitted' %}
+                | Resubmitted on {{ submission.updated_at.strftime('%Y-%m-%d') }}
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-auto">
+        {% if current_user.is_editor() or current_user.is_admin() %}
+            <div class="btn-group">
+                {% if submission.status == 'submitted' or submission.status == 'resubmitted' %}
+                    <a href="{{ url_for('review.assign_reviewer', submission_id=submission.id) }}" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-1"></i> Assign Reviewer
+                    </a>
+                {% endif %}
+                {% if submission.status == 'reviewed' %}
+                    <a href="{{ url_for('review.make_decision', submission_id=submission.id) }}" class="btn btn-success">
+                        <i class="bi bi-check-square me-1"></i> Make Decision
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        {% for review in reviews %}
+            {% if current_user.id == review.reviewer_id and review.status == 'assigned' %}
+                <a href="{{ url_for('review.complete_review', review_id=review.id) }}" class="btn btn-primary">
+                    <i class="bi bi-pencil-square me-1"></i> Complete Review
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Submission Status Banner -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Status:</strong>
+                {% set status_class = {
+                    'submitted': 'secondary',
+                    'in_review': 'info',
+                    'resubmitted': 'warning',
+                    'reviewed': 'primary',
+                    'revisions_requested': 'warning',
+                    'accepted': 'success',
+                    'rejected': 'danger',
+                    'withdrawn': 'dark',
+                    'published': 'primary'
+                } %}
+                {% set status_icon = {
+                    'submitted': 'bi-file-earmark-arrow-up',
+                    'in_review': 'bi-search',
+                    'resubmitted': 'bi-arrow-repeat',
+                    'reviewed': 'bi-check-all',
+                    'revisions_requested': 'bi-pencil-square',
+                    'accepted': 'bi-check-circle',
+                    'rejected': 'bi-x-circle',
+                    'withdrawn': 'bi-dash-circle',
+                    'published': 'bi-journal-check'
+                } %}
+                <span class="badge bg-{{ status_class.get(submission.status, 'secondary') }}">
+                    <i class="{{ status_icon.get(submission.status, 'bi-file-earmark') }} me-1"></i>
+                    {{ submission.status|replace('_', ' ')|title }}
+                </span>
+            </div>
+            <div>
+                <strong>Category:</strong> {{ submission.category|replace('_', ' ')|title }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submission Details -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Submission Details</h2>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <strong>Authors:</strong>
+            </div>
+            <div class="col-md-10">
+                {{ submission.authors }}
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <strong>Keywords:</strong>
+            </div>
+            <div class="col-md-10">
+                {% if submission.keywords %}
+                    {% for keyword in submission.keywords.split(',') %}
+                        <span class="badge bg-light text-dark me-1">{{ keyword.strip() }}</span>
+                    {% endfor %}
+                {% else %}
+                    <em>None provided</em>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <strong>Abstract:</strong>
+                <div class="mt-2 abstract-text">
+                    {{ submission.abstract|nl2br }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <strong>Cover Letter:</strong>
+                <div class="mt-2 cover-letter-text">
+                    {% if submission.cover_letter %}
+                        {{ submission.cover_letter|nl2br }}
+                    {% else %}
+                        <em>No cover letter provided</em>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manuscript File -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Manuscript</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <strong>File:</strong> {{ submission.file_path }}
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('serve_uploads', filename=submission.file_path) }}" class="btn btn-primary btn-sm" target="_blank">
+                    <i class="bi bi-download me-1"></i> Download Manuscript
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reviews Section -->
+{% if reviews and (current_user.is_editor() or current_user.is_admin()) %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Reviews</h2>
+    </div>
+    <div class="card-body">
+        {% if reviews|selectattr('status', 'equalto', 'completed')|list|length > 0 %}
+            {% for review in reviews|selectattr('status', 'equalto', 'completed')|list %}
+                <div class="review-item mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h3 class="h6 mb-0">
+                            Review by {{ review.reviewer.name }}
+                            <span class="badge bg-secondary ms-2">{{ review.reviewer.institution }}</span>
+                        </h3>
+                        <div>
+                            <small class="text-muted">Completed on {{ review.completed_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Recommendation:</strong>
+                        {% if review.decision == 'accept' %}
+                            <span class="badge bg-success">Accept</span>
+                        {% elif review.decision == 'minor_revisions' %}
+                            <span class="badge bg-info">Minor Revisions</span>
+                        {% elif review.decision == 'major_revisions' %}
+                            <span class="badge bg-warning">Major Revisions</span>
+                        {% elif review.decision == 'reject' %}
+                            <span class="badge bg-danger">Reject</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ review.decision|replace('_', ' ')|title }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body bg-light">
+                            {% if review.content %}
+                                {{ review.content|nl2br }}
+                            {% else %}
+                                <em class="text-muted">No review content provided.</em>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if not loop.last %}<hr>{% endif %}
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No completed reviews yet.</p>
+        {% endif %}
+        
+        <div class="mt-3">
+            <h3 class="h6">Review Assignments ({{ reviews|length }})</h3>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Reviewer</th>
+                        <th>Assigned By</th>
+                        <th>Assigned Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in reviews %}
+                    <tr>
+                        <td>{{ review.reviewer.name }}</td>
+                        <td>{{ review.editor.name }}</td>
+                        <td>{{ review.assigned_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {{ review.due_date.strftime('%Y-%m-%d') }}
+                            {% if review.is_overdue() and review.status != 'completed' %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if review.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Editorial Decisions -->
+{% if decisions and (current_user.is_editor() or current_user.is_admin() or current_user.id == submission.author_id) %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Editorial Decisions</h2>
+    </div>
+    <div class="card-body">
+        {% for decision in decisions %}
+            <div class="decision-item mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h3 class="h6 mb-0">
+                        Decision by {{ decision.editor.name }}
+                    </h3>
+                    <div>
+                        <small class="text-muted">Made on {{ decision.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Decision:</strong>
+                    {% if decision.decision == 'accept' %}
+                        <span class="badge bg-success">Accept</span>
+                    {% elif decision.decision == 'revisions' %}
+                        <span class="badge bg-warning">Revisions Required</span>
+                    {% elif decision.decision == 'reject' %}
+                        <span class="badge bg-danger">Reject</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ decision.decision|replace('_', ' ')|title }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="card">
+                    <div class="card-body bg-light">
+                        {{ decision.comments|nl2br }}
+                    </div>
+                </div>
+            </div>
+            {% if not loop.last %}<hr>{% endif %}
+        {% endfor %}
+        
+        {% if not decisions %}
+            <p class="text-muted">No editorial decisions have been made yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Revisions -->
+{% if submission.revisions.count() > 0 and (current_user.is_editor() or current_user.is_admin() or current_user.id == submission.author_id) %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Revision History</h2>
+    </div>
+    <div class="card-body">
+        {% for revision in submission.revisions %}
+            <div class="revision-item mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h3 class="h6 mb-0">
+                        Revision Round #{{ revision.round }}
+                    </h3>
+                    <div>
+                        <small class="text-muted">Submitted on {{ revision.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col">
+                        <strong>File:</strong> {{ revision.file_path }}
+                    </div>
+                    <div class="col-auto">
+                        <a href="{{ url_for('serve_uploads', filename=revision.file_path) }}" class="btn btn-primary btn-sm" target="_blank">
+                            <i class="bi bi-download me-1"></i> Download Revision
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="h6 mb-0">Response to Reviewers</h4>
+                    </div>
+                    <div class="card-body bg-light">
+                        {{ revision.cover_letter|nl2br }}
+                    </div>
+                </div>
+            </div>
+            {% if not loop.last %}<hr>{% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

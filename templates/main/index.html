@@ -1,0 +1,137 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ g.site_name|default('EasyJournal') }} - Academic Publishing Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+{% if g.banner_url %}
+<!-- Custom Banner -->
+<div class="row py-5 mb-5 rounded-3 banner-container">
+    <div class="banner-image" style="background-image: url('{{ g.banner_url }}');">
+        <div class="banner-overlay">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">{{ g.banner_title|default(g.site_name|default('EasyJournal')) }}</h1>
+                <p class="fs-5 mb-4">{{ g.banner_subtitle|default(g.site_description|default('A comprehensive platform for academic publishing workflow management')) }}</p>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="{{ url_for('main.browse') }}" class="btn btn-primary btn-lg px-4 gap-3">Browse Articles</a>
+                    <a href="{{ url_for('submission.new_submission') }}" class="btn btn-outline-light btn-lg px-4">Submit Article</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Default Hero Section -->
+<div class="row py-5 mb-5 bg-dark rounded-3">
+    <div class="col-lg-8 mx-auto text-center">
+        <h1 class="display-4 fw-bold mb-4">{{ g.site_name|default('EasyJournal') }}</h1>
+        <p class="fs-5 mb-4">{{ g.site_description|default('A comprehensive platform for academic publishing workflow management') }}</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="{{ url_for('main.browse') }}" class="btn btn-primary btn-lg px-4 gap-3">Browse Articles</a>
+            <a href="{{ url_for('submission.new_submission') }}" class="btn btn-outline-light btn-lg px-4">Submit Article</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Featured Articles -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="mb-4">Featured Articles</h2>
+    </div>
+    
+    {% if featured_articles %}
+        {% for article in featured_articles %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{{ url_for('main.article_detail', submission_id=article.id) }}" class="text-decoration-none">{{ article.title }}</a>
+                    </h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ article.authors }}</h6>
+                    <p class="card-text text-truncate-3">{{ article.abstract }}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Published: {{ article.publication.created_at.strftime('%b %d, %Y') }}</small>
+                    <span class="badge bg-secondary">{{ article.category|replace('_', ' ')|title }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i> No featured articles available at this time.
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Latest Issues -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="mb-4">Latest Issues</h2>
+    </div>
+    
+    {% if latest_issues %}
+        {% for issue in latest_issues %}
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{{ url_for('main.issue_detail', issue_id=issue.id) }}" class="text-decoration-none">
+                            Volume {{ issue.volume }}, Issue {{ issue.issue_number }}
+                        </a>
+                    </h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ issue.title }}</h6>
+                    <p class="card-text small">{{ issue.description|truncate(100) }}</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Published: {{ issue.publication_date.strftime('%b %d, %Y') if issue.publication_date else 'Coming Soon' }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i> No published issues available at this time.
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Call to Action Sections -->
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card dashboard-card h-100 text-center">
+            <div class="card-body p-4">
+                <i class="bi bi-people dashboard-icon text-primary"></i>
+                <h3 class="card-title">For Authors</h3>
+                <p class="card-text">Submit your research and get peer-reviewed by experts in your field.</p>
+                <a href="{{ url_for('submission.new_submission') }}" class="btn btn-primary mt-3">Submit Article</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card dashboard-card h-100 text-center">
+            <div class="card-body p-4">
+                <i class="bi bi-star dashboard-icon text-warning"></i>
+                <h3 class="card-title">For Reviewers</h3>
+                <p class="card-text">Contribute to the scientific community by reviewing submissions in your expertise.</p>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-warning mt-3">Join as Reviewer</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card dashboard-card h-100 text-center">
+            <div class="card-body p-4">
+                <i class="bi bi-journal-text dashboard-icon text-success"></i>
+                <h3 class="card-title">For Readers</h3>
+                <p class="card-text">Explore cutting-edge research across various academic disciplines.</p>
+                <a href="{{ url_for('main.browse') }}" class="btn btn-success mt-3">Browse Articles</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}My Submissions - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">My Submissions</h1>
+        <p class="text-muted">Manage your article submissions and track their progress</p>
+    </div>
+    <div class="col-auto">
+        <div class="btn-group">
+            <a href="{{ url_for('submission.new_submission') }}" class="btn btn-primary">
+                <i class="bi bi-file-earmark-plus me-1"></i> New Submission
+            </a>
+            <a href="{{ url_for('main.export_user_data') }}" class="btn btn-outline-info">
+                <i class="bi bi-download me-1"></i> Export Data (GDPR)
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h6 mb-0">Filters</h2>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="status" value="submitted" id="status-submitted" 
+                            {% if 'submitted' in request.args.getlist('status') %}checked{% endif %}>
+                        <label class="form-check-label" for="status-submitted">Submitted</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="status" value="under_review" id="status-under-review"
+                            {% if 'under_review' in request.args.getlist('status') %}checked{% endif %}>
+                        <label class="form-check-label" for="status-under-review">Under Review</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="status" value="revisions" id="status-revisions"
+                            {% if 'revisions' in request.args.getlist('status') %}checked{% endif %}>
+                        <label class="form-check-label" for="status-revisions">Revisions Requested</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="status" value="revision_submitted" id="status-revision-submitted"
+                            {% if 'revision_submitted' in request.args.getlist('status') %}checked{% endif %}>
+                        <label class="form-check-label" for="status-revision-submitted">Revision Submitted</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="status" value="accepted" id="status-accepted"
+                            {% if 'accepted' in request.args.getlist('status') %}checked{% endif %}>
+                        <label class="form-check-label" for="status-accepted">Accepted</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="status" value="rejected" id="status-rejected"
+                            {% if 'rejected' in request.args.getlist('status') %}checked{% endif %}>
+                        <label class="form-check-label" for="status-rejected">Rejected</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="category">Category</label>
+                <select class="form-select" id="category" name="category">
+                    <option value="">All Categories</option>
+                    <option value="biology" {% if request.args.get('category') == 'biology' %}selected{% endif %}>Biology</option>
+                    <option value="chemistry" {% if request.args.get('category') == 'chemistry' %}selected{% endif %}>Chemistry</option>
+                    <option value="physics" {% if request.args.get('category') == 'physics' %}selected{% endif %}>Physics</option>
+                    <option value="mathematics" {% if request.args.get('category') == 'mathematics' %}selected{% endif %}>Mathematics</option>
+                    <option value="computer_science" {% if request.args.get('category') == 'computer_science' %}selected{% endif %}>Computer Science</option>
+                    <option value="engineering" {% if request.args.get('category') == 'engineering' %}selected{% endif %}>Engineering</option>
+                    <option value="medicine" {% if request.args.get('category') == 'medicine' %}selected{% endif %}>Medicine</option>
+                    <option value="social_sciences" {% if request.args.get('category') == 'social_sciences' %}selected{% endif %}>Social Sciences</option>
+                    <option value="humanities" {% if request.args.get('category') == 'humanities' %}selected{% endif %}>Humanities</option>
+                    <option value="other" {% if request.args.get('category') == 'other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="sort">Sort By</label>
+                <select class="form-select" id="sort" name="sort">
+                    <option value="submitted_desc" {% if request.args.get('sort') == 'submitted_desc' or not request.args.get('sort') %}selected{% endif %}>Date (Newest First)</option>
+                    <option value="submitted_asc" {% if request.args.get('sort') == 'submitted_asc' %}selected{% endif %}>Date (Oldest First)</option>
+                    <option value="title_asc" {% if request.args.get('sort') == 'title_asc' %}selected{% endif %}>Title (A-Z)</option>
+                    <option value="title_desc" {% if request.args.get('sort') == 'title_desc' %}selected{% endif %}>Title (Z-A)</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-filter me-1"></i> Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Submissions List -->
+{% if submissions %}
+    <div class="card">
+        <div class="card-header">
+            <h2 class="h6 mb-0">Your Submissions</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in submissions %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('submission.view_submission', submission_id=submission.id) }}" class="text-decoration-none">
+                                    {{ submission.title }}
+                                </a>
+                            </td>
+                            <td>{{ submission.category|replace('_', ' ')|title }}</td>
+                            <td>
+                                {% set status_class = {
+                                    'submitted': 'secondary',
+                                    'under_review': 'info',
+                                    'revisions': 'warning',
+                                    'revision_submitted': 'info',
+                                    'accepted': 'success',
+                                    'rejected': 'danger',
+                                    'withdrawn': 'dark',
+                                    'published': 'primary'
+                                } %}
+                                {% set status_icon = {
+                                    'submitted': 'bi-file-earmark-arrow-up',
+                                    'under_review': 'bi-search',
+                                    'revisions': 'bi-pencil-square',
+                                    'revision_submitted': 'bi-arrow-repeat',
+                                    'accepted': 'bi-check-circle',
+                                    'rejected': 'bi-x-circle',
+                                    'withdrawn': 'bi-dash-circle',
+                                    'published': 'bi-journal-check'
+                                } %}
+                                <span class="badge bg-{{ status_class.get(submission.status, 'secondary') }}">
+                                    <i class="{{ status_icon.get(submission.status, 'bi-file-earmark') }} me-1"></i>
+                                    {% if submission.status == 'revision_submitted' %}
+                                        Revision Submitted
+                                    {% else %}
+                                        {{ submission.status|replace('_', ' ')|title }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>{{ submission.submitted_at.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ submission.updated_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('submission.view_submission', submission_id=submission.id) }}" class="btn btn-outline-primary" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if submission.status == 'revisions' %}
+                                        <a href="{{ url_for('submission.revise_submission', submission_id=submission.id) }}" class="btn btn-outline-warning" title="Submit Revision">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if submission.status in ['submitted', 'under_review'] %}
+                                        <a href="{{ url_for('submission.withdraw_submission', submission_id=submission.id) }}" class="btn btn-outline-danger" 
+                                           onclick="return confirm('Are you sure you want to withdraw this submission? This action cannot be undone.')" title="Withdraw Submission">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <div class="mb-3">
+                <i class="bi bi-journal-x" style="font-size: 3rem;"></i>
+            </div>
+            <h3>No Submissions Found</h3>
+            <p class="text-muted">You haven't submitted any articles yet or none match your filters.</p>
+            <a href="{{ url_for('submission.new_submission') }}" class="btn btn-primary mt-2">
+                <i class="bi bi-file-earmark-plus me-1"></i> Create Your First Submission
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

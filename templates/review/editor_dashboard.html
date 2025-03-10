@@ -1,0 +1,304 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Editor Dashboard - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">Editor Dashboard</h1>
+        <p class="text-muted">Manage article submissions and the peer review process</p>
+    </div>
+</div>
+
+<!-- Submission Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-primary h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">New Submissions</h5>
+                <p class="display-4 mb-0">{{ new_submissions|length }}</p>
+                <p class="text-muted">Waiting for review assignment</p>
+            </div>
+            <div class="card-footer bg-primary text-white text-center">
+                <i class="bi bi-file-earmark-plus me-1"></i> Needs Assignment
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">In Review</h5>
+                <p class="display-4 mb-0">{{ in_review_submissions|length }}</p>
+                <p class="text-muted">Undergoing peer review</p>
+            </div>
+            <div class="card-footer bg-warning text-center">
+                <i class="bi bi-search me-1"></i> In Progress
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Ready for Decision</h5>
+                <p class="display-4 mb-0">{{ ready_for_decision|length }}</p>
+                <p class="text-muted">Reviews completed</p>
+            </div>
+            <div class="card-footer bg-info text-white text-center">
+                <i class="bi bi-check-square me-1"></i> Ready for Decision
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-success h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Recently Revised</h5>
+                <p class="display-4 mb-0">{{ recently_revised|length }}</p>
+                <p class="text-muted">Author revisions submitted</p>
+            </div>
+            <div class="card-footer bg-success text-white text-center">
+                <i class="bi bi-arrow-repeat me-1"></i> Revised Manuscripts
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Submissions Section -->
+{% if new_submissions %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">New Submissions</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in new_submissions %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="text-decoration-none">
+                            {{ submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ submission.author.name }}</td>
+                    <td>{{ submission.category|replace('_', ' ')|title }}</td>
+                    <td>
+                        <span class="badge bg-primary">
+                            <i class="bi bi-file-earmark-plus me-1"></i> Needs Assignment
+                        </span>
+                    </td>
+                    <td>{{ submission.submitted_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('review.assign_reviewer', submission_id=submission.id) }}" class="btn btn-outline-success" title="Assign Reviewer">
+                                <i class="bi bi-person-plus"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- In Review Section -->
+{% if in_review_submissions %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Submissions In Review</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Reviews (Completed/Total)</th>
+                    <th>Oldest Due Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in in_review_submissions %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="text-decoration-none">
+                            {{ submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ submission.author.name }}</td>
+                    <td>{{ submission.category|replace('_', ' ')|title }}</td>
+                    <td>
+                        <span class="badge bg-warning">
+                            <i class="bi bi-search me-1"></i> In Progress
+                        </span>
+                    </td>
+                    <td>
+                        {{ submission.reviews.filter_by(status='completed').count() }}/{{ submission.reviews.count() }}
+                    </td>
+                    <td>
+                        {% if submission.reviews.filter_by(status='assigned').count() > 0 %}
+                            {% set oldest_review = submission.reviews.filter_by(status='assigned').order_by('due_date').first() %}
+                            {{ oldest_review.due_date.strftime('%Y-%m-%d') }}
+                            {% if oldest_review.is_overdue() %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('review.assign_reviewer', submission_id=submission.id) }}" class="btn btn-outline-success" title="Assign Reviewer">
+                                <i class="bi bi-person-plus"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Ready for Decision Section -->
+{% if ready_for_decision %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Ready for Decision</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Reviews Completed</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in ready_for_decision %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="text-decoration-none">
+                            {{ submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ submission.author.name }}</td>
+                    <td>{{ submission.category|replace('_', ' ')|title }}</td>
+                    <td>
+                        <span class="badge bg-info">
+                            <i class="bi bi-check-square me-1"></i> Ready for Decision
+                        </span>
+                    </td>
+                    <td>{{ submission.reviews.filter_by(status='completed').count() }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('review.make_decision', submission_id=submission.id) }}" class="btn btn-outline-success" title="Make Decision">
+                                <i class="bi bi-check-square"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recently Revised Submissions -->
+{% if recently_revised %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Recently Revised Submissions</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Latest Revision</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in recently_revised %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="text-decoration-none">
+                            {{ submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ submission.author.name }}</td>
+                    <td>{{ submission.category|replace('_', ' ')|title }}</td>
+                    <td>
+                        <span class="badge bg-success">
+                            <i class="bi bi-arrow-repeat me-1"></i> Revised Manuscripts
+                        </span>
+                    </td>
+                    <td>
+                        {{ submission.updated_at.strftime('%Y-%m-%d') }}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('review.assign_reviewer', submission_id=submission.id) }}" class="btn btn-outline-warning" title="Assign for Re-review">
+                                <i class="bi bi-person-plus"></i>
+                            </a>
+                            <a href="{{ url_for('review.make_decision', submission_id=submission.id) }}" class="btn btn-outline-success" title="Make Decision">
+                                <i class="bi bi-check-square"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- No Submissions Message -->
+{% if not new_submissions and not in_review_submissions and not ready_for_decision and not recently_revised %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <div class="mb-3">
+            <i class="bi bi-journals" style="font-size: 3rem;"></i>
+        </div>
+        <h3>No Submissions to Process</h3>
+        <p class="text-muted">There are currently no submissions requiring your attention.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

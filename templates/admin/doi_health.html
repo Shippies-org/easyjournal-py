@@ -1,0 +1,175 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}DOI Health Check - Admin{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">DOI Health Check</h1>
+            <p class="lead">Check the health of your organization's DOI records across different services.</p>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Run Health Check</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.doi_health_check') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.organization_id.label(class="form-label") }}
+                            {{ form.organization_id(class="form-control") }}
+                            {% if form.organization_id.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.organization_id.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Enter your organization's DOI prefix (e.g., 10.1234) or member/client ID
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.service.label(class="form-label") }}
+                            {{ form.service(class="form-select") }}
+                            {% if form.service.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.service.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-4">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if report %}
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Health Report - {{ report.service }}</h5>
+                        <span class="badge {% if report.summary.health_percentage >= 90 %}bg-success{% elif report.summary.health_percentage >= 70 %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ report.summary.health_percentage }}% Health
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        {% if report.error %}
+                            <div class="alert alert-danger">
+                                <strong>Error:</strong> {{ report.error }}
+                            </div>
+                        {% else %}
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Total DOIs</h5>
+                                            <p class="card-text display-6">{{ report.summary.total_dois }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Sample Size</h5>
+                                            <p class="card-text display-6">{{ report.summary.sample_size }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Issues Found</h5>
+                                            <p class="card-text display-6">{{ report.summary.issues_count }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if report.issues %}
+                                <h4 class="mt-4 mb-3">Issues Detected</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>DOI</th>
+                                                <th>Title</th>
+                                                <th>Problems</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for issue in report.issues %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="https://doi.org/{{ issue.doi }}" target="_blank">
+                                                            {{ issue.doi }}
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ issue.title }}</td>
+                                                    <td>
+                                                        <ul class="mb-0 ps-3">
+                                                            {% for problem in issue.problems %}
+                                                                <li>{{ problem }}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success mt-4">
+                                    <strong>Great!</strong> No issues were detected in the sample.
+                                </div>
+                            {% endif %}
+                            
+                            <h4 class="mt-4 mb-3">All DOIs in Sample</h4>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>DOI</th>
+                                            <th>Title</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for doi in report.dois %}
+                                            <tr>
+                                                <td>
+                                                    <a href="https://doi.org/{{ doi.doi }}" target="_blank">
+                                                        {{ doi.doi }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ doi.title }}</td>
+                                                <td>
+                                                    <span class="badge {% if doi.status == 'ok' %}bg-success{% else %}bg-warning{% endif %}">
+                                                        {{ doi.status }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-4">
+                            <small class="text-muted">
+                                Report generated at: {{ report.timestamp }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

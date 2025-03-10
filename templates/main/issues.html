@@ -1,0 +1,40 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Journal Issues - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-5 mb-4">Journal Issues</h1>
+        <p class="lead">Browse all published issues of EasyJournal.</p>
+    </div>
+</div>
+
+{% if issues %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for issue in issues %}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ issue.title }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Volume {{ issue.volume }}, Issue {{ issue.issue_number }}</h6>
+                        <p class="card-text">{{ issue.description | truncate(150) }}</p>
+                        <p class="card-text"><small class="text-muted">Published: {{ issue.publication_date.strftime('%B %d, %Y') if issue.publication_date else 'Forthcoming' }}</small></p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{{ url_for('main.issue_detail', issue_id=issue.id) }}" class="btn btn-sm btn-primary">View Issue</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i> No published issues available at this time.
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

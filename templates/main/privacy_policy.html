@@ -1,0 +1,33 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Privacy Policy - {{ g.site_name|default('EasyJournal') }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="mb-4">Privacy Policy</h1>
+                    <div class="privacy-policy-content">
+                        {{ privacy_policy|markdown }}
+                    </div>
+                    
+                    {% if not current_user.is_authenticated %}
+                        <div class="mt-4 text-end">
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Register with Consent</a>
+                        </div>
+                    {% elif not current_user.has_given_consent() %}
+                        <div class="alert alert-warning mt-4">
+                            <p class="mb-0">You have not yet given consent to our privacy policy. Please update your profile to provide consent.</p>
+                            <div class="mt-2">
+                                <a href="{{ url_for('main.profile') }}" class="btn btn-sm btn-warning">Update Profile</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

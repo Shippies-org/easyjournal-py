@@ -1,0 +1,362 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ submission.title }} - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% if current_user.is_author() %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('submission.author_dashboard') }}">My Submissions</a></li>
+                {% elif current_user.is_reviewer() %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('review.reviewer_dashboard') }}">Reviews</a></li>
+                {% elif current_user.is_editor() %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('review.editor_dashboard') }}">Editor Dashboard</a></li>
+                {% endif %}
+                <li class="breadcrumb-item active">Submission Details</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Submission Details -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Submission Details
+                </h2>
+                {% set status_class = {
+                    'submitted': 'secondary',
+                    'under_review': 'info',
+                    'revisions': 'warning',
+                    'revision_submitted': 'info',
+                    'accepted': 'success',
+                    'rejected': 'danger',
+                    'withdrawn': 'dark',
+                    'published': 'primary'
+                } %}
+                {% set status_icon = {
+                    'submitted': 'bi-file-earmark-arrow-up',
+                    'under_review': 'bi-search',
+                    'revisions': 'bi-pencil-square',
+                    'revision_submitted': 'bi-arrow-repeat',
+                    'accepted': 'bi-check-circle',
+                    'rejected': 'bi-x-circle',
+                    'withdrawn': 'bi-dash-circle',
+                    'published': 'bi-journal-check'
+                } %}
+                <span class="badge bg-{{ status_class.get(submission.status, 'secondary') }}">
+                    <i class="{{ status_icon.get(submission.status, 'bi-file-earmark') }} me-1"></i>
+                    {% if submission.status == 'revision_submitted' %}
+                        {% set latest_revision = submission.revisions.order_by(Revision.round.desc()).first() %}
+                        {% if latest_revision %}
+                            Revision {{ latest_revision.round }} Submitted
+                        {% else %}
+                            Revision Submitted
+                        {% endif %}
+                    {% else %}
+                        {{ submission.status|replace('_', ' ')|title }}
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <h1 class="h3 mb-3">{{ submission.title }}</h1>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3 text-muted">Authors</div>
+                    <div class="col-md-9">{{ submission.authors }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3 text-muted">Category</div>
+                    <div class="col-md-9">{{ submission.category|replace('_', ' ')|title }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3 text-muted">Keywords</div>
+                    <div class="col-md-9">
+                        {% if submission.keywords %}
+                            {% for keyword in submission.keywords.split(',') %}
+                                <span class="badge bg-light text-dark me-1">{{ keyword.strip() }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-muted">None provided</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3 text-muted">Date Submitted</div>
+                    <div class="col-md-9">{{ submission.submitted_at.strftime('%B %d, %Y at %H:%M') }}</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3 text-muted">Last Updated</div>
+                    <div class="col-md-9">{{ submission.updated_at.strftime('%B %d, %Y at %H:%M') }}</div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5>Abstract</h5>
+                        <p class="text-justify">{{ submission.abstract }}</p>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <h5>Manuscript</h5>
+                        <a href="{{ url_for('serve_uploads', filename=submission.file_path) }}" class="btn btn-sm btn-primary" target="_blank">
+                            <i class="bi bi-file-earmark-text me-1"></i> Download Manuscript
+                        </a>
+                    </div>
+                </div>
+                
+                {% if (current_user.is_admin() or current_user.is_editor() or current_user.id == submission.author_id) %}
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h5>Cover Letter</h5>
+                            <div class="card">
+                                <div class="card-body bg-light">
+                                    {% if submission.cover_letter %}
+                                        <p class="mb-0">{{ submission.cover_letter }}</p>
+                                    {% else %}
+                                        <p class="text-muted mb-0">No cover letter provided</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        {% if current_user.id == submission.author_id %}
+                            {% if current_user.is_author() and submission.status == 'revisions' %}
+                                <a href="{{ url_for('submission.revise_submission', submission_id=submission.id) }}" class="btn btn-warning">
+                                    <i class="bi bi-pencil-square me-1"></i> Submit Revision
+                                </a>
+                            {% endif %}
+                            
+                            {% if submission.status in ['submitted', 'under_review', 'revision_submitted'] %}
+                                <a href="{{ url_for('submission.withdraw_submission', submission_id=submission.id) }}" class="btn btn-danger"
+                                   onclick="return confirm('Are you sure you want to withdraw this submission? This action cannot be undone.')">
+                                    <i class="bi bi-trash me-1"></i> Withdraw Submission
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if current_user.is_editor() and submission.status == 'submitted' %}
+                            <a href="{{ url_for('review.assign_reviewer', submission_id=submission.id) }}" class="btn btn-primary">
+                                <i class="bi bi-person-plus me-1"></i> Assign Reviewer
+                            </a>
+                        {% endif %}
+                        
+                        {% if current_user.is_editor() and submission.status == 'under_review' %}
+                            <a href="{{ url_for('review.make_decision', submission_id=submission.id) }}" class="btn btn-primary">
+                                <i class="bi bi-check-square me-1"></i> Make Decision
+                            </a>
+                        {% endif %}
+                        
+                        {% if current_user.reviews_given.filter_by(submission_id=submission.id, status='assigned').first() %}
+                            {% set review = current_user.reviews_given.filter_by(submission_id=submission.id, status='assigned').first() %}
+                            <a href="{{ url_for('review.complete_review', review_id=review.id) }}" class="btn btn-info">
+                                <i class="bi bi-pencil me-1"></i> Complete Review
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        {% if current_user.is_author() %}
+                            <a href="{{ url_for('submission.author_dashboard') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Submissions
+                            </a>
+                        {% elif current_user.is_reviewer() %}
+                            <a href="{{ url_for('review.reviewer_dashboard') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Reviews
+                            </a>
+                        {% elif current_user.is_editor() %}
+                            <a href="{{ url_for('review.editor_dashboard') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Editor Dashboard
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Reviews Section -->
+        {% if current_user.is_admin() or current_user.is_editor() or (current_user.is_reviewer() and current_user.reviews_given.filter_by(submission_id=submission.id).first()) %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-chat-square-text me-2"></i>
+                        Reviews
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if submission.reviews.count() > 0 %}
+                        {% for review in submission.reviews %}
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <strong>Reviewer:</strong> 
+                                        {% if current_user.is_admin() or current_user.is_editor() %}
+                                            {{ review.reviewer.name }}
+                                        {% else %}
+                                            {% if review.reviewer_id == current_user.id %}
+                                                You
+                                            {% else %}
+                                                Anonymous Reviewer
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        {% if review.status == 'completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% elif review.status == 'assigned' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                            {% if review.is_overdue() %}
+                                                <span class="badge bg-danger ms-1">Overdue</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-1">
+                                    <small class="text-muted">
+                                        Assigned: {{ review.assigned_at.strftime('%Y-%m-%d') }} | 
+                                        Due: {{ review.due_date.strftime('%Y-%m-%d') }}
+                                        {% if review.completed_at %}
+                                            | Completed: {{ review.completed_at.strftime('%Y-%m-%d') }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                
+                                {% if review.status == 'completed' and (current_user.is_admin() or current_user.is_editor() or review.reviewer_id == current_user.id) %}
+                                    <div class="mb-2">
+                                        <strong>Decision:</strong>
+                                        {% if review.decision == 'accept' %}
+                                            <span class="text-success">Accept as is</span>
+                                        {% elif review.decision == 'minor_revisions' %}
+                                            <span class="text-primary">Accept with minor revisions</span>
+                                        {% elif review.decision == 'major_revisions' %}
+                                            <span class="text-warning">Major revisions required</span>
+                                        {% elif review.decision == 'reject' %}
+                                            <span class="text-danger">Reject</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div>
+                                        <strong>Comments:</strong>
+                                        <p class="mb-0">{{ review.content }}</p>
+                                    </div>
+                                {% elif review.status == 'assigned' and review.reviewer_id == current_user.id %}
+                                    <div>
+                                        <a href="{{ url_for('review.complete_review', review_id=review.id) }}" class="btn btn-sm btn-info">
+                                            <i class="bi bi-pencil me-1"></i> Complete Review
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No reviews have been assigned yet.</p>
+                    {% endif %}
+                    
+                    {% if current_user.is_editor() and submission.status == 'submitted' %}
+                        <div class="mt-3">
+                            <a href="{{ url_for('review.assign_reviewer', submission_id=submission.id) }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-person-plus me-1"></i> Assign Reviewer
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Editorial Decisions -->
+        {% if submission.decisions.count() > 0 and (current_user.is_admin() or current_user.is_editor() or current_user.id == submission.author_id) %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-clipboard-check me-2"></i>
+                        Editorial Decisions
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% for decision in submission.decisions|sort(attribute='created_at', reverse=True) %}
+                        <div class="mb-3 {% if not loop.last %}pb-3 border-bottom{% endif %}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>Decision:</strong>
+                                    {% if decision.decision == 'accept' %}
+                                        <span class="text-success">Accept</span>
+                                    {% elif decision.decision == 'reject' %}
+                                        <span class="text-danger">Reject</span>
+                                    {% elif decision.decision == 'revisions' %}
+                                        <span class="text-warning">Revisions Required</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <small class="text-muted">
+                                        {{ decision.created_at.strftime('%Y-%m-%d') }}
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <strong>Comments:</strong>
+                                <p class="mb-0">{{ decision.comments }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Revisions -->
+        {% if submission.revisions.count() > 0 and (current_user.is_admin() or current_user.is_editor() or current_user.id == submission.author_id or current_user.reviews_given.filter_by(submission_id=submission.id).first()) %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Revision History
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% for revision in submission.revisions|sort(attribute='created_at', reverse=True) %}
+                        <div class="mb-3 {% if not loop.last %}pb-3 border-bottom{% endif %}">
+                            <div class="mb-2">
+                                <strong>Revision Round #{{ revision.round }}</strong>
+                                <small class="text-muted">
+                                    {{ revision.created_at.strftime('%Y-%m-%d at %H:%M') }}
+                                </small>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <a href="{{ url_for('serve_uploads', filename=revision.file_path) }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="bi bi-file-earmark-text me-1"></i> Download Revision
+                                </a>
+                            </div>
+                            
+                            {% if revision.cover_letter %}
+                                <div>
+                                    <strong>Cover Letter / Response to Reviewers:</strong>
+                                    <p class="mb-0">{{ revision.cover_letter }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Submit Revision - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('submission.author_dashboard') }}">My Submissions</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('submission.view_submission', submission_id=submission.id) }}">{{ submission.title }}</a></li>
+                <li class="breadcrumb-item active">Submit Revision</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Submit Revision - Round {{ current_round }} for "{{ submission.title }}"
+                </h2>
+            </div>
+            <div class="card-body">
+                <!-- Editorial Decision Summary -->
+                {% set latest_decision = submission.decisions|sort(attribute='created_at', reverse=True)|first %}
+                {% if latest_decision %}
+                    <div class="alert alert-warning mb-4">
+                        <h5><i class="bi bi-exclamation-triangle me-2"></i>Revision Required</h5>
+                        <p>The editor has requested revisions for your submission. Please review their feedback below:</p>
+                        <div class="card">
+                            <div class="card-body bg-light">
+                                <p class="font-italic mb-0">{{ latest_decision.comments }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Review Feedback Summary -->
+                {% set completed_reviews = submission.reviews.filter_by(status='completed').all() %}
+                {% if completed_reviews %}
+                    <div class="mb-4">
+                        <h5>Reviewer Feedback</h5>
+                        <div class="accordion" id="reviewerFeedback">
+                            {% for review in completed_reviews %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="reviewer{{ loop.index }}">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                                data-bs-target="#reviewerCollapse{{ loop.index }}" aria-expanded="false" 
+                                                aria-controls="reviewerCollapse{{ loop.index }}">
+                                            Reviewer {{ loop.index }} - 
+                                            {% if review.decision == 'accept' %}
+                                                <span class="text-success ms-1">Accept as is</span>
+                                            {% elif review.decision == 'minor_revisions' %}
+                                                <span class="text-primary ms-1">Accept with minor revisions</span>
+                                            {% elif review.decision == 'major_revisions' %}
+                                                <span class="text-warning ms-1">Major revisions required</span>
+                                            {% elif review.decision == 'reject' %}
+                                                <span class="text-danger ms-1">Reject</span>
+                                            {% endif %}
+                                        </button>
+                                    </h2>
+                                    <div id="reviewerCollapse{{ loop.index }}" class="accordion-collapse collapse" 
+                                         aria-labelledby="reviewer{{ loop.index }}" data-bs-parent="#reviewerFeedback">
+                                        <div class="accordion-body">
+                                            {{ review.content }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Revision Form -->
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.file.label(class="form-label") }} *
+                        {{ form.file(class="form-control" + (" is-invalid" if form.file.errors else "")) }}
+                        {% if form.file.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.file.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                Upload your revised manuscript. Accepted file formats: PDF, DOC, DOCX, TXT, RTF. Maximum file size: 16MB.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.cover_letter.label(class="form-label") }} *
+                        {{ form.cover_letter(class="form-control" + (" is-invalid" if form.cover_letter.errors else ""), rows=10) }}
+                        {% if form.cover_letter.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.cover_letter.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                Please provide a detailed response to the editor and reviewers' comments. Explain how you addressed each point of feedback in your revision.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.revision_note.label(class="form-label") }}
+                        {{ form.revision_note(class="form-control" + (" is-invalid" if form.revision_note.errors else ""), rows=3) }}
+                        {% if form.revision_note.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.revision_note.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                Optional: Add notes about this revision. These will be visible only to editors and reviewers.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="confirmCheck" required>
+                            <label class="form-check-label" for="confirmCheck">
+                                I confirm that I have addressed the requested revisions to the best of my ability.
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('submission.view_submission', submission_id=submission.id) }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cloud-arrow-up me-1"></i> Submit Revision
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Register - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Register for EasyJournal</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Full Name</label>
+                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), id="name", placeholder="Enter your full name") }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email Address</label>
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="email", placeholder="Enter your email address") }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Your email will be used for login and notifications.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Password</label>
+                            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), id="password", placeholder="Create a password") }}
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Password must be at least 8 characters long.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), id="confirm_password", placeholder="Confirm your password") }}
+                            {% if form.confirm_password.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.confirm_password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="institution" class="form-label">Institution/Organization</label>
+                        {{ form.institution(class="form-control" + (" is-invalid" if form.institution.errors else ""), id="institution", placeholder="Enter your institution or organization (optional)") }}
+                        {% if form.institution.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.institution.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Bio/Research Interests</label>
+                        {{ form.bio(class="form-control" + (" is-invalid" if form.bio.errors else ""), id="bio", rows="4", placeholder="Enter your bio or research interests (optional)") }}
+                        {% if form.bio.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.bio.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Briefly describe your research background or areas of interest.</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="gdprConsent" name="gdprConsent" required>
+                            <label class="form-check-label" for="gdprConsent">
+                                I have read and agree to the <a href="{{ url_for('main.privacy_policy') }}" target="_blank">Privacy Policy</a> and consent to the processing of my personal data
+                            </label>
+                            <div class="invalid-feedback">
+                                You must agree to the privacy policy to register
+                            </div>
+                        </div>
+                        <div class="form-text mt-2">
+                            <small>By registering, you acknowledge that we collect and process your personal data (name, email, affiliation) to manage the journal submission and review process. You can withdraw consent at any time.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+<!-- GDPR Consent Modal -->
+<div class="modal fade" id="gdprConsentModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="gdprConsentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="gdprConsentModalLabel">Privacy Consent</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    {{ g.consent_text|safe }}
+                </div>
+                
+                <div class="mb-3">
+                    <button type="button" class="btn btn-link p-0" data-bs-toggle="collapse" data-bs-target="#privacyPolicyCollapse">
+                        View Privacy Policy
+                    </button>
+                    <div class="collapse mt-2" id="privacyPolicyCollapse">
+                        <div class="card card-body bg-light">
+                            {{ g.privacy_policy|safe }}
+                        </div>
+                    </div>
+                </div>
+                
+                <form id="consentForm" method="POST" action="{{ url_for('auth.provide_consent') }}">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="gdprConsent" name="gdprConsent" required>
+                        <label class="form-check-label" for="gdprConsent">
+                            I have read and agree to the privacy policy and consent to the processing of my personal data.
+                        </label>
+                        <div class="invalid-feedback">
+                            You must agree to continue.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" id="declineConsent">Decline</button>
+                <button type="submit" form="consentForm" class="btn btn-primary" id="acceptConsent">Accept</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show consent modal automatically when included
+        var consentModal = new bootstrap.Modal(document.getElementById('gdprConsentModal'));
+        consentModal.show();
+        
+        // Handle decline button
+        document.getElementById('declineConsent').addEventListener('click', function() {
+            // Redirect to logout or home page
+            window.location.href = "{{ url_for('auth.logout') }}";
+        });
+        
+        // Validate checkbox on form submission
+        document.getElementById('consentForm').addEventListener('submit', function(event) {
+            if (!document.getElementById('gdprConsent').checked) {
+                event.preventDefault();
+                document.getElementById('gdprConsent').classList.add('is-invalid');
+            }
+        });
+        
+        // Remove validation message when checkbox is checked
+        document.getElementById('gdprConsent').addEventListener('change', function() {
+            if (this.checked) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+</script>

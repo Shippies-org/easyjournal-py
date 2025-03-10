@@ -1,0 +1,204 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Admin Dashboard</h1>
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="themeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-palette me-2"></i>System Theme
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown">
+                <li><a class="dropdown-item {% if g.system_theme == 'dark' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='dark') }}">Dark</a></li>
+                <li><a class="dropdown-item {% if g.system_theme == 'light' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='light') }}">Light</a></li>
+                <li><a class="dropdown-item {% if g.system_theme == 'journal' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='journal') }}">Journal</a></li>
+                <li><a class="dropdown-item {% if g.system_theme == 'modern' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='modern') }}">Modern</a></li>
+                <li><a class="dropdown-item {% if g.system_theme == 'elegant' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='elegant') }}">Elegant</a></li>
+                <li><a class="dropdown-item {% if g.system_theme == 'high-contrast' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='high-contrast') }}">High Contrast</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Dashboard Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Users</h5>
+                    <h2 class="display-4">{{ user_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Submissions</h5>
+                    <h2 class="display-4">{{ submission_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Reviews</h5>
+                    <h2 class="display-4">{{ review_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Issues</h5>
+                    <h2 class="display-4">{{ issue_count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Statistics -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">User Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="userChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-sm btn-primary">Manage Users</a>
+                        <span class="text-muted">Total: {{ user_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submission Statistics -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Submission Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="submissionChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('review.editor_dashboard') }}" class="btn btn-sm btn-primary">Review Dashboard</a>
+                        <span class="text-muted">Total: {{ submission_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Access -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Quick Access</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary w-100 py-3">
+                        <i class="bi bi-people fs-4 d-block mb-2"></i>
+                        User Management
+                    </a>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('admin.issues') }}" class="btn btn-outline-primary w-100 py-3">
+                        <i class="bi bi-journal-richtext fs-4 d-block mb-2"></i>
+                        Issue Management
+                    </a>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('admin.plugins') }}" class="btn btn-outline-primary w-100 py-3">
+                        <i class="bi bi-puzzle fs-4 d-block mb-2"></i>
+                        Plugin Management
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // User roles chart
+        const userCtx = document.getElementById('userChart').getContext('2d');
+        const userChart = new Chart(userCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Admins', 'Editors', 'Reviewers', 'Authors'],
+                datasets: [{
+                    data: [{{ admin_count }}, {{ editor_count }}, {{ reviewer_count }}, {{ author_count }}],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+
+        // Submission status chart
+        const submissionCtx = document.getElementById('submissionChart').getContext('2d');
+        const submissionChart = new Chart(submissionCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Submitted', 'In Review', 'Accepted', 'Rejected'],
+                datasets: [{
+                    data: [{{ submitted_count }}, {{ in_review_count }}, {{ accepted_count }}, {{ rejected_count }}],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 99, 132, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

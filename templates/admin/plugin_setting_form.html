@@ -1,0 +1,52 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0 h5">{{ title }}</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.edit_plugin_setting', setting_id=setting.id) }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Plugin:</label>
+                            <p class="form-control-static">{{ setting.plugin_name }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Setting Key:</label>
+                            <p class="form-control-static">{{ setting.setting_key }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="setting_value" class="form-label">Value:</label>
+                            {% if form.setting_value.errors %}
+                                {% for error in form.setting_value.errors %}
+                                    <div class="alert alert-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            {{ form.setting_value(class="form-control", id="setting_value", rows=5) }}
+                            <div class="form-text">Edit the value for this plugin setting.</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.plugins') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

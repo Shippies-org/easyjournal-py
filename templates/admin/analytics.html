@@ -1,0 +1,291 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js for data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Visitor and article view chart
+    const visitorCtx = document.getElementById('visitorChart').getContext('2d');
+    const visitorChart = new Chart(visitorCtx, {
+        type: 'line',
+        data: {
+            labels: {{ date_labels|safe }},
+            datasets: [{
+                label: 'Page Views',
+                data: {{ visitor_data|safe }},
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                tension: 0.3
+            }, {
+                label: 'Article Views',
+                data: {{ article_data|safe }},
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Site Traffic'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Site Analytics</h1>
+    
+    <!-- Time Range Selection -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Time Range</h5>
+            <div class="btn-group" role="group" aria-label="Time range selector">
+                <a href="{{ url_for('admin.analytics', period='today') }}" class="btn btn-outline-primary {% if period == 'today' %}active{% endif %}">Today</a>
+                <a href="{{ url_for('admin.analytics', period='week') }}" class="btn btn-outline-primary {% if period == 'week' %}active{% endif %}">Last 7 Days</a>
+                <a href="{{ url_for('admin.analytics', period='month') }}" class="btn btn-outline-primary {% if period == 'month' %}active{% endif %}">Last 30 Days</a>
+                <a href="{{ url_for('admin.analytics', period='year') }}" class="btn btn-outline-primary {% if period == 'year' %}active{% endif %}">Last Year</a>
+                <a href="{{ url_for('admin.analytics', period='all') }}" class="btn btn-outline-primary {% if period == 'all' %}active{% endif %}">All Time</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <!-- Visitor Stats Card -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-people-fill me-2"></i>Visitors
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h3 class="display-6 mb-4 text-primary">{{ visitor_stats.total }}</h3>
+                            <div class="mt-3">
+                                <p class="mb-1">
+                                    <i class="bi bi-person-fill me-2"></i>Logged in: <span class="fw-bold">{{ visitor_stats.logged_in }}</span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-person me-2"></i>Anonymous: <span class="fw-bold">{{ visitor_stats.anonymous }}</span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-globe me-2"></i>Unique IPs: <span class="fw-bold">{{ visitor_stats.unique_ips }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Article Stats Card -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-file-earmark-text-fill me-2"></i>Article Views
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h3 class="display-6 mb-4 text-success">{{ article_stats.total }}</h3>
+                            <div class="mt-3">
+                                <p class="mb-1">
+                                    <i class="bi bi-person-fill me-2"></i>Logged in: <span class="fw-bold">{{ article_stats.logged_in }}</span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-person me-2"></i>Anonymous: <span class="fw-bold">{{ article_stats.anonymous }}</span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-star-fill me-2"></i>Most viewed: <span class="fw-bold">{{ article_stats.most_viewed_title }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Activity Stats Card -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-activity me-2"></i>User Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h3 class="display-6 mb-4 text-info">{{ activity_stats.total }}</h3>
+                            <div class="mt-3">
+                                <p class="mb-1">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Logins: <span class="fw-bold">{{ activity_stats.logins }}</span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-upload me-2"></i>Submissions: <span class="fw-bold">{{ activity_stats.submissions }}</span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-clipboard-check me-2"></i>Reviews: <span class="fw-bold">{{ activity_stats.reviews }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Visitor and Article View Chart -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Visitor and Article View Trends</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="visitorChart" height="300"></canvas>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <!-- Popular Pages -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Most Visited Pages</h5>
+                </div>
+                <div class="card-body">
+                    {% if popular_pages %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Page</th>
+                                        <th>Views</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for page, count in popular_pages %}
+                                    <tr>
+                                        <td>{{ page }}</td>
+                                        <td>{{ count }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No page view data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Popular Articles -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Most Popular Articles</h5>
+                </div>
+                <div class="card-body">
+                    {% if popular_articles %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Views</th>
+                                        <th>Last Viewed</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for article in popular_articles %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('main.article_detail', submission_id=article.id) }}">{{ article.title }}</a>
+                                        </td>
+                                        <td>{{ article.view_count }}</td>
+                                        <td>{{ article.last_viewed.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No article view data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Visitor Logs -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Recent Visitor Logs</h5>
+        </div>
+        <div class="card-body">
+            {% if recent_logs %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>IP Address</th>
+                                <th>Path</th>
+                                <th>User Agent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in recent_logs %}
+                            <tr>
+                                <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>
+                                    {% if log.user %}
+                                        <a href="{{ url_for('admin.edit_user', user_id=log.user.id) }}">{{ log.user.name }}</a>
+                                    {% else %}
+                                        <span class="text-muted">Anonymous</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ log.ip_address or 'N/A' }}</td>
+                                <td>{{ log.path }}</td>
+                                <td class="text-truncate" style="max-width: 250px;" title="{{ log.user_agent }}">
+                                    {{ log.user_agent or 'N/A' }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No visitor logs available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Web application
+  app:
+    build: .
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - uploads:/app/uploads
+      - data:/app/data
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - journal-network
+
+  # PostgreSQL database (optional, can be replaced with SQLite)
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER:-journal_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-journal_password}
+      - POSTGRES_DB=${DB_NAME:-journal}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./setup/database_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - journal-network
+
+networks:
+  journal-network:
+    driver: bridge
+
+volumes:
+  uploads:
+  data:
+  db-data:

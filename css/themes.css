@@ -1,0 +1,131 @@
+/* Theme CSS for EasyJournal */
+
+/* Base styles for all themes */
+:root {
+  --theme-transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  transition: var(--theme-transition);
+}
+
+/* Default Dark Theme (Already available through Bootstrap dark) */
+[data-bs-theme="dark"] {
+  /* Custom dark theme overrides can go here if needed */
+}
+
+/* Light Theme */
+[data-bs-theme="light"] {
+  /* Light theme will use Bootstrap's default light theme */
+  /* with any customizations below */
+}
+
+/* Journal Theme - Academic paper inspired */
+[data-bs-theme="journal"] {
+  --bs-body-bg: #f8f5f0;
+  --bs-body-color: #2c3e50;
+  --bs-primary: #5e3b4d;
+  --bs-secondary: #75b798;
+  --bs-success: #4b6043;
+  --bs-info: #8ab4f8;
+  --bs-warning: #e0a800;
+  --bs-danger: #8b3a3a;
+  --bs-light: #faf9f8;
+  --bs-dark: #343a40;
+  
+  --bs-link-color: #5e3b4d;
+  --bs-link-hover-color: #4a2e3c;
+  
+  --bs-navbar-bg: #5e3b4d;
+  --bs-navbar-color: #f8f5f0;
+}
+
+[data-bs-theme="journal"] .navbar {
+  background-color: var(--bs-primary) !important;
+  color: var(--bs-light);
+}
+
+[data-bs-theme="journal"] .navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-bs-theme="journal"] .footer {
+  background-color: #f0e8e0 !important;
+  color: var(--bs-dark);
+}
+
+/* Modern Theme */
+[data-bs-theme="modern"] {
+  --bs-body-bg: #ffffff;
+  --bs-body-color: #212529;
+  --bs-primary: #3498db;
+  --bs-secondary: #2c3e50;
+  --bs-success: #2ecc71;
+  --bs-info: #3498db;
+  --bs-warning: #f39c12;
+  --bs-danger: #e74c3c;
+  --bs-light: #ecf0f1;
+  --bs-dark: #121212;
+}
+
+[data-bs-theme="modern"] .navbar {
+  background: linear-gradient(to right, #3498db, #2c3e50) !important;
+}
+
+[data-bs-theme="modern"] .footer {
+  background: linear-gradient(to right, #2c3e50, #3498db) !important;
+}
+
+/* Elegant Theme */
+[data-bs-theme="elegant"] {
+  --bs-body-bg: #f9f7f7;
+  --bs-body-color: #404040;
+  --bs-primary: #112d4e;
+  --bs-secondary: #3f72af;
+  --bs-success: #4caf50;
+  --bs-info: #5bc0de;
+  --bs-warning: #ff9800;
+  --bs-danger: #f44336;
+  --bs-light: #f9f7f7;
+  --bs-dark: #112d4e;
+}
+
+[data-bs-theme="elegant"] .navbar {
+  background-color: var(--bs-primary) !important;
+}
+
+[data-bs-theme="elegant"] .footer {
+  background-color: var(--bs-primary) !important;
+  color: var(--bs-light);
+}
+
+/* High Contrast Theme for accessibility */
+[data-bs-theme="high-contrast"] {
+  --bs-body-bg: #000000;
+  --bs-body-color: #ffffff;
+  --bs-primary: #ffff00;
+  --bs-secondary: #00ffff;
+  --bs-success: #00ff00;
+  --bs-info: #00ffff;
+  --bs-warning: #ffff00;
+  --bs-danger: #ff0000;
+  --bs-light: #ffffff;
+  --bs-dark: #000000;
+  
+  --bs-link-color: #ffff00;
+  --bs-link-hover-color: #ffffff;
+}
+
+[data-bs-theme="high-contrast"] .text-muted {
+  color: #cccccc !important;
+}
+
+[data-bs-theme="high-contrast"] .navbar {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffff00;
+}
+
+[data-bs-theme="high-contrast"] .footer {
+  background-color: #000000 !important;
+  border-top: 2px solid #ffff00;
+}

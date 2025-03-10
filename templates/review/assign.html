@@ -1,0 +1,132 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Assign Reviewer - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('review.editor_dashboard') }}">Editor Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}">View Submission</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Assign Reviewer</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">Assign Reviewer to: {{ submission.title }}</h1>
+        <p class="text-muted">Select a reviewer to evaluate this manuscript</p>
+    </div>
+</div>
+
+<!-- Current Reviewers -->
+{% if existing_reviewers %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Current Reviewers</h2>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Reviewer</th>
+                        <th>Institution</th>
+                        <th>Assigned By</th>
+                        <th>Assigned Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in existing_reviewers %}
+                    <tr>
+                        <td>{{ review.reviewer.name }}</td>
+                        <td>{{ review.reviewer.institution }}</td>
+                        <td>{{ review.editor.name }}</td>
+                        <td>{{ review.assigned_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {{ review.due_date.strftime('%Y-%m-%d') }}
+                            {% if review.is_overdue() and review.status != 'completed' %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if review.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Assign Reviewer Form -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Assign New Reviewer</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('review.assign_reviewer', submission_id=submission.id) }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-4">
+                <label for="reviewer_email" class="form-label">Reviewer Email <span class="text-danger">*</span></label>
+                <small class="text-muted d-block mb-2">
+                    Enter the email address of the reviewer you want to invite.
+                </small>
+                {{ form.reviewer_email(class="form-control", id="reviewer_email", placeholder="reviewer@institution.edu") }}
+                {% if form.reviewer_email.errors %}
+                    {% for error in form.reviewer_email.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label for="due_date" class="form-label">Due Date <span class="text-danger">*</span></label>
+                <small class="text-muted d-block mb-2">
+                    Specify a deadline for review completion (default is 30 days from now).
+                </small>
+                {{ form.due_date(class="form-control", id="due_date", type="date") }}
+                {% if form.due_date.errors %}
+                    {% for error in form.due_date.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="alert alert-info">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="bi bi-info-circle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="alert-heading h6">Reviewer Assignment Guidelines</h5>
+                        <p class="mb-0">
+                            Assign reviewers who have relevant expertise and no conflicts of interest with the authors.
+                            Consider assigning multiple reviewers for thorough evaluation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-secondary me-2">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-person-check me-1"></i> Assign Reviewer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Complete Review - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('review.reviewer_dashboard') }}">Reviewer Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}">View Submission</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Complete Review</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">Review: {{ submission.title }}</h1>
+        <p class="text-muted">
+            Due date: {{ review.due_date.strftime('%Y-%m-%d') }}
+            {% if review.is_overdue() %}
+                <span class="badge bg-danger">Overdue</span>
+            {% else %}
+                {% set days_left = (review.due_date - now()).days %}
+                {% if days_left <= 7 %}
+                    <span class="badge bg-warning">{{ days_left }} days left</span>
+                {% endif %}
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('serve_uploads', filename=submission.file_path) }}" class="btn btn-primary" target="_blank">
+            <i class="bi bi-download me-1"></i> Download Manuscript
+        </a>
+    </div>
+</div>
+
+<!-- Submission Overview -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Submission Overview</h2>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <strong>Authors:</strong>
+            </div>
+            <div class="col-md-10">
+                {{ submission.authors }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <strong>Category:</strong>
+            </div>
+            <div class="col-md-10">
+                {{ submission.category|replace('_', ' ')|title }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <strong>Keywords:</strong>
+            </div>
+            <div class="col-md-10">
+                {% if submission.keywords %}
+                    {% for keyword in submission.keywords.split(',') %}
+                        <span class="badge bg-light text-dark me-1">{{ keyword.strip() }}</span>
+                    {% endfor %}
+                {% else %}
+                    <em>None provided</em>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <strong>Abstract:</strong>
+                <div class="mt-2 abstract-text">
+                    {{ submission.abstract|nl2br }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Your Review</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('review.complete_review', review_id=review.id) }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-4">
+                <label for="content" class="form-label">Review Content <span class="text-danger">*</span></label>
+                <small class="text-muted d-block mb-2">
+                    Please provide a comprehensive review addressing the strengths, weaknesses, and suggestions for improving the manuscript.
+                    Include comments on methodology, significance, clarity, and organization.
+                </small>
+                {{ form.content(class="form-control", rows=12, id="content") }}
+                {% if form.content.errors %}
+                    {% for error in form.content.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label for="decision" class="form-label">Recommendation <span class="text-danger">*</span></label>
+                <small class="text-muted d-block mb-2">
+                    Choose your recommendation for this manuscript. This will be visible to the editors when making their final decision.
+                </small>
+                {{ form.decision(class="form-select", id="decision") }}
+                {% if form.decision.errors %}
+                    {% for error in form.decision.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="alert alert-info">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <i class="bi bi-info-circle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="alert-heading h6">Review Guidelines</h5>
+                        <p class="mb-0">
+                            Your review should be objective, constructive, and thorough. Remember that your identity will 
+                            remain anonymous to the authors, but your comments will be shared with them.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-secondary me-2">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i> Submit Review
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
