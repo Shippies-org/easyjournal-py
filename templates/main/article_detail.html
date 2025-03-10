@@ -167,6 +167,19 @@
                         <a href="{{ url_for('review.view_submission_for_review', submission_id=article.id) }}" class="btn btn-primary">
                             <i class="bi bi-pencil me-1"></i> Edit as Editor
                         </a>
+                        
+                        <!-- Copy Editing Integration -->
+                        {% set has_copyedit = article.copyedits.count() > 0 %}
+                        {% if has_copyedit %}
+                        <a href="{{ url_for('copyedit.view_copyedit', copyedit_id=article.copyedits[0].id) }}" class="btn btn-info">
+                            <i class="bi bi-pencil-square me-1"></i> View Copy Editing
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('copyedit.assign_copyeditor', submission_id=article.id) }}" class="btn btn-outline-info">
+                            <i class="bi bi-pencil-square me-1"></i> Assign Copy Editor
+                        </a>
+                        {% endif %}
+                        
                         {% if not article.publication %}
                         <a href="{{ url_for('review.publishing_dashboard') }}" class="btn btn-success">
                             <i class="bi bi-journal-check me-1"></i> Publish

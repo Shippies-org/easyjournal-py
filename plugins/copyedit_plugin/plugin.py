@@ -15,7 +15,8 @@ from flask_login import login_required, current_user
 from plugin_system import PluginSystem
 from app import db
 from models import Submission, User
-from .models import CopyEdit, CopyEditComment
+# Use absolute imports to avoid package issues
+from plugins.copyedit_plugin.models import CopyEdit, CopyEditComment
 
 logger = logging.getLogger(__name__)
 

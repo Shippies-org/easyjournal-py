@@ -353,6 +353,11 @@ For any privacy-related inquiries, please contact the journal administration."""
         from models import SystemSetting
         if not SystemSetting.query.filter_by(setting_key='theme').first():
             SystemSetting.set_value('theme', 'dark')
+            
+        # Initialize and load plugins
+        from plugin_system import init_plugin_system
+        loaded_plugins = init_plugin_system()
+        app.logger.info(f"Loaded plugins: {', '.join(loaded_plugins) if loaded_plugins else 'None'}")
     
     return app
 
