@@ -1,0 +1,92 @@
+{% extends 'review/base.html' %}
+
+{% block title %}{{ title }} - EasyJournal{% endblock %}
+
+{% block review_content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">{{ title }}</h1>
+        <p class="text-muted">{% if issue %}Update{% else %}Create a new{% endif %} journal issue</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('review.editor_issues') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Issues
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        {{ form.volume.label(class="form-label") }}
+                        {{ form.volume(class="form-control" + (" is-invalid" if form.volume.errors else "")) }}
+                        {% for error in form.volume.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">The volume number for this issue</div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        {{ form.issue_number.label(class="form-label") }}
+                        {{ form.issue_number(class="form-control" + (" is-invalid" if form.issue_number.errors else "")) }}
+                        {% for error in form.issue_number.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">The issue number within this volume</div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        {{ form.status.label(class="form-label") }}
+                        {{ form.status(class="form-select" + (" is-invalid" if form.status.errors else "")) }}
+                        {% for error in form.status.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">Current status of this issue</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.publication_date.label(class="form-label") }}
+                        {{ form.publication_date(class="form-control" + (" is-invalid" if form.publication_date.errors else ""), type="date") }}
+                        {% for error in form.publication_date.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">Optional publication date (leave blank if unknown)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group mb-3">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                {% for error in form.title.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-text">Title or theme of this issue (e.g., "Spring 2025" or "Special Issue on AI")</div>
+            </div>
+            
+            <div class="form-group mb-4">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows=5) }}
+                {% for error in form.description.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-text">Optional description of this issue's focus or contents</div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('review.editor_issues') }}" class="btn btn-outline-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-2"></i>{{ 'Update' if issue else 'Create' }} Issue
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

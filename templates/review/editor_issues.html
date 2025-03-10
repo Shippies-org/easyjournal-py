@@ -1,0 +1,107 @@
+{% extends 'review/base.html' %}
+
+{% block title %}Issue Management - EasyJournal{% endblock %}
+
+{% block review_content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">Issue Management</h1>
+        <p class="text-muted">Create and manage journal issues</p>
+    </div>
+    <div class="col-auto">
+        <div class="btn-group">
+            <a href="{{ url_for('review.editor_dashboard') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+            <a href="{{ url_for('review.new_issue') }}" class="btn btn-primary">
+                <i class="bi bi-journal-plus me-2"></i>Create New Issue
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if issues %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Volume/Issue</th>
+                            <th>Status</th>
+                            <th>Publication Date</th>
+                            <th>Article Count</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for issue in issues %}
+                            <tr>
+                                <td>{{ issue.title }}</td>
+                                <td>Vol. {{ issue.volume }}, No. {{ issue.issue_number }}</td>
+                                <td>
+                                    <span class="badge rounded-pill bg-{{ 'success' if issue.status == 'published' else 'warning' if issue.status == 'in_progress' else 'secondary' }}">
+                                        {{ issue.status|replace('_', ' ')|title }}
+                                    </span>
+                                </td>
+                                <td>{{ issue.publication_date.strftime('%Y-%m-%d') if issue.publication_date else 'TBD' }}</td>
+                                <td>{{ issue.publications.count() }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('review.edit_issue', issue_id=issue.id) }}" class="btn btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteIssueModal{{ issue.id }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Delete Confirmation Modal -->
+                                    <div class="modal fade" id="deleteIssueModal{{ issue.id }}" tabindex="-1" aria-labelledby="deleteIssueModalLabel{{ issue.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteIssueModalLabel{{ issue.id }}">Confirm Deletion</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to delete the issue "{{ issue.title }}"?</p>
+                                                    <p class="text-danger">This action cannot be undone.</p>
+                                                    {% if issue.publications.count() > 0 %}
+                                                        <div class="alert alert-warning">
+                                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                            Warning: This issue contains {{ issue.publications.count() }} article(s). Deleting it will remove all associated publications.
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form action="{{ url_for('review.delete_issue', issue_id=issue.id) }}" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <div class="mb-3">
+                    <i class="bi bi-journals" style="font-size: 3rem;"></i>
+                </div>
+                <h3>No Issues Created</h3>
+                <p class="text-muted">You haven't created any journal issues yet.</p>
+                <a href="{{ url_for('review.new_issue') }}" class="btn btn-primary mt-2">
+                    <i class="bi bi-journal-plus me-2"></i>Create First Issue
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
