@@ -280,7 +280,7 @@ def dashboard():
     """Render the user dashboard."""
     # Redirect to appropriate role-specific dashboard
     if current_user.is_admin():
-        return render_template('main/dashboard_admin.html')
+        return redirect(url_for('admin.dashboard'))
     elif current_user.is_editor():
         return redirect(url_for('review.editor_dashboard'))
     elif current_user.is_reviewer():
