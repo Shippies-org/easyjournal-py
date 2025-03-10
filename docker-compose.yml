@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 
 services:
   # Web application
@@ -7,51 +7,35 @@ services:
     restart: always
     ports:
       - "5000:5000"
+    # Simplified volume mounts with explicit host paths
     volumes:
-      - uploads:/app/uploads
-      - data:/app/data
+      - ./uploads:/app/uploads
+      - ./data:/app/data
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-journal_user}:${DB_PASSWORD:-journal_password}@db:5432/${DB_NAME:-journal}
+      - DATABASE_URL=postgresql://journal_user:journal_password@db:5432/journal
+      - DB_USER=journal_user
+      - DB_PASSWORD=journal_password
+      - DB_NAME=journal
+      - DB_HOST=db
       - DEMO_MODE=True
-      - SESSION_SECRET=${SESSION_SECRET:-default-secret-key-change-me}
+      - SESSION_SECRET=default-secret-key-change-me
     depends_on:
       - db
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - journal-network
 
   # PostgreSQL database
   db:
     image: postgres:14-alpine
     restart: always
     environment:
-      - POSTGRES_USER=${DB_USER:-journal_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-journal_password}
-      - POSTGRES_DB=${DB_NAME:-journal}
+      - POSTGRES_USER=journal_user
+      - POSTGRES_PASSWORD=journal_password
+      - POSTGRES_DB=journal
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-journal_user} -d ${DB_NAME:-journal}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - journal-network
-
-networks:
-  journal-network:
-    driver: bridge
 
 volumes:
-  uploads:
-  data:
-  db-data:
+  pgdata:
