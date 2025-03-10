@@ -52,16 +52,22 @@ def login():
             # Update user's last login time
             user.last_login = datetime.utcnow()
             
-            # Log this activity for analytics
-            login_activity = UserActivity(
-                user_id=user.id,
-                activity_type='login',
-                details=json.dumps({
-                    'user_agent': request.user_agent.string,
-                    'ip': request.remote_addr
-                })
-            )
-            db.session.add(login_activity)
+            # Log this activity for analytics, but make it fault-tolerant
+            try:
+                login_activity = UserActivity(
+                    user_id=user.id,
+                    activity_type='login',
+                    details=json.dumps({
+                        'user_agent': request.user_agent.string,
+                        'ip': request.remote_addr
+                    })
+                )
+                db.session.add(login_activity)
+            except Exception as activity_error:
+                # If activity tracking fails, log it but continue with login
+                current_app.logger.error(f"Failed to create activity log: {str(activity_error)}")
+                # Make sure we don't have any partial transaction
+                db.session.rollback()
             
             try:
                 db.session.commit()
@@ -69,7 +75,11 @@ def login():
             except Exception as e:
                 db.session.rollback()
                 current_app.logger.error(f"Error logging login activity: {str(e)}")
-                flash('Login successful!', 'success')  # Still show success even if activity logging fails
+                # Add more detailed logging for debugging
+                import traceback
+                current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+                # Still show success even if activity logging fails
+                flash('Login successful!', 'success')
             
             # Redirect to the role-specific dashboard or the page they were trying to access
             next_page = request.args.get('next')

@@ -22,25 +22,35 @@ def serve_css(filename):
     """Serve CSS files."""
     return send_from_directory('css', filename)
 
-# Ensure upload directories exist
+# Ensure upload directories exist with proper error handling
 for folder in [config.UPLOAD_FOLDER, os.path.join(config.UPLOAD_FOLDER, 'demo')]:
     if not os.path.exists(folder):
-        os.makedirs(folder)
-        
-# Create sample demo PDF files
-demo_files = [
-    (os.path.join(config.UPLOAD_FOLDER, 'demo_paper1.pdf'), 'Sample paper 1'),
-    (os.path.join(config.UPLOAD_FOLDER, 'demo_paper2.pdf'), 'Sample paper 2'),
-    (os.path.join(config.UPLOAD_FOLDER, 'demo_paper3.pdf'), 'Sample paper 3')
-]
-
-for file_path, content in demo_files:
-    if not os.path.exists(file_path):
         try:
-            with open(file_path, 'w') as f:
-                f.write(content)
-        except Exception as e:
-            print(f"Warning: Could not create demo file {file_path}: {str(e)}")
+            os.makedirs(folder, exist_ok=True)
+            print(f"Created directory: {folder}")
+        except Exception as dir_error:
+            print(f"Warning: Could not create directory {folder}: {str(dir_error)}")
+            # This is non-fatal - continue with application startup
+        
+# Create sample demo PDF files - but make it optional
+try:
+    demo_files = [
+        (os.path.join(config.UPLOAD_FOLDER, 'demo_paper1.pdf'), 'Sample paper 1'),
+        (os.path.join(config.UPLOAD_FOLDER, 'demo_paper2.pdf'), 'Sample paper 2'),
+        (os.path.join(config.UPLOAD_FOLDER, 'demo_paper3.pdf'), 'Sample paper 3')
+    ]
+
+    for file_path, content in demo_files:
+        if not os.path.exists(file_path):
+            try:
+                with open(file_path, 'w') as f:
+                    f.write(content)
+                print(f"Created demo file: {file_path}")
+            except Exception as e:
+                print(f"Warning: Could not create demo file {file_path}: {str(e)}")
+                # This is non-fatal - demo files are optional
+except Exception as demo_file_error:
+    print(f"Warning: Skipping demo file creation: {str(demo_file_error)}")
 
 # Ensure demo data is loaded when the app starts
 with app.app_context():

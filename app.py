@@ -36,12 +36,16 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['MAX_CONTENT_LENGTH'] = config.MAX_CONTENT_LENGTH
     app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
+    # Enhanced database connection handling for better reliability in deployment
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        "pool_recycle": 300,
-        "pool_pre_ping": True,
-        "pool_size": 10,
-        "max_overflow": 15,
-        "echo": False,
+        "pool_recycle": 300,  # Recycle connections every 5 minutes
+        "pool_pre_ping": True,  # Verify connections before use
+        "pool_size": 10,  # Number of connections to keep open
+        "max_overflow": 15,  # Max number of connections to create beyond pool_size
+        "echo": config.DEBUG,  # Log SQL in debug mode
+        "connect_args": {
+            "connect_timeout": 10  # Connection timeout in seconds
+        }
     }
     
     # Add custom filter for converting newlines to <br>
@@ -268,63 +272,72 @@ For any privacy-related inquiries, please contact the journal administration."""
     @app.before_request
     def track_visitor():
         """Track visitor information for analytics."""
-        from models import VisitorLog, ArticleView
-        from flask_login import current_user
-        from flask import session
-        import re
-        import time
-        
-        # Skip tracking for static files and certain paths
-        if (request.path.startswith('/static') or 
-            request.path.startswith('/css') or 
-            request.path == '/favicon.ico'):
-            return
+        # Skip visitor tracking in deployment if there are issues with it
+        # This makes sure login still works even if tracking doesn't
+        try:
+            from models import VisitorLog, ArticleView
+            from flask_login import current_user
+            from flask import session
+            import re
+            import time
             
-        # Limit tracking frequency to reduce database load
-        # Only track once per session, or once every 10 minutes for the same path
-        session_key = f'tracked_{request.path}'
-        
-        # Initialize tracking session data if not present
-        if 'last_tracked_time' not in session:
-            session['last_tracked_time'] = {}
+            # Skip tracking for static files and certain paths
+            if (request.path.startswith('/static') or 
+                request.path.startswith('/css') or 
+                request.path == '/favicon.ico'):
+                return
+                
+            # Limit tracking frequency to reduce database load
+            # Only track once per session, or once every 10 minutes for the same path
+            session_key = f'tracked_{request.path}'
+            
+            # Initialize tracking session data if not present
+            if 'last_tracked_time' not in session:
+                session['last_tracked_time'] = {}
 
-        current_time = time.time()
-        should_track = False
-        
-        # Check if this path was tracked in this session
-        if session_key not in session or current_time - session.get('last_tracked_time', {}).get(request.path, 0) > 600:
-            should_track = True
-            session[session_key] = True
-            session['last_tracked_time'][request.path] = current_time
-            session.modified = True
-        
-        if should_track:
-            # Create visitor log entry
-            visitor_log = VisitorLog(
-                user_id=current_user.id if current_user.is_authenticated else None,
-                ip_address=request.remote_addr,
-                user_agent=request.user_agent.string if request.user_agent else None,
-                path=request.path,
-                referer=request.referrer
-            )
+            current_time = time.time()
+            should_track = False
             
-            # Check if this is an article view
-            article_match = re.match(r'/articles/(\d+)', request.path)
-            if article_match:
-                submission_id = int(article_match.group(1))
-                article_view = ArticleView(
-                    submission_id=submission_id,
-                    user_id=current_user.id if current_user.is_authenticated else None,
-                    ip_address=request.remote_addr
-                )
-                db.session.add(article_view)
+            # Check if this path was tracked in this session
+            if session_key not in session or current_time - session.get('last_tracked_time', {}).get(request.path, 0) > 600:
+                should_track = True
+                session[session_key] = True
+                session['last_tracked_time'][request.path] = current_time
+                session.modified = True
             
-            db.session.add(visitor_log)
-            try:
-                db.session.commit()
-            except:
-                # Don't let tracking errors affect the user experience
-                db.session.rollback()
+            if should_track:
+                try:
+                    # Create visitor log entry
+                    visitor_log = VisitorLog(
+                        user_id=current_user.id if current_user.is_authenticated else None,
+                        ip_address=request.remote_addr,
+                        user_agent=request.user_agent.string if request.user_agent else None,
+                        path=request.path,
+                        referer=request.referrer
+                    )
+                    
+                    # Check if this is an article view
+                    article_match = re.match(r'/articles/(\d+)', request.path)
+                    if article_match:
+                        submission_id = int(article_match.group(1))
+                        article_view = ArticleView(
+                            submission_id=submission_id,
+                            user_id=current_user.id if current_user.is_authenticated else None,
+                            ip_address=request.remote_addr
+                        )
+                        db.session.add(article_view)
+                    
+                    db.session.add(visitor_log)
+                    db.session.commit()
+                except Exception as tracking_error:
+                    # Log the error but don't let it affect user experience
+                    app.logger.error(f"Visitor tracking error: {str(tracking_error)}")
+                    db.session.rollback()
+        except Exception as e:
+            # If any error occurs in the whole visitor tracking process, 
+            # log it but don't interrupt the request
+            app.logger.error(f"Failed to initialize visitor tracking: {str(e)}")
+            # We don't need to rollback as we're catching at function level
     
     # Create database tables if they don't exist
     with app.app_context():
