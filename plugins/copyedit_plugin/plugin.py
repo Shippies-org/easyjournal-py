@@ -283,7 +283,8 @@ def add_navigation_items(args):
         })
     else:
         # Check if the user has any copy editing assignments
-        from .models import CopyEdit
+        # Use absolute imports to avoid package issues
+        from plugins.copyedit_plugin.models import CopyEdit
         copyedit_count = CopyEdit.query.filter_by(copyeditor_id=current_user.id).count()
         if copyedit_count > 0:
             nav_items.append({
@@ -303,16 +304,19 @@ def register_plugin():
     logger.info("Registering Copy Editing Plugin")
     
     # Import models to ensure they're registered with SQLAlchemy
-    from . import models
+    # Use absolute import to avoid package issues
+    import plugins.copyedit_plugin.models
+    
+    # We'll handle database creation and blueprint registration with Flask's
+    # current_app object to avoid circular imports
+    from flask import current_app
     
     # Create tables if they don't exist
-    from app import app
-    with app.app_context():
+    with current_app.app_context():
         db.create_all()
     
-    # Register the blueprint
-    from app import app
-    app.register_blueprint(copyedit_bp)
+    # Register the blueprint with the current app
+    current_app.register_blueprint(copyedit_bp)
     
     # Register the hook to add navigation items
     PluginSystem.register_hook('getNavItems', add_navigation_items, 10, 'copyedit_plugin')
