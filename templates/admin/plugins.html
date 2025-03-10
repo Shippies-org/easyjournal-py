@@ -26,6 +26,19 @@
                                     <small class="text-muted">{{ plugin_data.info.path }}</small>
                                 </p>
                                 
+                                <!-- Plugin Navigation Links -->
+                                <div class="mb-2">
+                                    {% if plugin_name == 'copyedit_plugin' %}
+                                        <a href="{{ url_for('copyedit.index') }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-arrow-right-circle"></i> Go to Copy Editor
+                                        </a>
+                                    {% elif plugin_name == 'welcome_plugin' %}
+                                        <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-arrow-right-circle"></i> View Welcome Page
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                
                                 {% if plugin_data.info.hooks %}
                                 <p class="mb-2">
                                     <small class="text-muted">
@@ -33,6 +46,25 @@
                                         {% for hook in plugin_data.info.hooks %}
                                             <span class="badge bg-secondary">{{ hook }}</span>
                                         {% endfor %}
+                                    </small>
+                                </p>
+                                {% endif %}
+                                
+                                <!-- Plugin Details -->
+                                {% if plugin_data.info.description %}
+                                <p class="mb-2">
+                                    <small>{{ plugin_data.info.description }}</small>
+                                </p>
+                                {% endif %}
+                                
+                                {% if plugin_data.info.version or plugin_data.info.author %}
+                                <p class="mb-1">
+                                    <small class="text-muted">
+                                        {% if plugin_data.info.version %}v{{ plugin_data.info.version }}{% endif %}
+                                        {% if plugin_data.info.author %}
+                                            {% if plugin_data.info.version %} | {% endif %}
+                                            by {{ plugin_data.info.author }}
+                                        {% endif %}
                                     </small>
                                 </p>
                                 {% endif %}
