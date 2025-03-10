@@ -1,0 +1,26 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Review Dashboard - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="reviewActionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-journals me-2"></i>Review Actions
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="reviewActionDropdown">
+                    <li><a class="dropdown-item" href="{{ url_for('review.editor_dashboard') }}"><i class="bi bi-speedometer me-2"></i>Editor Dashboard</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('review.reviewer_dashboard') }}"><i class="bi bi-clipboard-check me-2"></i>Reviewer Dashboard</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('review.publishing_dashboard') }}"><i class="bi bi-calendar-check me-2"></i>Publishing Dashboard</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.browse') }}"><i class="bi bi-book me-2"></i>Browse Published Articles</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    {% block review_content %}{% endblock %}
+</div>
+{% endblock %}
