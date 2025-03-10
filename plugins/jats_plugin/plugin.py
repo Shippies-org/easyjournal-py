@@ -130,30 +130,38 @@ def generate_xml(submission_id):
             # Log file path for debugging
             current_app.logger.debug(f"Processing file at path: {file_path}")
             
-            # Prepare metadata
-            metadata = {
-                'title': submission.title,
-                'authors': submission.authors,
-                'abstract': submission.abstract,
-                'keywords': submission.keywords,
-                'category': submission.category,
-                'submission_date': submission.submitted_at.isoformat(),
+            # Prepare JATS metadata following the example format
+            jats_metadata = {
+                'article': {
+                    'article_id': str(submission.id),
+                    'article_title': submission.title,
+                    'contributors': [{'name': name.strip()} for name in submission.authors.split(',')],
+                    'abstract': submission.abstract,
+                    'keywords': [kw.strip() for kw in (submission.keywords or '').split(',') if kw.strip()],
+                    'category': submission.category
+                },
+                'journal': {
+                    'journal_id': 'EJournal',
+                    'journal_title': 'EasyJournal Academic Publishing',
+                    'issn': '2023-5000'
+                }
             }
             
             # Add publication info if available
             publication = Publication.query.filter_by(submission_id=submission_id).first()
             if publication and publication.is_published():
-                metadata['publication_date'] = publication.published_at.isoformat()
-                metadata['volume'] = publication.issue.volume
-                metadata['issue'] = publication.issue.issue_number
-                metadata['page_start'] = publication.page_start
-                metadata['page_end'] = publication.page_end
-                metadata['issue_title'] = publication.issue.title
+                pub_date = publication.published_at.strftime('%Y-%m-%d')
+                jats_metadata['article']['pub_date'] = pub_date
+                jats_metadata['journal']['volume'] = str(publication.issue.volume)
+                jats_metadata['journal']['issue'] = str(publication.issue.issue_number)
+                jats_metadata['article']['fpage'] = str(publication.page_start or 1)
+                jats_metadata['article']['lpage'] = str(publication.page_end or 20)
+                jats_metadata['journal']['issue_title'] = publication.issue.title
             
-            # Prepare files for upload
+            # Prepare files for upload according to the API example
             files = {
-                'document': (os.path.basename(file_path), open(file_path, 'rb')),
-                'metadata': ('metadata.json', json.dumps(metadata))
+                'file': (os.path.basename(file_path), open(file_path, 'rb')),
+                'jats_metadata': ('jats_metadata.json', json.dumps(jats_metadata))
             }
             
             # Prepare headers
