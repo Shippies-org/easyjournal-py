@@ -1,0 +1,52 @@
+{% extends 'review/base.html' %}
+
+{% block title %}JATS API Settings - EasyJournal{% endblock %}
+
+{% block review_content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">JATS API Settings</h1>
+        <p class="text-muted">Configure the JATS XML generation API endpoint</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">API Configuration</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('jats.settings') }}">
+            <div class="mb-3">
+                <label for="api_url" class="form-label">API Endpoint URL</label>
+                <input type="url" class="form-control" id="api_url" name="api_url" value="{{ api_settings.api_url }}" required>
+                <div class="form-text">The URL endpoint of the JATS XML generation service.</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="api_key" class="form-label">API Key</label>
+                <input type="password" class="form-control" id="api_key" name="api_key" value="{{ api_settings.api_key or '' }}">
+                <div class="form-text">Optional. Authentication key for the JATS XML generation service.</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="timeout" class="form-label">Request Timeout</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" id="timeout" name="timeout" value="{{ api_settings.timeout }}" min="5" max="300" required>
+                    <span class="input-group-text">seconds</span>
+                </div>
+                <div class="form-text">Maximum time to wait for a response from the API (5-300 seconds).</div>
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle-fill"></i> This plugin requires an external API service capable of converting DOCX manuscripts to JATS XML format. 
+                The API should accept multipart form data with a 'document' file and a 'metadata' JSON file containing article metadata.
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ url_for('jats.index') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

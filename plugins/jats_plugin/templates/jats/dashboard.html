@@ -1,0 +1,126 @@
+{% extends 'review/base.html' %}
+
+{% block title %}JATS XML Dashboard - EasyJournal{% endblock %}
+
+{% block review_content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">JATS XML Dashboard</h1>
+        <p class="text-muted">Manage JATS XML generation for accepted articles</p>
+    </div>
+    <div class="col-auto">
+        {% if current_user.is_admin() %}
+        <a href="{{ url_for('jats.settings') }}" class="btn btn-outline-primary">
+            <i class="bi bi-gear"></i> API Settings
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- API Status Card -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">JATS API Configuration</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>API Endpoint:</strong> {{ api_settings.api_url }}</p>
+                <p><strong>API Key:</strong> {% if api_settings.api_key %}Configured{% else %}<span class="text-warning">Not configured</span>{% endif %}</p>
+                <p><strong>Timeout:</strong> {{ api_settings.timeout }} seconds</p>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle-fill"></i> This plugin connects to an external JATS XML generation API to convert DOCX manuscripts to JATS XML format.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- XML Records Table -->
+{% if xml_records %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">JATS XML Records</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Article Title</th>
+                    <th>Author</th>
+                    <th>Status</th>
+                    <th>Generated Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in xml_records %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=record.submission.id) }}" class="text-decoration-none">
+                            {{ record.submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ record.submission.author.name }}</td>
+                    <td>
+                        {% if record.status == 'completed' %}
+                        <span class="badge bg-success">Completed</span>
+                        {% elif record.status == 'processing' %}
+                        <span class="badge bg-warning">Processing</span>
+                        {% elif record.status == 'error' %}
+                        <span class="badge bg-danger">Error</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if record.generated_at %}
+                        {{ record.generated_at.strftime('%Y-%m-%d %H:%M') }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            {% if record.status == 'completed' %}
+                            <a href="{{ url_for('jats.view_xml', record_id=record.id) }}" class="btn btn-outline-primary" title="View XML">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('jats.download_xml', record_id=record.id) }}" class="btn btn-outline-success" title="Download XML">
+                                <i class="bi bi-download"></i>
+                            </a>
+                            {% endif %}
+                            
+                            {% if record.status == 'error' or record.status == 'pending' %}
+                            <a href="{{ url_for('jats.generate_xml', submission_id=record.submission.id) }}" class="btn btn-outline-primary" title="Generate XML">
+                                <i class="bi bi-arrow-repeat"></i> Retry
+                            </a>
+                            {% endif %}
+                            
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=record.submission.id) }}" class="btn btn-outline-secondary" title="View Submission">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle-fill"></i> No JATS XML records found. 
+    Generate JATS XML for accepted articles from the Publishing Dashboard.
+</div>
+{% endif %}
+
+<!-- Link to Publishing Dashboard -->
+<div class="mt-4">
+    <a href="{{ url_for('review.publishing_dashboard') }}" class="btn btn-primary">
+        <i class="bi bi-arrow-left"></i> Back to Publishing Dashboard
+    </a>
+</div>
+{% endblock %}

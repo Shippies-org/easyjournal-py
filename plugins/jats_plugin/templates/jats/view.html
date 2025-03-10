@@ -1,0 +1,101 @@
+{% extends 'review/base.html' %}
+
+{% block title %}View JATS XML - EasyJournal{% endblock %}
+
+{% block review_content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">View JATS XML</h1>
+        <p class="text-muted">JATS XML for {{ xml_record.submission.title }}</p>
+    </div>
+    <div class="col-auto">
+        {% if xml_record.xml_file_path %}
+        <a href="{{ url_for('jats.download_xml', record_id=xml_record.id) }}" class="btn btn-outline-primary">
+            <i class="bi bi-download"></i> Download XML
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">XML Record Information</h2>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Article:</strong>
+            </div>
+            <div class="col-md-9">
+                <a href="{{ url_for('review.view_submission_for_review', submission_id=xml_record.submission.id) }}">
+                    {{ xml_record.submission.title }}
+                </a>
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Status:</strong>
+            </div>
+            <div class="col-md-9">
+                <span class="badge bg-{% if xml_record.status == 'completed' %}success{% elif xml_record.status == 'processing' %}warning{% elif xml_record.status == 'error' %}danger{% else %}secondary{% endif %}">
+                    {{ xml_record.status|title }}
+                </span>
+            </div>
+        </div>
+        
+        {% if xml_record.generated_at %}
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Generated:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ xml_record.generated_at.strftime('%Y-%m-%d %H:%M:%S') }}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if xml_record.error_message %}
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Error:</strong>
+            </div>
+            <div class="col-md-9">
+                <div class="alert alert-danger mb-0">
+                    {{ xml_record.error_message }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if xml_content %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">JATS XML Content</h2>
+    </div>
+    <div class="card-body p-0">
+        <div class="bg-dark">
+            <pre class="p-3 text-light overflow-auto" style="max-height: 400px;"><code>{{ xml_content|e }}</code></pre>
+        </div>
+    </div>
+</div>
+{% elif xml_record.status == 'completed' %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle-fill"></i> XML file content could not be displayed. You can still download the file.
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{{ url_for('jats.index') }}" class="btn btn-primary">
+        <i class="bi bi-arrow-left"></i> Back to JATS Dashboard
+    </a>
+    
+    {% if xml_record.status == 'error' %}
+    <a href="{{ url_for('jats.generate_xml', submission_id=xml_record.submission_id) }}" class="btn btn-warning">
+        <i class="bi bi-arrow-repeat"></i> Retry Generation
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

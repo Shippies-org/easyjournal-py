@@ -1,0 +1,115 @@
+{% extends 'review/base.html' %}
+
+{% block title %}Generate JATS XML - EasyJournal{% endblock %}
+
+{% block review_content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">Generate JATS XML</h1>
+        <p class="text-muted">Generate JATS XML for the selected article</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Article Information</h2>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Title:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ submission.title }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Authors:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ submission.authors }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Category:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ submission.category|replace('_', ' ')|title }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Submission Date:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ submission.submitted_at.strftime('%Y-%m-%d') }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>Status:</strong>
+            </div>
+            <div class="col-md-9">
+                <span class="badge bg-{% if submission.status == 'accepted' %}success{% elif submission.status == 'published' %}primary{% else %}secondary{% endif %}">
+                    {{ submission.status|title }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <strong>File:</strong>
+            </div>
+            <div class="col-md-9">
+                {{ submission.file_path.split('/')[-1] }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if xml_record and xml_record.status == 'error' %}
+<div class="alert alert-danger">
+    <h4 class="alert-heading">Error in Previous Attempt</h4>
+    <p>The previous attempt to generate JATS XML encountered an error:</p>
+    <pre class="mb-0">{{ xml_record.error_message }}</pre>
+</div>
+{% endif %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Generate JATS XML</h2>
+    </div>
+    <div class="card-body">
+        <p>This will send the manuscript file and metadata to the configured JATS XML generation API.</p>
+        
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle-fill"></i> The following metadata will be included:
+            <ul>
+                <li>Title, authors, and abstract</li>
+                <li>Keywords and category</li>
+                <li>Submission date</li>
+                {% if submission.is_published() %}
+                <li>Publication information (volume, issue, page numbers)</li>
+                {% endif %}
+            </ul>
+        </div>
+        
+        <form method="POST" action="{{ url_for('jats.generate_xml', submission_id=submission.id) }}">
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-code"></i> Generate JATS XML
+                </button>
+                <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-secondary">
+                    Cancel and Return to Submission
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
