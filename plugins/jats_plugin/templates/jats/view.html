@@ -6,96 +6,164 @@
 <div class="row mb-4">
     <div class="col">
         <h1 class="h3">View JATS XML</h1>
-        <p class="text-muted">JATS XML for {{ xml_record.submission.title }}</p>
+        <p class="text-muted">
+            JATS XML for "{{ xml_record.submission.title }}"
+            {% if xml_record.generated_at %}
+            <small>(Generated on {{ xml_record.generated_at.strftime('%Y-%m-%d at %H:%M') }})</small>
+            {% endif %}
+        </p>
     </div>
     <div class="col-auto">
-        {% if xml_record.xml_file_path %}
-        <a href="{{ url_for('jats.download_xml', record_id=xml_record.id) }}" class="btn btn-outline-primary">
-            <i class="bi bi-download"></i> Download XML
-        </a>
-        {% endif %}
+        <div class="btn-group">
+            <a href="{{ url_for('jats.download_xml', record_id=xml_record.id) }}" class="btn btn-success">
+                <i class="bi bi-download"></i> Download XML
+            </a>
+            <a href="{{ url_for('jats.generate_xml', submission_id=xml_record.submission.id) }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-repeat"></i> Regenerate
+            </a>
+            <a href="{{ url_for('jats.index') }}" class="btn btn-primary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
     </div>
 </div>
 
-<div class="card mb-4">
-    <div class="card-header">
-        <h2 class="h5 mb-0">XML Record Information</h2>
-    </div>
-    <div class="card-body">
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>Article:</strong>
-            </div>
-            <div class="col-md-9">
-                <a href="{{ url_for('review.view_submission_for_review', submission_id=xml_record.submission.id) }}">
-                    {{ xml_record.submission.title }}
-                </a>
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>Status:</strong>
-            </div>
-            <div class="col-md-9">
-                <span class="badge bg-{% if xml_record.status == 'completed' %}success{% elif xml_record.status == 'processing' %}warning{% elif xml_record.status == 'error' %}danger{% else %}secondary{% endif %}">
-                    {{ xml_record.status|title }}
-                </span>
-            </div>
-        </div>
-        
-        {% if xml_record.generated_at %}
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>Generated:</strong>
-            </div>
-            <div class="col-md-9">
-                {{ xml_record.generated_at.strftime('%Y-%m-%d %H:%M:%S') }}
-            </div>
-        </div>
-        {% endif %}
-        
-        {% if xml_record.error_message %}
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>Error:</strong>
-            </div>
-            <div class="col-md-9">
-                <div class="alert alert-danger mb-0">
-                    {{ xml_record.error_message }}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</div>
-
-{% if xml_content %}
+<!-- XML Viewer Card -->
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h2 class="h5 mb-0">JATS XML Content</h2>
+        
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="word-wrap-toggle">
+            <label class="form-check-label" for="word-wrap-toggle">Word Wrap</label>
+        </div>
     </div>
     <div class="card-body p-0">
-        <div class="bg-dark">
-            <pre class="p-3 text-light overflow-auto" style="max-height: 400px;"><code>{{ xml_content|e }}</code></pre>
+        {% if xml_content %}
+        <pre id="xml-content" class="p-3 m-0 xml-viewer">{{ xml_content }}</pre>
+        {% else %}
+        <div class="p-4 text-center">
+            <div class="mb-3">
+                <i class="bi bi-file-earmark-x" style="font-size: 3rem;"></i>
+            </div>
+            <h3>XML Content Not Found</h3>
+            <p class="text-muted">The XML file could not be found or is not readable.</p>
+            <a href="{{ url_for('jats.generate_xml', submission_id=xml_record.submission.id) }}" class="btn btn-primary">
+                <i class="bi bi-arrow-repeat"></i> Regenerate XML
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Article Information Card -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Article Information</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Title:</strong> {{ xml_record.submission.title }}</p>
+                <p><strong>Authors:</strong> {{ xml_record.submission.authors }}</p>
+                <p><strong>Category:</strong> {{ xml_record.submission.category|replace('_', ' ')|title }}</p>
+                <p><strong>Status:</strong> {{ xml_record.submission.status|title }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>XML Status:</strong> 
+                    {% if xml_record.status == 'completed' %}
+                    <span class="badge bg-success">Completed</span>
+                    {% elif xml_record.status == 'processing' %}
+                    <span class="badge bg-warning">Processing</span>
+                    {% elif xml_record.status == 'error' %}
+                    <span class="badge bg-danger">Error</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Pending</span>
+                    {% endif %}
+                </p>
+                
+                <p><strong>Created:</strong> {{ xml_record.created_at.strftime('%Y-%m-%d') }}</p>
+                
+                {% if xml_record.generated_at %}
+                <p><strong>Generated:</strong> {{ xml_record.generated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                {% endif %}
+                
+                {% if xml_record.xml_file_path %}
+                <p><strong>File:</strong> {{ xml_record.xml_file_path.split('/')[-1] }}</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
-{% elif xml_record.status == 'completed' %}
-<div class="alert alert-warning">
-    <i class="bi bi-exclamation-triangle-fill"></i> XML file content could not be displayed. You can still download the file.
+
+<!-- Publication Information Card (if published) -->
+{% set publication = xml_record.submission.publication %}
+{% if publication %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Publication Information</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Issue:</strong> {{ publication.issue.title }}</p>
+                <p><strong>Volume:</strong> {{ publication.issue.volume }}</p>
+                <p><strong>Issue Number:</strong> {{ publication.issue.issue_number }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Pages:</strong> 
+                    {% if publication.page_start and publication.page_end %}
+                    {{ publication.page_start }}-{{ publication.page_end }}
+                    {% else %}
+                    Not assigned
+                    {% endif %}
+                </p>
+                <p><strong>Publication Status:</strong> {{ publication.status|title }}</p>
+                {% if publication.published_at %}
+                <p><strong>Published Date:</strong> {{ publication.published_at.strftime('%Y-%m-%d') }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}
 
-<div class="mt-4">
-    <a href="{{ url_for('jats.index') }}" class="btn btn-primary">
-        <i class="bi bi-arrow-left"></i> Back to JATS Dashboard
-    </a>
+<style>
+.xml-viewer {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border-radius: 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: auto;
+    tab-size: 4;
+    white-space: pre;
+    height: 500px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+.word-wrap {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Word wrap toggle
+    const wordWrapToggle = document.getElementById('word-wrap-toggle');
+    const xmlContent = document.getElementById('xml-content');
     
-    {% if xml_record.status == 'error' %}
-    <a href="{{ url_for('jats.generate_xml', submission_id=xml_record.submission_id) }}" class="btn btn-warning">
-        <i class="bi bi-arrow-repeat"></i> Retry Generation
-    </a>
-    {% endif %}
-</div>
+    if (wordWrapToggle && xmlContent) {
+        wordWrapToggle.addEventListener('change', function() {
+            if (this.checked) {
+                xmlContent.classList.add('word-wrap');
+            } else {
+                xmlContent.classList.remove('word-wrap');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

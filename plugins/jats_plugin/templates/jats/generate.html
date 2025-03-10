@@ -6,110 +6,197 @@
 <div class="row mb-4">
     <div class="col">
         <h1 class="h3">Generate JATS XML</h1>
-        <p class="text-muted">Generate JATS XML for the selected article</p>
+        <p class="text-muted">Generate JATS XML for "{{ submission.title }}"</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('jats.index') }}" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
     </div>
 </div>
 
-<div class="card mb-4">
-    <div class="card-header">
-        <h2 class="h5 mb-0">Article Information</h2>
-    </div>
-    <div class="card-body">
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>Title:</strong>
+<div class="row">
+    <div class="col-md-8">
+        <!-- Submission Information Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Article Information</h2>
             </div>
-            <div class="col-md-9">
-                {{ submission.title }}
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>Authors:</strong>
-            </div>
-            <div class="col-md-9">
-                {{ submission.authors }}
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>Category:</strong>
-            </div>
-            <div class="col-md-9">
-                {{ submission.category|replace('_', ' ')|title }}
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>Submission Date:</strong>
-            </div>
-            <div class="col-md-9">
-                {{ submission.submitted_at.strftime('%Y-%m-%d') }}
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Title</dt>
+                    <dd class="col-sm-9">{{ submission.title }}</dd>
+                    
+                    <dt class="col-sm-3">Authors</dt>
+                    <dd class="col-sm-9">{{ submission.authors }}</dd>
+                    
+                    <dt class="col-sm-3">Abstract</dt>
+                    <dd class="col-sm-9">{{ submission.abstract }}</dd>
+                    
+                    <dt class="col-sm-3">Keywords</dt>
+                    <dd class="col-sm-9">{{ submission.keywords }}</dd>
+                    
+                    <dt class="col-sm-3">Category</dt>
+                    <dd class="col-sm-9">{{ submission.category|replace('_', ' ')|title }}</dd>
+                    
+                    <dt class="col-sm-3">Status</dt>
+                    <dd class="col-sm-9">{{ submission.status|title }}</dd>
+                    
+                    <dt class="col-sm-3">Submitted</dt>
+                    <dd class="col-sm-9">{{ submission.submitted_at.strftime('%Y-%m-%d') }}</dd>
+                    
+                    <dt class="col-sm-3">File</dt>
+                    <dd class="col-sm-9">{{ submission.file_path.split('/')[-1] }}</dd>
+                </dl>
             </div>
         </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>Status:</strong>
-            </div>
-            <div class="col-md-9">
-                <span class="badge bg-{% if submission.status == 'accepted' %}success{% elif submission.status == 'published' %}primary{% else %}secondary{% endif %}">
-                    {{ submission.status|title }}
-                </span>
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <strong>File:</strong>
-            </div>
-            <div class="col-md-9">
-                {{ submission.file_path.split('/')[-1] }}
-            </div>
-        </div>
-    </div>
-</div>
 
-{% if xml_record and xml_record.status == 'error' %}
-<div class="alert alert-danger">
-    <h4 class="alert-heading">Error in Previous Attempt</h4>
-    <p>The previous attempt to generate JATS XML encountered an error:</p>
-    <pre class="mb-0">{{ xml_record.error_message }}</pre>
-</div>
-{% endif %}
-
-<div class="card mb-4">
-    <div class="card-header">
-        <h2 class="h5 mb-0">Generate JATS XML</h2>
-    </div>
-    <div class="card-body">
-        <p>This will send the manuscript file and metadata to the configured JATS XML generation API.</p>
-        
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle-fill"></i> The following metadata will be included:
-            <ul>
-                <li>Title, authors, and abstract</li>
-                <li>Keywords and category</li>
-                <li>Submission date</li>
-                {% if submission.is_published() %}
-                <li>Publication information (volume, issue, page numbers)</li>
+        <!-- Generate XML Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Generate JATS XML</h2>
+            </div>
+            <div class="card-body">
+                {% if xml_record.status == 'pending' or xml_record.status == 'error' %}
+                <p>Click the button below to generate JATS XML for this article using the configured API.</p>
+                
+                {% if xml_record.status == 'error' %}
+                <div class="alert alert-danger">
+                    <h5><i class="bi bi-exclamation-triangle-fill"></i> Error</h5>
+                    <p>The previous attempt to generate JATS XML failed with the following error:</p>
+                    <pre class="p-3 bg-light">{{ xml_record.error_message }}</pre>
+                </div>
                 {% endif %}
-            </ul>
+                
+                <form method="post">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i> Process Information
+                        <p class="mb-0 mt-2">
+                            The JATS XML generation process will:
+                            <ul class="mb-0">
+                                <li>Upload the article file to the JATS API</li>
+                                <li>Process the document to extract content</li>
+                                <li>Convert to standardized JATS XML format</li>
+                                <li>Store the generated XML for future use</li>
+                            </ul>
+                        </p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-file-earmark-code"></i> Generate JATS XML
+                        </button>
+                    </div>
+                </form>
+                {% elif xml_record.status == 'processing' %}
+                <div class="alert alert-warning">
+                    <h5><i class="bi bi-hourglass-split"></i> Processing</h5>
+                    <p>JATS XML generation is currently in progress.</p>
+                    <p>This process may take several minutes depending on the size and complexity of the document.</p>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('jats.generate_xml', submission_id=submission.id) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-repeat"></i> Refresh Status
+                    </a>
+                </div>
+                {% elif xml_record.status == 'completed' %}
+                <div class="alert alert-success">
+                    <h5><i class="bi bi-check-circle-fill"></i> JATS XML Generated Successfully</h5>
+                    <p>The JATS XML was generated on {{ xml_record.generated_at.strftime('%Y-%m-%d at %H:%M') }}.</p>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('jats.view_xml', record_id=xml_record.id) }}" class="btn btn-primary">
+                        <i class="bi bi-eye"></i> View XML
+                    </a>
+                    <a href="{{ url_for('jats.download_xml', record_id=xml_record.id) }}" class="btn btn-success">
+                        <i class="bi bi-download"></i> Download XML
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- API Status Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">JATS API Status</h2>
+            </div>
+            <div class="card-body">
+                {% if not api_settings.api_url or not api_settings.api_key %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i> API Not Fully Configured
+                    {% if current_user.is_admin() %}
+                    <p class="mb-0 mt-2">
+                        <a href="{{ url_for('jats.settings') }}" class="btn btn-sm btn-outline-primary">Configure API</a>
+                    </p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i> API is configured and ready to use
+                </div>
+                {% endif %}
+                
+                <p><strong>API URL:</strong> {{ api_settings.api_url or 'Not configured' }}</p>
+                <p><strong>API Key:</strong> {{ 'Configured' if api_settings.api_key else 'Not configured' }}</p>
+                <p><strong>Timeout:</strong> {{ api_settings.timeout }} seconds</p>
+            </div>
         </div>
         
-        <form method="POST" action="{{ url_for('jats.generate_xml', submission_id=submission.id) }}">
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-file-earmark-code"></i> Generate JATS XML
-                </button>
-                <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-secondary">
-                    Cancel and Return to Submission
-                </a>
+        <!-- XML Record Status Card -->
+        {% if xml_record %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">XML Record Status</h2>
             </div>
-        </form>
+            <div class="card-body">
+                <p><strong>Status:</strong> 
+                    {% if xml_record.status == 'completed' %}
+                    <span class="badge bg-success">Completed</span>
+                    {% elif xml_record.status == 'processing' %}
+                    <span class="badge bg-warning">Processing</span>
+                    {% elif xml_record.status == 'error' %}
+                    <span class="badge bg-danger">Error</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Pending</span>
+                    {% endif %}
+                </p>
+                
+                <p><strong>Created:</strong> {{ xml_record.created_at.strftime('%Y-%m-%d') }}</p>
+                
+                {% if xml_record.generated_at %}
+                <p><strong>Generated:</strong> {{ xml_record.generated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                {% endif %}
+                
+                {% if xml_record.xml_file_path %}
+                <p><strong>File:</strong> {{ xml_record.xml_file_path.split('/')[-1] }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- About JATS XML Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 mb-0">About JATS XML</h2>
+            </div>
+            <div class="card-body">
+                <p>The Journal Article Tag Suite (JATS) is an XML format used to describe scientific literature published online.</p>
+                <p>Benefits of JATS XML include:</p>
+                <ul>
+                    <li>Standard format for article archiving</li>
+                    <li>Enhanced discoverability in academic databases</li>
+                    <li>Improved accessibility for readers</li>
+                    <li>Facilitates content reuse across platforms</li>
+                </ul>
+                <p>Learn more about <a href="https://jats.nlm.nih.gov/" target="_blank">JATS XML</a>.</p>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -6,33 +6,47 @@
 <div class="row mb-4">
     <div class="col">
         <h1 class="h3">JATS XML Dashboard</h1>
-        <p class="text-muted">Manage JATS XML generation for accepted articles</p>
+        <p class="text-muted">Manage JATS XML generation for articles</p>
     </div>
     <div class="col-auto">
         {% if current_user.is_admin() %}
-        <a href="{{ url_for('jats.settings') }}" class="btn btn-outline-primary">
+        <a href="{{ url_for('jats.settings') }}" class="btn btn-outline-secondary">
             <i class="bi bi-gear"></i> API Settings
         </a>
         {% endif %}
+        <a href="{{ url_for('review.publishing_dashboard') }}" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Back to Publishing
+        </a>
     </div>
 </div>
 
 <!-- API Status Card -->
 <div class="card mb-4">
     <div class="card-header">
-        <h2 class="h5 mb-0">JATS API Configuration</h2>
+        <h2 class="h5 mb-0">JATS API Status</h2>
     </div>
     <div class="card-body">
         <div class="row">
             <div class="col-md-6">
-                <p><strong>API Endpoint:</strong> {{ api_settings.api_url }}</p>
-                <p><strong>API Key:</strong> {% if api_settings.api_key %}Configured{% else %}<span class="text-warning">Not configured</span>{% endif %}</p>
+                <p><strong>API URL:</strong> {{ api_settings.api_url or 'Not configured' }}</p>
+                <p><strong>API Key:</strong> {{ 'Configured' if api_settings.api_key else 'Not configured' }}</p>
                 <p><strong>Timeout:</strong> {{ api_settings.timeout }} seconds</p>
             </div>
             <div class="col-md-6">
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle-fill"></i> This plugin connects to an external JATS XML generation API to convert DOCX manuscripts to JATS XML format.
+                {% if api_settings.api_url and api_settings.api_key %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i> API is configured and ready to use
                 </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i> API is not fully configured
+                    {% if current_user.is_admin() %}
+                    <p class="mb-0 mt-2">
+                        <a href="{{ url_for('jats.settings') }}" class="btn btn-sm btn-outline-primary">Configure API</a>
+                    </p>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -40,9 +54,9 @@
 
 <!-- XML Records Table -->
 {% if xml_records %}
-<div class="card mb-4">
+<div class="card">
     <div class="card-header">
-        <h2 class="h5 mb-0">JATS XML Records</h2>
+        <h2 class="h5 mb-0">Generated JATS XML Records</h2>
     </div>
     <div class="table-responsive">
         <table class="table table-hover table-striped mb-0">
@@ -51,7 +65,7 @@
                     <th>Article Title</th>
                     <th>Author</th>
                     <th>Status</th>
-                    <th>Generated Date</th>
+                    <th>Generated</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -75,13 +89,7 @@
                         <span class="badge bg-secondary">Pending</span>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if record.generated_at %}
-                        {{ record.generated_at.strftime('%Y-%m-%d %H:%M') }}
-                        {% else %}
-                        -
-                        {% endif %}
-                    </td>
+                    <td>{{ record.generated_at.strftime('%Y-%m-%d %H:%M') if record.generated_at else 'N/A' }}</td>
                     <td>
                         <div class="btn-group btn-group-sm">
                             {% if record.status == 'completed' %}
@@ -91,17 +99,15 @@
                             <a href="{{ url_for('jats.download_xml', record_id=record.id) }}" class="btn btn-outline-success" title="Download XML">
                                 <i class="bi bi-download"></i>
                             </a>
-                            {% endif %}
-                            
-                            {% if record.status == 'error' or record.status == 'pending' %}
-                            <a href="{{ url_for('jats.generate_xml', submission_id=record.submission.id) }}" class="btn btn-outline-primary" title="Generate XML">
+                            {% elif record.status == 'error' %}
+                            <a href="{{ url_for('jats.generate_xml', submission_id=record.submission.id) }}" class="btn btn-outline-warning" title="Retry Generation">
                                 <i class="bi bi-arrow-repeat"></i> Retry
                             </a>
-                            {% endif %}
-                            
-                            <a href="{{ url_for('review.view_submission_for_review', submission_id=record.submission.id) }}" class="btn btn-outline-secondary" title="View Submission">
-                                <i class="bi bi-file-earmark-text"></i>
+                            {% else %}
+                            <a href="{{ url_for('jats.generate_xml', submission_id=record.submission.id) }}" class="btn btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i>
                             </a>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>
@@ -111,16 +117,18 @@
     </div>
 </div>
 {% else %}
-<div class="alert alert-info">
-    <i class="bi bi-info-circle-fill"></i> No JATS XML records found. 
-    Generate JATS XML for accepted articles from the Publishing Dashboard.
+<div class="card">
+    <div class="card-body text-center py-5">
+        <div class="mb-3">
+            <i class="bi bi-file-earmark-code" style="font-size: 3rem;"></i>
+        </div>
+        <h3>No JATS XML Records</h3>
+        <p class="text-muted">No JATS XML has been generated yet. Use the Publishing Dashboard to generate JATS XML for articles.</p>
+        <a href="{{ url_for('review.publishing_dashboard') }}" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Go to Publishing Dashboard
+        </a>
+    </div>
 </div>
 {% endif %}
 
-<!-- Link to Publishing Dashboard -->
-<div class="mt-4">
-    <a href="{{ url_for('review.publishing_dashboard') }}" class="btn btn-primary">
-        <i class="bi bi-arrow-left"></i> Back to Publishing Dashboard
-    </a>
-</div>
 {% endblock %}
