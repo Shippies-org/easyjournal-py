@@ -1,6 +1,6 @@
-{% extends 'layouts/sidebar_layout.html' %}
+{% extends 'admin/base.html' %}
 
-{% block sidebar_content %}
+{% block admin_content %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>User Management</h1>
         <a href="{{ url_for('admin.new_user') }}" class="btn btn-primary">
