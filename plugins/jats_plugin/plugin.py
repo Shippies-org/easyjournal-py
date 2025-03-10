@@ -353,8 +353,9 @@ def register_plugin():
     Register this plugin with the plugin system.
     This function is called when the plugin is loaded.
     """
-    # Register the blueprint
-    PluginSystem.register_hook('before_request', lambda app: app.register_blueprint(jats_bp), plugin_name='jats_plugin')
+    # Register the blueprint with the Flask app
+    from flask import current_app
+    current_app.register_blueprint(jats_bp)
     
     # Register the hooks
     PluginSystem.register_hook('submission_view_actions', add_publication_actions, plugin_name='jats_plugin')
