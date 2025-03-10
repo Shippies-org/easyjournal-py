@@ -12,6 +12,7 @@ from flask_login import login_required, current_user
 from app import db
 from models import Submission, Review, EditorDecision, User, Publication, Issue
 from forms.review import ReviewForm, AssignReviewerForm, EditorDecisionForm
+from forms.admin import IssueForm
 
 # Create a blueprint for review routes
 review_bp = Blueprint('review', __name__, url_prefix='/review')
