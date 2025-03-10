@@ -22,12 +22,13 @@ main_bp = Blueprint('main', __name__)
 @main_bp.route('/')
 def index():
     """Render the home page."""
-    # Get the featured articles (published submissions)
+    # Get the featured articles (only published submissions)
     try:
         featured_articles = (
             Submission.query
             .join(Publication)
-            .order_by(Publication.created_at.desc())
+            .filter(Publication.status == 'published')
+            .order_by(Publication.published_at.desc())
             .limit(3)
             .all()
         )
@@ -116,7 +117,7 @@ def browse():
     
     try:
         # Base query for published articles
-        query = Submission.query.join(Publication)
+        query = Submission.query.join(Publication).filter(Publication.status == 'published')
         
         # Apply filters
         category = request.args.get('category')
@@ -136,9 +137,9 @@ def browse():
         # Apply sorting
         sort = request.args.get('sort', 'date_desc')
         if sort == 'date_desc':
-            query = query.order_by(Publication.created_at.desc())
+            query = query.order_by(Publication.published_at.desc())
         elif sort == 'date_asc':
-            query = query.order_by(Publication.created_at.asc())
+            query = query.order_by(Publication.published_at.asc())
         elif sort == 'title_asc':
             query = query.order_by(Submission.title.asc())
         elif sort == 'title_desc':
@@ -152,8 +153,20 @@ def browse():
         articles = []
         pagination = None
     
-    # Get popular articles based on some metric (e.g., views or downloads)
-    popular_articles = []
+    # Get popular articles based on view count
+    try:
+        popular_articles = (
+            Submission.query
+            .join(Publication)
+            .filter(Publication.status == 'published')
+            .join(ArticleView, Submission.id == ArticleView.submission_id)
+            .group_by(Submission.id)
+            .order_by(db.func.count(ArticleView.id).desc())
+            .limit(5)
+            .all()
+        )
+    except (ProgrammingError, Exception):
+        popular_articles = []
     
     return render_template(
         'main/browse.html',
@@ -193,7 +206,7 @@ def issue_detail(issue_id):
             articles = (
                 Submission.query
                 .join(Publication)
-                .filter(Publication.issue_id == issue_id)
+                .filter(Publication.issue_id == issue_id, Publication.status == 'published')
                 .all()
             )
         except (ProgrammingError, Exception):
@@ -215,8 +228,10 @@ def article_detail(submission_id):
         article = Submission.query.get_or_404(submission_id)
         
         # Check if the article is published or if the user has permission to view it
+        is_published = article.publication is not None and article.publication.is_published()
+        
         has_permission = (
-            article.publication is not None or
+            is_published or
             (current_user.is_authenticated and (
                 current_user.is_admin() or 
                 current_user.is_editor() or 
@@ -247,7 +262,8 @@ def article_detail(submission_id):
     
     return render_template(
         'main/article_detail.html',
-        article=article
+        article=article,
+        is_published=is_published
     )
 
 

@@ -1,0 +1,291 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Publishing Dashboard - EasyJournal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">Publishing Dashboard</h1>
+        <p class="text-muted">Manage the publishing workflow for accepted articles</p>
+    </div>
+</div>
+
+<!-- Publishing Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-success h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Accepted Articles</h5>
+                <p class="display-4 mb-0">{{ accepted_submissions|length }}</p>
+                <p class="text-muted">Waiting for issue assignment</p>
+            </div>
+            <div class="card-footer bg-success text-white text-center">
+                <i class="bi bi-journal-check me-1"></i> Ready for Publication
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Scheduled</h5>
+                <p class="display-4 mb-0">{{ scheduled_publications|length }}</p>
+                <p class="text-muted">Assigned to an issue</p>
+            </div>
+            <div class="card-footer bg-warning text-center">
+                <i class="bi bi-calendar-event me-1"></i> Scheduled
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-primary h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Published</h5>
+                <p class="display-4 mb-0">{{ published_submissions|length }}</p>
+                <p class="text-muted">Available to readers</p>
+            </div>
+            <div class="card-footer bg-primary text-white text-center">
+                <i class="bi bi-journal-richtext me-1"></i> Published
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-secondary h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Unpublished</h5>
+                <p class="display-4 mb-0">{{ unpublished_submissions|length }}</p>
+                <p class="text-muted">Previously published</p>
+            </div>
+            <div class="card-footer bg-secondary text-white text-center">
+                <i class="bi bi-journal-minus me-1"></i> Unpublished
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accepted Articles Section -->
+{% if accepted_submissions %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">Accepted Articles - Ready for Publication</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Accepted Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in accepted_submissions %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="text-decoration-none">
+                            {{ submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ submission.author.name }}</td>
+                    <td>{{ submission.category|replace('_', ' ')|title }}</td>
+                    <td>{{ submission.updated_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('review.revert_decision', submission_id=submission.id) }}" class="btn btn-outline-danger" title="Revert Decision" onclick="return confirm('Are you sure you want to revert the acceptance decision?')">
+                                <i class="bi bi-arrow-return-left"></i>
+                            </a>
+                            
+                            <!-- Dropdown for issue assignment -->
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Assign to Issue">
+                                    <i class="bi bi-journal-plus"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    {% if available_issues %}
+                                        {% for issue in available_issues %}
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('review.assign_to_issue', submission_id=submission.id, issue_id=issue.id) }}">
+                                                {{ issue.title }} (Vol. {{ issue.volume }}, No. {{ issue.issue_number }})
+                                            </a>
+                                        </li>
+                                        {% endfor %}
+                                    {% else %}
+                                        <li><span class="dropdown-item disabled">No available issues</span></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Scheduled for Publication Section -->
+{% if scheduled_publications %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Scheduled for Publication</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Issue</th>
+                    <th>Scheduled Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for publication in scheduled_publications %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=publication.submission.id) }}" class="text-decoration-none">
+                            {{ publication.submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ publication.submission.author.name }}</td>
+                    <td>
+                        {{ publication.issue.title }}
+                        <small class="text-muted">(Vol. {{ publication.issue.volume }}, No. {{ publication.issue.issue_number }})</small>
+                    </td>
+                    <td>{{ publication.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=publication.submission.id) }}" class="btn btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('review.publish_article', publication_id=publication.id) }}" class="btn btn-outline-success" title="Publish Article">
+                                <i class="bi bi-journal-arrow-up"></i> Publish
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Published Articles Section -->
+{% if published_submissions %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Published Articles</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Issue</th>
+                    <th>Published Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for publication in published_submissions %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('main.article_detail', submission_id=publication.submission.id) }}" class="text-decoration-none">
+                            {{ publication.submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ publication.submission.author.name }}</td>
+                    <td>
+                        {{ publication.issue.title }}
+                        <small class="text-muted">(Vol. {{ publication.issue.volume }}, No. {{ publication.issue.issue_number }})</small>
+                    </td>
+                    <td>{{ publication.published_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('main.article_detail', submission_id=publication.submission.id) }}" class="btn btn-outline-primary" title="View Public Article">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('review.unpublish_article', publication_id=publication.id) }}" class="btn btn-outline-warning" title="Unpublish Article" onclick="return confirm('Are you sure you want to unpublish this article?')">
+                                <i class="bi bi-journal-arrow-down"></i> Unpublish
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Unpublished Articles Section -->
+{% if unpublished_submissions %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="h5 mb-0">Unpublished Articles</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Issue</th>
+                    <th>Last Published</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for publication in unpublished_submissions %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('review.view_submission_for_review', submission_id=publication.submission.id) }}" class="text-decoration-none">
+                            {{ publication.submission.title }}
+                        </a>
+                    </td>
+                    <td>{{ publication.submission.author.name }}</td>
+                    <td>
+                        {{ publication.issue.title }}
+                        <small class="text-muted">(Vol. {{ publication.issue.volume }}, No. {{ publication.issue.issue_number }})</small>
+                    </td>
+                    <td>{{ publication.published_at.strftime('%Y-%m-%d') if publication.published_at else 'Never' }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('review.view_submission_for_review', submission_id=publication.submission.id) }}" class="btn btn-outline-primary" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('review.publish_article', publication_id=publication.id) }}" class="btn btn-outline-success" title="Re-publish Article">
+                                <i class="bi bi-journal-arrow-up"></i> Re-publish
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- No Publications Message -->
+{% if not accepted_submissions and not scheduled_publications and not published_submissions and not unpublished_submissions %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <div class="mb-3">
+            <i class="bi bi-journals" style="font-size: 3rem;"></i>
+        </div>
+        <h3>No Articles to Publish</h3>
+        <p class="text-muted">There are currently no articles ready for publication.</p>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
