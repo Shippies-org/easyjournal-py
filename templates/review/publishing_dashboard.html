@@ -8,6 +8,11 @@
         <h1 class="h3">Publishing Dashboard</h1>
         <p class="text-muted">Manage the publishing workflow for accepted articles</p>
     </div>
+    <div class="col-auto">
+        <a href="{{ url_for('jats.index') }}" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-code"></i> JATS XML Dashboard
+        </a>
+    </div>
 </div>
 
 <!-- Publishing Statistics -->
@@ -95,6 +100,9 @@
                             <a href="{{ url_for('review.view_submission_for_review', submission_id=submission.id) }}" class="btn btn-outline-primary" title="View Details">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            <a href="{{ url_for('jats.generate_xml', submission_id=submission.id) }}" class="btn btn-outline-info" title="Generate JATS XML">
+                                <i class="bi bi-file-earmark-code"></i> JATS XML
+                            </a>
                             <a href="{{ url_for('review.revert_decision', submission_id=submission.id) }}" class="btn btn-outline-danger" title="Revert Decision" onclick="return confirm('Are you sure you want to revert the acceptance decision?')">
                                 <i class="bi bi-arrow-return-left"></i>
                             </a>
@@ -164,6 +172,9 @@
                             <a href="{{ url_for('review.view_submission_for_review', submission_id=publication.submission.id) }}" class="btn btn-outline-primary" title="View Details">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            <a href="{{ url_for('jats.generate_xml', submission_id=publication.submission.id) }}" class="btn btn-outline-info" title="Generate JATS XML">
+                                <i class="bi bi-file-earmark-code"></i> JATS XML
+                            </a>
                             <a href="{{ url_for('review.publish_article', publication_id=publication.id) }}" class="btn btn-success" title="Publish Article">
                                 <i class="bi bi-journal-arrow-up"></i> Publish
                             </a>
@@ -213,6 +224,9 @@
                             <a href="{{ url_for('main.article_detail', submission_id=publication.submission.id) }}" class="btn btn-outline-primary" title="View Public Article">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            <a href="{{ url_for('jats.generate_xml', submission_id=publication.submission.id) }}" class="btn btn-outline-info" title="Generate JATS XML">
+                                <i class="bi bi-file-earmark-code"></i> JATS XML
+                            </a>
                             <a href="{{ url_for('review.unpublish_article', publication_id=publication.id) }}" class="btn btn-outline-warning" title="Unpublish Article" onclick="return confirm('Are you sure you want to unpublish this article?')">
                                 <i class="bi bi-journal-arrow-down"></i> Unpublish
                             </a>
@@ -261,6 +275,9 @@
                         <div class="btn-group btn-group-sm">
                             <a href="{{ url_for('review.view_submission_for_review', submission_id=publication.submission.id) }}" class="btn btn-outline-primary" title="View Details">
                                 <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('jats.generate_xml', submission_id=publication.submission.id) }}" class="btn btn-outline-info" title="Generate JATS XML">
+                                <i class="bi bi-file-earmark-code"></i> JATS XML
                             </a>
                             <a href="{{ url_for('review.publish_article', publication_id=publication.id) }}" class="btn btn-success" title="Re-publish Article">
                                 <i class="bi bi-journal-arrow-up"></i> Re-publish
