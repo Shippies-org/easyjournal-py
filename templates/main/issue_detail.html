@@ -1,0 +1,164 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ issue.title }} - Volume {{ issue.volume }}, Issue {{ issue.issue_number }} | {{ g.site_name|default('EasyJournal') }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.issues') }}">Issues</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Volume {{ issue.volume }}, Issue {{ issue.issue_number }}</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h1 class="card-title fs-2 mb-3">{{ issue.title }}</h1>
+                    <h2 class="fs-5 text-muted mb-4">Volume {{ issue.volume }}, Issue {{ issue.issue_number }}</h2>
+                    
+                    {% if issue.publication_date %}
+                    <p class="mb-3"><strong>Publication Date:</strong> {{ issue.publication_date.strftime('%B %d, %Y') }}</p>
+                    {% endif %}
+                    
+                    {% if issue.description %}
+                    <div class="card-text mb-4">
+                        <h3 class="fs-5">About this Issue</h3>
+                        <p>{{ issue.description|nl2br }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary py-2 px-3 rounded-pill">
+                            <i class="bi bi-file-earmark-text me-1"></i> {{ articles|length }} Article{{ 's' if articles|length != 1 }}
+                        </span>
+                        
+                        {% if issue.status == 'published' %}
+                        <span class="badge bg-success py-2 px-3 rounded-pill">
+                            <i class="bi bi-check-circle me-1"></i> Published
+                        </span>
+                        {% elif issue.status == 'in_progress' %}
+                        <span class="badge bg-warning py-2 px-3 rounded-pill">
+                            <i class="bi bi-hourglass-split me-1"></i> In Progress
+                        </span>
+                        {% else %}
+                        <span class="badge bg-info py-2 px-3 rounded-pill">
+                            <i class="bi bi-calendar-event me-1"></i> Planned
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="fs-4 mb-3">Articles in this Issue</h2>
+            
+            {% if articles %}
+                <div class="list-group mb-4">
+                    {% for article in articles %}
+                    <a href="{{ url_for('main.article_detail', submission_id=article.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h5 class="mb-1">{{ article.title }}</h5>
+                            <small class="text-muted">{{ article.updated_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="mb-1 text-truncate text-muted">{{ article.authors }}</p>
+                        <div class="d-flex w-100 justify-content-between align-items-center mt-2">
+                            <small class="badge bg-secondary">{{ article.category }}</small>
+                            <small>
+                                <i class="bi bi-eye me-1"></i> {{ article.views.count() }}
+                            </small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    {% if issue.status == 'published' %}
+                        This issue doesn't contain any published articles yet.
+                    {% else %}
+                        This issue is still being prepared and doesn't contain any published articles yet.
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="fs-5 mb-0">Issue Information</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Volume</span>
+                            <strong>{{ issue.volume }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Issue Number</span>
+                            <strong>{{ issue.issue_number }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Article Count</span>
+                            <strong>{{ articles|length }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Status</span>
+                            <strong>
+                                {% if issue.status == 'published' %}
+                                    Published
+                                {% elif issue.status == 'in_progress' %}
+                                    In Progress
+                                {% else %}
+                                    Planned
+                                {% endif %}
+                            </strong>
+                        </li>
+                        {% if issue.publication_date %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Publication Date</span>
+                            <strong>{{ issue.publication_date.strftime('%Y-%m-%d') }}</strong>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="fs-5 mb-0">Citation</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong class="d-block mb-2">Cite this issue as:</strong>
+                        <span class="font-monospace text-muted d-block">
+                            {{ g.site_name|default('EasyJournal') }} ({{ issue.publication_date.strftime('%Y') if issue.publication_date else 'n.d.' }}). {{ issue.title }}, Volume {{ issue.volume }}, Issue {{ issue.issue_number }}{% if issue.publication_date %}, {{ issue.publication_date.strftime('%B %Y') }}{% endif %}.
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            {% if current_user.is_editor() or current_user.is_admin() %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="fs-5 mb-0">Editor Options</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('issues.edit_issue', issue_id=issue.id) }}" class="btn btn-primary">
+                            <i class="bi bi-pencil-square me-1"></i> Edit Issue
+                        </a>
+                        <a href="{{ url_for('admin.issue_publications', issue_id=issue.id) }}" class="btn btn-info">
+                            <i class="bi bi-journal-plus me-1"></i> Manage Articles
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

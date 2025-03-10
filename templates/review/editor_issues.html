@@ -80,7 +80,7 @@
                                                         <p>Are you sure you want to delete Issue <strong>{{ issue.volume }}.{{ issue.issue_number }} - {{ issue.title }}</strong>?</p>
                                                         {% if issue.publications.count() > 0 %}
                                                             <div class="alert alert-warning">
-                                                                <i class="fas fa-exclamation-triangle me-2"></i> This issue contains {{ issue.publications.count() }} article(s). Deleting this issue will remove all article associations.
+                                                                <i class="bi bi-exclamation-triangle me-2"></i> This issue contains {{ issue.publications.count() }} article(s). Deleting this issue will remove all article associations.
                                                             </div>
                                                         {% endif %}
                                                     </div>
@@ -101,7 +101,7 @@
                 </div>
             {% else %}
                 <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i> No issues have been created yet.
+                    <i class="bi bi-info-circle me-2"></i> No issues have been created yet.
                 </div>
             {% endif %}
         </div>

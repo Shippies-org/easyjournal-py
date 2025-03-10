@@ -10,9 +10,9 @@
                 <div class="card-header bg-primary bg-gradient text-white">
                     <h2 class="fs-5 mb-0">
                         {% if issue %}
-                            <i class="fas fa-edit me-2"></i> Edit Issue
+                            <i class="bi bi-pencil-square me-2"></i> Edit Issue
                         {% else %}
-                            <i class="fas fa-plus me-2"></i> New Issue
+                            <i class="bi bi-plus-circle me-2"></i> New Issue
                         {% endif %}
                     </h2>
                 </div>
@@ -109,10 +109,10 @@
                         
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{{ url_for('issues.editor_issues') }}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-1"></i> Back to Issues
+                                <i class="bi bi-arrow-left me-1"></i> Back to Issues
                             </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i> 
+                                <i class="bi bi-save me-1"></i> 
                                 {% if issue %}
                                     Update Issue
                                 {% else %}
