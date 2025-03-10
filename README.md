@@ -106,6 +106,12 @@ For complete installation instructions, see [INSTALL.md](INSTALL.md)
 
 We welcome contributions to EasyJournal! Please feel free to submit issues and pull requests to the GitHub repository.
 
+## Other Open-Source Journal Platforms
+
+- [Open Journal Systems (OJS)](https://pkp.sfu.ca/software/ojs/) – Widely adopted journal management and publishing platform.
+- [Janeway](https://janeway.systems/) – Modern, modular open-source publishing platform.
+- [Kotahi](https://kotahi.community/) – Flexible, microservices-based publishing infrastructure supporting diverse workflows.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
