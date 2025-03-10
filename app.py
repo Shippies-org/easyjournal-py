@@ -110,7 +110,12 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         """Load a user by ID for Flask-Login."""
-        return User.query.get(int(user_id))
+        try:
+            return User.query.get(int(user_id))
+        except Exception as e:
+            app.logger.error(f"Error loading user: {str(e)}")
+            db.session.rollback()
+            return None
     
     # Cache for system settings (10 minute expiry)
     _system_settings_cache = {}
@@ -136,11 +141,18 @@ def create_app():
                          current_time - _system_settings_cache_time > _CACHE_DURATION)
         
         if refresh_cache:
-            # Get all system settings in a single query
-            all_settings = SystemSetting.query.all()
-            # Update the cache
-            app._system_settings_cache = {s.setting_key: s.setting_value for s in all_settings}
-            app._system_settings_cache_time = current_time
+            try:
+                # Get all system settings in a single query
+                all_settings = SystemSetting.query.all()
+                # Update the cache
+                app._system_settings_cache = {s.setting_key: s.setting_value for s in all_settings}
+                app._system_settings_cache_time = current_time
+            except Exception as e:
+                app.logger.error(f"Error loading system settings: {str(e)}")
+                db.session.rollback()
+                # Create an empty cache if there's an error
+                app._system_settings_cache = {}
+                app._system_settings_cache_time = current_time
         
         # Helper function to get settings with default values
         def get_setting(key, default=None):

@@ -32,7 +32,8 @@ def index():
             .limit(3)
             .all()
         )
-    except (ProgrammingError, Exception):
+    except Exception as e:
+        current_app.logger.error(f"Error loading featured articles: {str(e)}")
         featured_articles = []
     
     # Get the latest issues
@@ -44,14 +45,20 @@ def index():
             .limit(4)
             .all()
         )
-    except (ProgrammingError, Exception):
+    except Exception as e:
+        current_app.logger.error(f"Error loading latest issues: {str(e)}")
         latest_issues = []
     
-    return render_template(
-        'main/index.html',
-        featured_articles=featured_articles,
-        latest_issues=latest_issues
-    )
+    try:
+        return render_template(
+            'main/index.html',
+            featured_articles=featured_articles,
+            latest_issues=latest_issues
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error rendering index template: {str(e)}")
+        # Provide a simple fallback
+        return "<h1>Academic Journal System</h1><p>We're experiencing technical difficulties. Please try again later.</p>"
 
 
 @main_bp.route('/about')
