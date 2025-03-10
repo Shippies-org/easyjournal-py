@@ -44,18 +44,50 @@ EasyJournal is a comprehensive platform designed to streamline the academic publ
    cd easyjournal-py
    ```
 
-2. Set up environment variables (see `.env.example`)
+2. Set up environment variables:
+   ```
+   cp .env.example .env
+   ```
+   Edit `.env` as needed (default values work for most users)
 
-3. Run with Docker:
-   ```
-   docker-compose up -d
-   ```
+3. Install and run with options below
+   
+### Option 1: Docker Deployment (Recommended)
 
-4. Or run locally:
-   ```
-   pip install -r requirements.txt
-   flask run
-   ```
+EasyJournal includes a fully configured Docker setup for easy deployment:
+
+```bash
+# Build and start the application with PostgreSQL database
+docker-compose up -d
+
+# Check logs if needed
+docker-compose logs -f app
+
+# Stop all containers
+docker-compose down
+```
+
+The application will be available at http://localhost:5000 with these default credentials:
+- Admin: admin@example.com / adminpassword
+- Editor: editor@example.com / editorpassword
+- Reviewer: reviewer@example.com / reviewerpassword
+- Author: author@example.com / authorpassword
+
+### Option 2: Local Installation
+
+For development or customization:
+
+```bash
+# Install dependencies
+bash setup/install_dependencies.sh
+
+# Start the application
+python main.py
+```
+
+The application will be available at http://localhost:5000
+
+For complete installation instructions, see [INSTALL.md](INSTALL.md)
 
 ## Contribution
 
