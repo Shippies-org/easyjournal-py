@@ -4,8 +4,8 @@
 <div class="container-fluid p-0">
     <div class="row g-0">
         <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-            <div class="position-sticky pt-3 sidebar-sticky">
+        <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse p-0 m-0">
+            <div class="position-sticky pt-0 sidebar-sticky">
                 {% if current_user.is_admin() %}
                 <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-2 mb-1 text-muted">
                     <span>Administration</span>
@@ -134,7 +134,7 @@
     .sidebar {
         min-height: calc(100vh - 60px);
         box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-        padding-top: 1rem;
+        padding-top: 0;
     }
     
     .sidebar .nav-link {
@@ -156,6 +156,11 @@
         font-size: .75rem;
         text-transform: uppercase;
         color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Fix dropdown menus appearing behind content */
+    .dropdown-menu {
+        z-index: 1030;
     }
 </style>
 {% endblock %}
