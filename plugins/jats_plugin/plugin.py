@@ -158,6 +158,7 @@ def generate_xml(submission_id):
             
             # Prepare headers
             headers = {}
+            # Add API key to headers if it exists (optional)
             if api_settings.api_key:
                 headers['Authorization'] = f'Bearer {api_settings.api_key}'
             

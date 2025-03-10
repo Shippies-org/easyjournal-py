@@ -127,9 +127,9 @@
                 <h2 class="h5 mb-0">JATS API Status</h2>
             </div>
             <div class="card-body">
-                {% if not api_settings.api_url or not api_settings.api_key %}
+                {% if not api_settings.api_url %}
                 <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle-fill"></i> API Not Fully Configured
+                    <i class="bi bi-exclamation-triangle-fill"></i> API URL Not Configured
                     {% if current_user.is_admin() %}
                     <p class="mb-0 mt-2">
                         <a href="{{ url_for('jats.settings') }}" class="btn btn-sm btn-outline-primary">Configure API</a>
