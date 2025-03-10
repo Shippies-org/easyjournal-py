@@ -1,4 +1,4 @@
-version: '3'
+version: '2.4'
 
 services:
   # Web application
@@ -7,12 +7,13 @@ services:
     restart: always
     ports:
       - "5000:5000"
-    # Simplified volume mounts with explicit host paths
     volumes:
-      - ./uploads:/app/uploads
-      - ./data:/app/data
-    env_file:
-      - .env
+      - type: bind
+        source: ./uploads
+        target: /app/uploads
+      - type: bind
+        source: ./data
+        target: /app/data
     environment:
       - DATABASE_URL=postgresql://journal_user:journal_password@db:5432/journal
       - DB_USER=journal_user
@@ -33,9 +34,9 @@ services:
       - POSTGRES_PASSWORD=journal_password
       - POSTGRES_DB=journal
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
 volumes:
-  pgdata:
+  db-data:

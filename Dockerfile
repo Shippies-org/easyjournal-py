@@ -29,11 +29,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create necessary directories and set permissions
-RUN mkdir -p uploads uploads/demo data \
-    && chmod -R 777 uploads
-
-# Volumes are defined in docker-compose.yml instead
-# This prevents 'ContainerConfig' KeyError
+# We'll create these directories but NOT declare them as volumes in Dockerfile
+# Volumes are managed exclusively in docker-compose.yml
+RUN mkdir -p /app/uploads /app/uploads/demo /app/data \
+    && chmod -R 777 /app/uploads /app/data
 
 # Expose port
 EXPOSE 5000
