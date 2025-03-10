@@ -1,0 +1,105 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Copyright Management{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Copyright Management</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Copyright Information</h5>
+                </div>
+                <div class="card-body">
+                    <p>This dashboard allows you to manage copyright information for published articles.</p>
+                    
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Available Features</h5>
+                        <ul>
+                            <li>Set default copyright statements</li>
+                            <li>View and edit copyright information for individual articles</li>
+                            <li>Manage predefined license templates</li>
+                            <li>Generate copyright notices</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">License Types</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage predefined license types for publications.</p>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Code</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for license in licenses %}
+                            <tr>
+                                <td>{{ license.name }}</td>
+                                <td><code>{{ license.short_code }}</code></td>
+                                <td>
+                                    {% if license.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('copyright.edit_license', license_id=license.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <a href="{{ url_for('copyright.new_license') }}" class="btn btn-primary mt-3">
+                        <i class="bi bi-plus-circle"></i> Add License Type
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Copyright Records</h5>
+                </div>
+                <div class="card-body">
+                    <p>Recently added or updated copyright records.</p>
+                    <div class="list-group">
+                        {% for record in recent_records %}
+                        <a href="{{ url_for('copyright.view_record', record_id=record.id) }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ record.submission.title }}</h6>
+                                <small>{{ record.updated_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <p class="mb-1">{{ record.holder_name }} ({{ record.year }})</p>
+                            <small>{{ record.license_type }}</small>
+                        </a>
+                        {% else %}
+                        <div class="list-group-item">
+                            <p class="mb-0">No copyright records found.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

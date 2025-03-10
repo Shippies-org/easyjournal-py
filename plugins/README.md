@@ -1,104 +1,112 @@
-# Academic Journal Plugin System
+# EasyJournal Plugin System
 
-This directory contains plugins for the Academic Journal Submission System. Plugins provide a way to extend and modify the functionality of the system without changing the core code.
+The EasyJournal platform features a robust plugin architecture that allows you to extend the functionality of the journal system without modifying the core code.
 
-## Plugin Directory Structure
+## How Plugins Work
 
-Each plugin should be placed in its own directory within the `plugins` directory with a structure like:
+Plugins in EasyJournal are self-contained modules that can:
+
+1. **Add new features** - Routes, pages, database tables, and functionality
+2. **Modify existing features** - Through the hook system
+3. **Override templates** - Customize the look and feel
+4. **Integrate with the navigation** - Add menu items based on user roles
+
+## Plugin Structure
+
+A basic plugin consists of:
 
 ```
 plugins/
-  ├── my_plugin/
-  │   ├── plugin.php             # Main plugin file (required)
-  │   ├── templates/             # Optional template overrides
-  │   │   ├── content/           
-  │   │   │   └── custom_page.php
-  │   │   └── ...
-  │   └── assets/                # Optional plugin assets
-  │       ├── css/
-  │       ├── js/
-  │       └── ...
-  └── another_plugin/
-      └── ...
+└── my_plugin/
+    ├── __init__.py       # Package initialization
+    ├── plugin.py         # Main plugin file with register_plugin() function
+    ├── models.py         # Database models (optional)
+    └── templates/        # Template overrides (optional)
+        └── my_plugin/    # Plugin-specific templates
 ```
 
 ## Creating a Plugin
 
-1. Create a new directory for your plugin within the `plugins` directory
-2. Create a `plugin.php` file in your plugin directory
-3. Implement hook callbacks in your plugin.php file
-4. Register your plugin's hooks using `Plugin::register_hook()`
+1. Create a new directory in the `plugins/` folder with your plugin name
+2. Create a `plugin.py` file with at least a `register_plugin()` function
+3. Import any required modules and define your functionality
+4. Register hooks, routes, and templates as needed
 
-### Example Plugin Structure
+## The Hook System
 
-```php
-<?php
-/**
- * My Custom Plugin
- * 
- * This plugin adds custom functionality to the journal system.
- */
+Plugins interact with the core application through hooks. Hooks are predefined points in the application where plugins can inject or modify content.
 
-// Plugin metadata (optional but recommended)
-$PLUGIN_INFO = array(
-    'name' => 'My Custom Plugin',
-    'version' => '1.0.0',
-    'description' => 'Adds custom functionality to the journal system',
-    'author' => 'Your Name'
-);
+Common hooks include:
+- `getNavItems` - Modify navigation menu items
+- `modifyHomeContent` - Change content on the home page
+- `beforeRenderTemplate` - Modify template variables before rendering
+- `afterUserRegistration` - Perform actions after a user registers
 
-/**
- * Example hook callback function
- * 
- * @param array $args Arguments passed to the hook
- * @return array Modified arguments
- */
-function my_custom_hook_callback($args) {
-    // Modify the arguments or perform actions
-    $args['modified'] = true;
-    return $args;
-}
+## Registering Hooks
 
-/**
- * Register the plugin hooks when this file is loaded
- */
-Plugin::register_hook('hookName', 'my_custom_hook_callback', 10, 'my_plugin');
-?>
+```python
+from plugin_system import PluginSystem
+
+def my_hook_function(args):
+    # Modify args or perform actions
+    return args
+
+def register_plugin():
+    PluginSystem.register_hook('hookName', my_hook_function, 10, 'my_plugin')
 ```
 
-## Available Hooks
+The parameters for `register_hook` are:
+- `hook_name`: The name of the hook to register for
+- `callback`: The function to call when the hook is triggered
+- `priority`: Optional priority (lower numbers run first, default 10)
+- `plugin_name`: Name of the plugin registering the hook
 
-The system provides several hooks that plugins can use to modify behavior:
+## Adding Routes
 
-| Hook Name | Description | Arguments |
-|-----------|-------------|-----------|
-| `beforePageProcess` | Called before processing a page | `filepath`, `user` |
-| `onTemplateOverride` | Called to allow template overrides | `original_template`, `page`, `user` |
-| `beforeContentRender` | Called before rendering the page content | `template_path`, `content`, `page` |
-| `afterContentRender` | Called after content is rendered | `template_path`, `page` |
-| `onUserLogin` | Called when a user logs in | `user_id`, `user_role` |
-| `onArticleSubmit` | Called when an article is submitted | `submission_id`, `author_id` |
-| `onReviewAssign` | Called when a reviewer is assigned | `submission_id`, `reviewer_id`, `editor_id` |
-| `onReviewSubmit` | Called when a review is submitted | `review_id`, `reviewer_id`, `submission_id` |
-| `onDecisionMade` | Called when a decision is made on a submission | `submission_id`, `decision`, `editor_id` |
+Plugins can add their own routes using Flask Blueprints:
 
-## Template Overrides
+```python
+from flask import Blueprint, render_template
 
-Plugins can provide custom templates to replace the system's default templates. To do this:
+# Create a blueprint
+bp = Blueprint('my_plugin', __name__, url_prefix='/my-plugin')
 
-1. Create a `templates` directory in your plugin directory
-2. Create directories matching the system's structure (e.g., `templates/content/`)
-3. Add your template files with the same names as the system templates
-4. Register a hook for `onTemplateOverride` to specify when to use your templates
+@bp.route('/')
+def index():
+    return render_template('my_plugin/index.html')
 
-## Hook Priority
+def register_plugin():
+    # Import app here to avoid circular imports
+    from app import app
+    app.register_blueprint(bp)
+```
 
-When registering a hook, you can specify a priority (default is 10). Hooks with lower priority numbers run first. This allows you to control the order in which plugin hooks are executed if multiple plugins use the same hook.
+## Access Control
 
-## Plugin Interaction
+Plugins should implement appropriate access controls using Flask-Login decorators and role checks:
 
-Plugins should try to be compatible with each other. Be careful about making assumptions about the DOM structure or global variables, as other plugins might modify them.
+```python
+from flask_login import login_required, current_user
 
-## Testing Plugins
+@bp.route('/admin-only')
+@login_required
+def admin_only():
+    if not current_user.is_admin():
+        abort(403)
+    return render_template('my_plugin/admin.html')
+```
 
-You can test your plugins by activating them and checking if they perform as expected. The system logs plugin activity in the error log, which can help with debugging.
+## Examples
+
+See the existing plugins in the `plugins/` directory for examples:
+- `welcome_plugin` - A simple plugin that adds content to the home page
+- `copyedit_plugin` - A comprehensive plugin that adds copy editing functionality
+
+## Troubleshooting
+
+If your plugin isn't working as expected:
+
+1. Check the application logs for error messages
+2. Verify that your plugin's `register_plugin()` function is being called
+3. Ensure that the hooks you're using exist in the core application
+4. Check for circular imports or other Python errors
