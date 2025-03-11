@@ -445,6 +445,7 @@ def branding_settings():
     
     # Fill form with existing values
     if request.method == 'GET':
+        # Populate branding form
         branding_form.site_name.data = SystemSetting.get_value('site_name', 'Academic Journal')
         branding_form.site_description.data = SystemSetting.get_value('site_description', 'A peer-reviewed academic journal')
         branding_form.use_logo_text.data = SystemSetting.get_value('use_logo_text') == 'true'
@@ -456,6 +457,19 @@ def branding_settings():
         current_theme = SystemSetting.get_value('theme', 'dark')
         if current_theme in [theme[0] for theme in branding_form.theme.choices]:
             branding_form.theme.data = current_theme
+            
+        # Populate content form
+        content_form.about_content.data = SystemSetting.get_value('about_content', 'About our journal...')
+        content_form.submission_guidelines.data = SystemSetting.get_value('submission_guidelines', 'Guidelines for submission...')
+        content_form.review_policy.data = SystemSetting.get_value('review_policy', 'Our review policy...')
+        content_form.ethics_policy.data = SystemSetting.get_value('ethics_policy', 'Our ethics policy...')
+        content_form.author_guidelines.data = SystemSetting.get_value('author_guidelines', 'Guidelines for authors...')
+        content_form.contact_email.data = SystemSetting.get_value('contact_email', 'contact@example.com')
+        content_form.contact_phone.data = SystemSetting.get_value('contact_phone')
+        content_form.contact_address.data = SystemSetting.get_value('contact_address')
+        content_form.twitter_url.data = SystemSetting.get_value('twitter_url')
+        content_form.facebook_url.data = SystemSetting.get_value('facebook_url')
+        content_form.linkedin_url.data = SystemSetting.get_value('linkedin_url')
     
     # Process branding form submission
     if request.method == 'POST' and branding_form.validate_on_submit():
