@@ -107,6 +107,10 @@ The application will be available at http://localhost:5000
 - [Performance Optimization](PERFORMANCE.md) - Details on performance tuning
 - [Development Guide](DEVELOPMENT.md) - Information for developers
 - [Scaling Guide](SCALING.md) - Guidance for scaling to larger deployments
+- [Plugin System](PLUGINS.md) - Guide for creating and managing plugins
+- [API Integration](API_INTEGRATION.md) - Guide for external service integrations
+- [Security Guide](SECURITY.md) - Security best practices
+- [Troubleshooting](TROUBLESHOOTING.md) - Solutions for common issues
 
 ## Contribution
 
