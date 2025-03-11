@@ -108,19 +108,6 @@
                                     <li><a class="dropdown-item" href="{{ url_for('admin.plugins') }}">Manage Plugins</a></li>
                                     <li><a class="dropdown-item" href="{{ url_for('admin.branding_settings') }}"><i class="bi bi-brush me-2"></i>Branding & Content</a></li>
                                     <li><a class="dropdown-item" href="{{ url_for('admin.gdpr_settings') }}"><i class="bi bi-shield-lock me-2"></i>GDPR Settings</a></li>
-                                    <li class="dropdown-submenu">
-                                        <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-palette me-2"></i>System Theme
-                                        </a>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item {% if g.system_theme == 'dark' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='dark') }}">Dark</a></li>
-                                            <li><a class="dropdown-item {% if g.system_theme == 'light' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='light') }}">Light</a></li>
-                                            <li><a class="dropdown-item {% if g.system_theme == 'journal' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='journal') }}">Journal</a></li>
-                                            <li><a class="dropdown-item {% if g.system_theme == 'modern' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='modern') }}">Modern</a></li>
-                                            <li><a class="dropdown-item {% if g.system_theme == 'elegant' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='elegant') }}">Elegant</a></li>
-                                            <li><a class="dropdown-item {% if g.system_theme == 'high-contrast' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='high-contrast') }}">High Contrast</a></li>
-                                        </ul>
-                                    </li>
                                 </ul>
                             </li>
                         {% endif %}
@@ -169,19 +156,6 @@
                                 <li><a class="dropdown-item" href="{{ url_for('admin.plugins') }}">Plugin Management</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('admin.branding_settings') }}"><i class="bi bi-brush me-2"></i>Branding & Content</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('admin.gdpr_settings') }}"><i class="bi bi-shield-lock me-2"></i>GDPR Settings</a></li>
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-palette me-2"></i>System Theme
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item {% if g.system_theme == 'dark' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='dark') }}">Dark</a></li>
-                                        <li><a class="dropdown-item {% if g.system_theme == 'light' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='light') }}">Light</a></li>
-                                        <li><a class="dropdown-item {% if g.system_theme == 'journal' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='journal') }}">Journal</a></li>
-                                        <li><a class="dropdown-item {% if g.system_theme == 'modern' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='modern') }}">Modern</a></li>
-                                        <li><a class="dropdown-item {% if g.system_theme == 'elegant' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='elegant') }}">Elegant</a></li>
-                                        <li><a class="dropdown-item {% if g.system_theme == 'high-contrast' %}active{% endif %}" href="{{ url_for('admin.set_system_theme', theme='high-contrast') }}">High Contrast</a></li>
-                                    </ul>
-                                </li>
                             </ul>
                         </li>
                         {% endif %}
