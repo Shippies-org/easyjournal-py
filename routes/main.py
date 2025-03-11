@@ -64,7 +64,22 @@ def index():
 @main_bp.route('/about')
 def about():
     """Render the about page."""
-    return render_template('main/about.html')
+    # Get content from system settings
+    from models import SystemSetting
+    
+    about_content = SystemSetting.get_value('about_content')
+    # Other settings that might be used on the about page
+    submission_guidelines = SystemSetting.get_value('submission_guidelines')
+    review_policy = SystemSetting.get_value('review_policy')
+    ethics_policy = SystemSetting.get_value('ethics_policy')
+    
+    return render_template(
+        'main/about.html',
+        about_content=about_content,
+        submission_guidelines=submission_guidelines,
+        review_policy=review_policy,
+        ethics_policy=ethics_policy
+    )
 
 
 @main_bp.route('/contact')
