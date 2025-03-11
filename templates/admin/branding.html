@@ -586,27 +586,58 @@
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-colorpicker@3.4.0/dist/js/bootstrap-colorpicker.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Initialize color pickers
-        $('.colorpicker').each(function() {
-            $(this).colorpicker({
-                format: 'hex'
-            }).on('colorpickerChange', function(e) {
-                const input = e.target;
-                const color = e.color.toString();
-                
-                if (input.id === 'primary_color') {
-                    $('.primary-preview').css('background-color', color);
-                } else if (input.id === 'secondary_color') {
-                    $('.secondary-preview').css('background-color', color);
-                } else if (input.id === 'accent_color') {
-                    $('.accent-preview').css('background-color', color);
+        // Handle color palette selection
+        $('.color-option').click(function() {
+            // Get the selected color and target input
+            const selectedColor = $(this).data('color');
+            const targetInput = $(this).data('target');
+            
+            // Update the input value and preview
+            $(`#${targetInput}`).val(selectedColor);
+            $(`.${targetInput}-preview`).css('background-color', selectedColor);
+            
+            // Add selected class to this option and remove from siblings
+            $(this).addClass('selected').siblings().removeClass('selected');
+        });
+        
+        // Mark the current color as selected when page loads
+        function markSelectedColors() {
+            // For each color input
+            ['primary_color', 'secondary_color', 'accent_color'].forEach(function(colorField) {
+                const currentValue = $(`#${colorField}`).val();
+                if (currentValue) {
+                    // Find matching color option and mark as selected
+                    $(`[data-target="${colorField}"]`).each(function() {
+                        if ($(this).data('color').toLowerCase() === currentValue.toLowerCase()) {
+                            $(this).addClass('selected');
+                        }
+                    });
                 }
             });
+        }
+        
+        // Initialize color values for direct input
+        $('.colorpicker').on('input', function() {
+            const input = this;
+            const color = $(input).val();
             
-            // Set initial preview colors
+            if (input.id === 'primary_color') {
+                $('.primary-preview').css('background-color', color);
+                // Remove selected class from palette options
+                $('[data-target="primary_color"]').removeClass('selected');
+            } else if (input.id === 'secondary_color') {
+                $('.secondary-preview').css('background-color', color);
+                $('[data-target="secondary_color"]').removeClass('selected');
+            } else if (input.id === 'accent_color') {
+                $('.accent-preview').css('background-color', color);
+                $('[data-target="accent_color"]').removeClass('selected');
+            }
+        });
+        
+        // Set initial preview colors
+        $('.colorpicker').each(function() {
             const input = $(this);
             if (input.attr('id') === 'primary_color') {
                 $('.primary-preview').css('background-color', input.val() || '#007bff');
