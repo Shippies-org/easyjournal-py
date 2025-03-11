@@ -395,6 +395,58 @@
                                     </div>
                                 </div>
                                 
+                                <!-- Navbar Gradient options -->
+                                <div class="mb-4">
+                                    <h5>Navbar Gradient</h5>
+                                    <hr>
+                                    
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            {{ branding_form.use_navbar_gradient(class="form-check-input") }}
+                                            {{ branding_form.use_navbar_gradient.label(class="form-check-label") }}
+                                        </div>
+                                        <small class="form-text text-muted d-block">
+                                            Apply a gradient background to the navigation bar instead of a solid color.
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="gradient-controls" style="display: {% if branding_form.use_navbar_gradient.data %}block{% else %}none{% endif %};">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                {{ branding_form.gradient_direction.label(class="form-label") }}
+                                                {{ branding_form.gradient_direction(class="form-select") }}
+                                            </div>
+                                            
+                                            <div class="col-12">
+                                                <!-- Gradient preview -->
+                                                <div class="rounded mb-3 p-3 text-center text-white" id="gradientPreview" style="height: 80px; line-height: 60px; font-weight: bold; {% if branding_form.gradient_direction.data == 'radial' %}background-image: radial-gradient(ellipse at center, {{ branding_form.gradient_from_color.data or '#007bff' }}, {{ branding_form.gradient_to_color.data or '#6c757d' }});{% else %}background-image: linear-gradient({{ branding_form.gradient_direction.data or 'to right' }}, {{ branding_form.gradient_from_color.data or '#007bff' }}, {{ branding_form.gradient_to_color.data or '#6c757d' }});{% endif %}">
+                                                    Navigation Bar Gradient Preview
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">{{ branding_form.gradient_from_color.label.text }}</label>
+                                                <div class="d-flex">
+                                                    <span class="color-preview gradient-from-preview me-2" style="background-color: {% if branding_form.gradient_from_color.data %}{{ branding_form.gradient_from_color.data }}{% else %}#007bff{% endif %};"></span>
+                                                    <input type="text" class="form-control custom-color-input" id="gradient_from_color_custom" value="{% if branding_form.gradient_from_color.data %}{{ branding_form.gradient_from_color.data }}{% else %}#007bff{% endif %}">
+                                                </div>
+                                                <small class="form-text text-muted">{{ branding_form.gradient_from_color.description }}</small>
+                                                {{ branding_form.gradient_from_color(class="d-none", id="gradient_from_color") }}
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">{{ branding_form.gradient_to_color.label.text }}</label>
+                                                <div class="d-flex">
+                                                    <span class="color-preview gradient-to-preview me-2" style="background-color: {% if branding_form.gradient_to_color.data %}{{ branding_form.gradient_to_color.data }}{% else %}#6c757d{% endif %};"></span>
+                                                    <input type="text" class="form-control custom-color-input" id="gradient_to_color_custom" value="{% if branding_form.gradient_to_color.data %}{{ branding_form.gradient_to_color.data }}{% else %}#6c757d{% endif %}">
+                                                </div>
+                                                <small class="form-text text-muted">{{ branding_form.gradient_to_color.description }}</small>
+                                                {{ branding_form.gradient_to_color(class="d-none", id="gradient_to_color") }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div class="mb-4">
                                     <h5>Logo</h5>
                                     <hr>

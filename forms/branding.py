@@ -59,6 +59,23 @@ class BrandingForm(FlaskForm):
     # Override system theme
     override_theme = BooleanField('Override System Theme with Custom Colors', default=False)
     
+    # Navbar gradient options
+    use_navbar_gradient = BooleanField('Use Gradient for Navigation Bar', default=False)
+    gradient_direction = SelectField('Gradient Direction', choices=[
+        ('to right', 'Horizontal'),
+        ('to bottom', 'Vertical'),
+        ('to bottom right', 'Diagonal'),
+        ('radial', 'Radial')
+    ], default='to right')
+    gradient_from_color = StringField('Gradient Start Color', validators=[
+        Optional(), 
+        Length(max=20)
+    ], description="Starting color for gradient (defaults to primary color)")
+    gradient_to_color = StringField('Gradient End Color', validators=[
+        Optional(), 
+        Length(max=20)
+    ], description="Ending color for gradient (defaults to secondary color)")
+    
     submit = SubmitField('Save Branding Settings')
 
 
