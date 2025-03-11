@@ -20,25 +20,35 @@
     {% if g.override_theme and g.primary_color %}
     <!-- Custom Brand Colors -->
     <style>
+        /* Override the theme colors completely when custom colors are enabled */
         :root {
-            {% if g.primary_color %}--bs-primary: {{ g.primary_color }};{% endif %}
-            {% if g.secondary_color %}--bs-secondary: {{ g.secondary_color }};{% endif %}
-            {% if g.accent_color %}--bs-success: {{ g.accent_color }};{% endif %}
+            {% if g.primary_color %}--bs-primary: {{ g.primary_color }} !important;{% endif %}
+            {% if g.secondary_color %}--bs-secondary: {{ g.secondary_color }} !important;{% endif %}
+            {% if g.accent_color %}--bs-success: {{ g.accent_color }} !important;{% endif %}
             
             {% if g.primary_color %}
-            --bs-primary-rgb: {{ g.primary_color|replace('#', '')|regex_replace('(..)(..)(..)', '\\1, \\2, \\3')|regex_replace('([0-9a-f])([0-9a-f])', '\\1\\2')|int(base=16)|int_to_rgb }};
+            --bs-primary-rgb: {{ g.primary_color|replace('#', '')|regex_replace('(..)(..)(..)', '\\1, \\2, \\3')|regex_replace('([0-9a-f])([0-9a-f])', '\\1\\2')|int(base=16)|int_to_rgb }} !important;
             {% endif %}
             
             {% if g.secondary_color %}
-            --bs-secondary-rgb: {{ g.secondary_color|replace('#', '')|regex_replace('(..)(..)(..)', '\\1, \\2, \\3')|regex_replace('([0-9a-f])([0-9a-f])', '\\1\\2')|int(base=16)|int_to_rgb }};
+            --bs-secondary-rgb: {{ g.secondary_color|replace('#', '')|regex_replace('(..)(..)(..)', '\\1, \\2, \\3')|regex_replace('([0-9a-f])([0-9a-f])', '\\1\\2')|int(base=16)|int_to_rgb }} !important;
             {% endif %}
             
             {% if g.accent_color %}
-            --bs-success-rgb: {{ g.accent_color|replace('#', '')|regex_replace('(..)(..)(..)', '\\1, \\2, \\3')|regex_replace('([0-9a-f])([0-9a-f])', '\\1\\2')|int(base=16)|int_to_rgb }};
+            --bs-success-rgb: {{ g.accent_color|replace('#', '')|regex_replace('(..)(..)(..)', '\\1, \\2, \\3')|regex_replace('([0-9a-f])([0-9a-f])', '\\1\\2')|int(base=16)|int_to_rgb }} !important;
             {% endif %}
             
-            --bs-link-color: {{ g.primary_color or '#007bff' }};
-            --bs-link-hover-color: {{ g.accent_color or '#28a745' }};
+            --bs-link-color: {{ g.primary_color or '#007bff' }} !important;
+            --bs-link-hover-color: {{ g.accent_color or '#28a745' }} !important;
+        }
+        
+        /* Make sure these override any theme styles */
+        .navbar.bg-dark {
+            background-color: var(--bs-primary) !important;
+        }
+        
+        footer.bg-dark {
+            background-color: var(--bs-secondary) !important;
         }
         
         .bg-primary {
@@ -50,13 +60,18 @@
         }
         
         .btn-primary {
-            background-color: var(--bs-primary);
-            border-color: var(--bs-primary);
+            background-color: var(--bs-primary) !important;
+            border-color: var(--bs-primary) !important;
         }
         
         .btn-secondary {
-            background-color: var(--bs-secondary);
-            border-color: var(--bs-secondary);
+            background-color: var(--bs-secondary) !important;
+            border-color: var(--bs-secondary) !important;
+        }
+        
+        .btn-success {
+            background-color: var(--bs-success) !important;
+            border-color: var(--bs-success) !important;
         }
     </style>
     {% endif %}

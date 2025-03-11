@@ -179,7 +179,9 @@ def create_app():
         g.banner_url = get_setting('banner_url')
         g.banner_title = get_setting('banner_title')
         g.banner_subtitle = get_setting('banner_subtitle')
-        g.override_theme = get_setting('override_theme') == 'true'
+        # Convert string 'true' to boolean True
+        override_theme_setting = get_setting('override_theme')
+        g.override_theme = override_theme_setting == 'true' if override_theme_setting is not None else False
         
         # Load content settings
         g.about_content = get_setting('about_content')
