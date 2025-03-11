@@ -85,7 +85,28 @@ def about():
 @main_bp.route('/contact')
 def contact():
     """Render the contact page."""
-    return render_template('main/contact.html')
+    # Get content from system settings
+    from models import SystemSetting
+    
+    # Retrieve contact information from settings
+    contact_email = SystemSetting.get_value('contact_email')
+    contact_phone = SystemSetting.get_value('contact_phone')
+    contact_address = SystemSetting.get_value('contact_address')
+    
+    # Social media links
+    twitter_url = SystemSetting.get_value('twitter_url')
+    facebook_url = SystemSetting.get_value('facebook_url')
+    linkedin_url = SystemSetting.get_value('linkedin_url')
+    
+    return render_template(
+        'main/contact.html',
+        contact_email=contact_email,
+        contact_phone=contact_phone,
+        contact_address=contact_address,
+        twitter_url=twitter_url,
+        facebook_url=facebook_url,
+        linkedin_url=linkedin_url
+    )
 
 
 @main_bp.route('/privacy')
