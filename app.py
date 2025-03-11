@@ -136,23 +136,32 @@ def create_app():
         from models import SystemSetting
         import time
         
-        # Skip for static files and certain paths
+        # Skip for static files and certain paths - expanded for improved performance
         if (request.path.startswith('/static') or 
             request.path.startswith('/css') or 
+            request.path.startswith('/uploads') or
+            request.path.startswith('/favicon') or
             request.path == '/favicon.ico'):
             return
             
         # Check if we need to refresh the cache
+        # Move the expensive operations inside the refresh_cache condition
+        if not hasattr(app, '_system_settings_cache_time') or not hasattr(app, '_system_settings_cache'):
+            app._system_settings_cache_time = None
+            app._system_settings_cache = {}
+            
         current_time = time.time()
-        refresh_cache = (_system_settings_cache_time is None or 
-                         current_time - _system_settings_cache_time > _CACHE_DURATION)
+        refresh_cache = (app._system_settings_cache_time is None or 
+                         current_time - app._system_settings_cache_time > _CACHE_DURATION)
         
         if refresh_cache:
             try:
-                # Get all system settings in a single query
-                all_settings = SystemSetting.query.all()
-                # Update the cache
-                app._system_settings_cache = {s.setting_key: s.setting_value for s in all_settings}
+                # Get all system settings in a single query - add optimization
+                all_settings = SystemSetting.query.with_entities(
+                    SystemSetting.setting_key, SystemSetting.setting_value
+                ).all()
+                # Update the cache - simplified
+                app._system_settings_cache = dict(all_settings)
                 app._system_settings_cache_time = current_time
             except Exception as e:
                 app.logger.error(f"Error loading system settings: {str(e)}")
@@ -210,73 +219,50 @@ def create_app():
         # Skip for static files, auth routes, and certain paths
         if (request.path.startswith('/static') or 
             request.path.startswith('/css') or 
+            request.path.startswith('/uploads') or
+            request.path.startswith('/favicon') or
             request.path == '/favicon.ico' or
             request.path.startswith('/auth') or  # Allow all auth routes
             request.endpoint == 'main.index'):  # Allow access to home page
             return
         
-        # Only check authenticated users
-        if current_user.is_authenticated:
-            # Helper function to get settings with default values - reusing the one from load_system_settings
-            def get_setting(key, default=None):
-                return app._system_settings_cache.get(key, default) if hasattr(app, '_system_settings_cache') else default
-                
-            # Get GDPR settings
-            require_consent = get_setting('gdpr_require_existing_consent', 'true') == 'true'
+        # Only check authenticated users - early return if not authenticated
+        if not current_user.is_authenticated:
+            return
             
-            # Check if user has consented or consent is not required
-            if not current_user.has_given_consent() and require_consent:
-                # Skip for the consent endpoint itself
-                if request.endpoint == 'auth.provide_consent':
-                    return
-                
-                # Get consent text and privacy policy from settings
-                default_consent_text = """We value your privacy.
-EasyJournal collects and processes your personal data (name, email, affiliation) to manage your submissions, peer review process, and publish your articles. By continuing, you consent to our storage and use of your data as described in our Privacy Policy. You can withdraw consent or request data removal at any time."""
-                
-                default_privacy_policy = """# Privacy Policy
-
-## What data we collect
-EasyJournal collects and stores the following information:
-- Name, email address, and institutional affiliation
-- Submission content and metadata
-- Review comments and decisions
-- User activity for system functionality
-
-## How we use your data
-Your data is used exclusively for:
-- Managing the journal submission and review process
-- Publishing accepted articles
-- Providing personalized user experience
-- Improving our services
-
-## Your rights
-Under GDPR, you have the right to:
-- Access your personal data
-- Request correction of inaccurate data
-- Request deletion of your data
-- Object to processing of your data
-- Request restriction of processing
-- Data portability
-- Lodge complaints with supervisory authorities
-
-## Data retention
-We keep your data for as long as necessary to provide our services and comply with legal obligations.
-
-## Contact
-For any privacy-related inquiries, please contact the journal administration."""
-                
-                consent_text = get_setting('gdpr_consent_text', default_consent_text)
-                privacy_policy = get_setting('gdpr_privacy_policy', default_privacy_policy)
-                
-                # If it's an AJAX request, return a 403 status with a message
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return {'error': 'GDPR consent required'}, 403
-                
-                # Render consent template and show
-                g.show_consent_modal = True
-                g.consent_text = Markup(consent_text.replace('\n', '<br>'))
-                g.privacy_policy = privacy_policy
+        # Early return if user has already given consent (checked first to avoid 
+        # the more expensive operations below)
+        if hasattr(current_user, 'has_given_consent') and current_user.has_given_consent():
+            return
+            
+        # Helper function to get settings with default values - reusing the one from load_system_settings
+        def get_setting(key, default=None):
+            return app._system_settings_cache.get(key, default) if hasattr(app, '_system_settings_cache') else default
+            
+        # Get GDPR settings
+        require_consent = get_setting('gdpr_require_existing_consent', 'true') == 'true'
+        
+        # Early return if consent is not required
+        if not require_consent:
+            return
+            
+        # Skip for the consent endpoint itself
+        if request.endpoint == 'auth.provide_consent':
+            return
+        
+        # Get consent text and privacy policy from settings
+        # Use the default values from config.py (moved there to improve this function's performance)
+        consent_text = get_setting('gdpr_consent_text', config.DEFAULT_CONSENT_TEXT)
+        privacy_policy = get_setting('gdpr_privacy_policy', config.DEFAULT_PRIVACY_POLICY)
+        
+        # If it's an AJAX request, return a 403 status with a message
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return {'error': 'GDPR consent required'}, 403
+        
+        # Render consent template and show
+        g.show_consent_modal = True
+        g.consent_text = Markup(consent_text.replace('\n', '<br>'))
+        g.privacy_policy = privacy_policy
     
     @app.before_request
     def track_visitor():
@@ -284,18 +270,26 @@ For any privacy-related inquiries, please contact the journal administration."""
         # Skip visitor tracking in deployment if there are issues with it
         # This makes sure login still works even if tracking doesn't
         try:
+            # Skip tracking for static files and certain paths - expanded list for better performance
+            if (request.path.startswith('/static') or 
+                request.path.startswith('/css') or 
+                request.path.startswith('/uploads') or
+                request.path.startswith('/favicon') or
+                request.path == '/favicon.ico' or
+                # Don't track admin routes to reduce database load
+                request.path.startswith('/admin') or
+                # Don't track health check or ping endpoints
+                request.path == '/ping' or
+                request.path == '/health'):
+                return
+                
+            # Import only if needed (after path exclusion check)
             from models import VisitorLog, ArticleView
             from flask_login import current_user
             from flask import session
             import re
             import time
             
-            # Skip tracking for static files and certain paths
-            if (request.path.startswith('/static') or 
-                request.path.startswith('/css') or 
-                request.path == '/favicon.ico'):
-                return
-                
             # Limit tracking frequency to reduce database load
             # Only track once per session, or once every 10 minutes for the same path
             session_key = f'tracked_{request.path}'
@@ -305,43 +299,55 @@ For any privacy-related inquiries, please contact the journal administration."""
                 session['last_tracked_time'] = {}
 
             current_time = time.time()
-            should_track = False
             
-            # Check if this path was tracked in this session
-            if session_key not in session or current_time - session.get('last_tracked_time', {}).get(request.path, 0) > 600:
-                should_track = True
-                session[session_key] = True
-                session['last_tracked_time'][request.path] = current_time
-                session.modified = True
+            # Check if this path was tracked in this session - avoid tracking duplicates
+            if session_key in session and current_time - session.get('last_tracked_time', {}).get(request.path, 0) <= 600:
+                return  # Skip tracking for this request
+                
+            # Update session tracking info
+            session[session_key] = True
+            if 'last_tracked_time' not in session:
+                session['last_tracked_time'] = {}
+            session['last_tracked_time'][request.path] = current_time
+            session.modified = True
             
-            if should_track:
-                try:
-                    # Create visitor log entry
-                    visitor_log = VisitorLog(
-                        user_id=current_user.id if current_user.is_authenticated else None,
-                        ip_address=request.remote_addr,
-                        user_agent=request.user_agent.string if request.user_agent else None,
-                        path=request.path,
-                        referer=request.referrer
-                    )
-                    
-                    # Check if this is an article view
-                    article_match = re.match(r'/articles/(\d+)', request.path)
-                    if article_match:
-                        submission_id = int(article_match.group(1))
-                        article_view = ArticleView(
-                            submission_id=submission_id,
-                            user_id=current_user.id if current_user.is_authenticated else None,
-                            ip_address=request.remote_addr
-                        )
-                        db.session.add(article_view)
-                    
-                    db.session.add(visitor_log)
-                    db.session.commit()
-                except Exception as tracking_error:
-                    # Log the error but don't let it affect user experience
-                    app.logger.error(f"Visitor tracking error: {str(tracking_error)}")
-                    db.session.rollback()
+            # Use a separate thread or deferred task for tracking to avoid slowing down the response
+            # For now, we'll optimize the DB operations
+            
+            # Check if this is an article view - only do this check once
+            is_article_view = bool(re.match(r'/articles/(\d+)', request.path))
+            submission_id = None
+            if is_article_view:
+                submission_id = int(re.match(r'/articles/(\d+)', request.path).group(1))
+            
+            # Create visitor log entry - only store essential data
+            visitor_log = VisitorLog(
+                user_id=current_user.id if current_user.is_authenticated else None,
+                ip_address=request.remote_addr,
+                user_agent=None,  # Omit user agent to reduce data storage
+                path=request.path,
+                referer=None  # Omit referer to reduce data storage
+            )
+            
+            # If it's an article view, create that record too
+            if is_article_view and submission_id:
+                article_view = ArticleView(
+                    submission_id=submission_id,
+                    user_id=current_user.id if current_user.is_authenticated else None,
+                    ip_address=request.remote_addr
+                )
+                db.session.add(article_view)
+            
+            db.session.add(visitor_log)
+            
+            # Commit but don't let errors block the request
+            try:
+                db.session.commit()
+            except Exception as tracking_error:
+                # Log the error but don't let it affect user experience
+                app.logger.error(f"Visitor tracking error: {str(tracking_error)}")
+                db.session.rollback()
+                
         except Exception as e:
             # If any error occurs in the whole visitor tracking process, 
             # log it but don't interrupt the request

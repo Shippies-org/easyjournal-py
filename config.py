@@ -28,6 +28,42 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///instance/journal.db")
 
 # Security settings
 SECRET_KEY = os.environ.get("SESSION_SECRET", "dev-key-for-journal-application")
+
+# GDPR default text settings - moved from app.py for better performance
+DEFAULT_CONSENT_TEXT = """We value your privacy.
+EasyJournal collects and processes your personal data (name, email, affiliation) to manage your submissions, peer review process, and publish your articles. By continuing, you consent to our storage and use of your data as described in our Privacy Policy. You can withdraw consent or request data removal at any time."""
+
+DEFAULT_PRIVACY_POLICY = """# Privacy Policy
+
+## What data we collect
+EasyJournal collects and stores the following information:
+- Name, email address, and institutional affiliation
+- Submission content and metadata
+- Review comments and decisions
+- User activity for system functionality
+
+## How we use your data
+Your data is used exclusively for:
+- Managing the journal submission and review process
+- Publishing accepted articles
+- Providing personalized user experience
+- Improving our services
+
+## Your rights
+Under GDPR, you have the right to:
+- Access your personal data
+- Request correction of inaccurate data
+- Request deletion of your data
+- Object to processing of your data
+- Request restriction of processing
+- Data portability
+- Lodge complaints with supervisory authorities
+
+## Data retention
+We keep your data for as long as necessary to provide our services and comply with legal obligations.
+
+## Contact
+For any privacy-related inquiries, please contact the journal administration."""
 SESSION_LIFETIME = timedelta(days=1)
 PASSWORD_MIN_LENGTH = 8
 
