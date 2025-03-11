@@ -194,6 +194,12 @@ def create_app():
         g.twitter_url = get_setting('twitter_url')
         g.facebook_url = get_setting('facebook_url')
         g.linkedin_url = get_setting('linkedin_url')
+        
+        # Load support hours
+        g.support_hours_weekday = get_setting('support_hours_weekday', '9:00 AM - 6:00 PM (EST)')
+        g.support_hours_saturday = get_setting('support_hours_saturday', '10:00 AM - 2:00 PM (EST)')
+        g.support_hours_sunday = get_setting('support_hours_sunday', 'Closed')
+        g.urgent_email = get_setting('urgent_email', 'urgent@easyjournal.org')
     
     @app.before_request
     def check_gdpr_consent():

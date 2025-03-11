@@ -269,6 +269,67 @@
                     </div>
                 </div>
                 
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Support Hours</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ form.support_hours_weekday.label(class="form-label") }}
+                                {{ form.support_hours_weekday(class="form-control") }}
+                                {% if form.support_hours_weekday.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.support_hours_weekday.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">{{ form.support_hours_weekday.description }}</small>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                {{ form.support_hours_saturday.label(class="form-label") }}
+                                {{ form.support_hours_saturday(class="form-control") }}
+                                {% if form.support_hours_saturday.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.support_hours_saturday.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">{{ form.support_hours_saturday.description }}</small>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                {{ form.support_hours_sunday.label(class="form-label") }}
+                                {{ form.support_hours_sunday(class="form-control") }}
+                                {% if form.support_hours_sunday.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.support_hours_sunday.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">{{ form.support_hours_sunday.description }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.urgent_email.label(class="form-label") }}
+                            {{ form.urgent_email(class="form-control") }}
+                            {% if form.urgent_email.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.urgent_email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">{{ form.urgent_email.description }}</small>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary btn-lg">
                         <i class="bi bi-save me-2"></i>Save Content Settings

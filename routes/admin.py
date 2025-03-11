@@ -588,6 +588,12 @@ def content_management():
         
         # Editorial Board
         form.editorial_board.data = SystemSetting.get_value('editorial_board')
+        
+        # Support Hours
+        form.support_hours_weekday.data = SystemSetting.get_value('support_hours_weekday', '9:00 AM - 6:00 PM (EST)')
+        form.support_hours_saturday.data = SystemSetting.get_value('support_hours_saturday', '10:00 AM - 2:00 PM (EST)')
+        form.support_hours_sunday.data = SystemSetting.get_value('support_hours_sunday', 'Closed')
+        form.urgent_email.data = SystemSetting.get_value('urgent_email', 'urgent@easyjournal.org')
     
     if form.validate_on_submit():
         try:
@@ -613,6 +619,12 @@ def content_management():
             
             # Save Editorial Board
             SystemSetting.set_value('editorial_board', form.editorial_board.data)
+            
+            # Save Support Hours
+            SystemSetting.set_value('support_hours_weekday', form.support_hours_weekday.data)
+            SystemSetting.set_value('support_hours_saturday', form.support_hours_saturday.data)
+            SystemSetting.set_value('support_hours_sunday', form.support_hours_sunday.data)
+            SystemSetting.set_value('urgent_email', form.urgent_email.data)
             
             flash('Content settings updated successfully.', 'success')
             return redirect(url_for('admin.content_management'))

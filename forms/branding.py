@@ -150,4 +150,25 @@ class ContentSettingsForm(FlaskForm):
         Length(max=5000)
     ], description="HTML formatting is supported")
     
+    # Support Hours
+    support_hours_weekday = StringField('Weekday Support Hours', validators=[
+        Optional(),
+        Length(max=50)
+    ], description="e.g. 9:00 AM - 6:00 PM (EST)")
+    
+    support_hours_saturday = StringField('Saturday Support Hours', validators=[
+        Optional(),
+        Length(max=50)
+    ], description="e.g. 10:00 AM - 2:00 PM (EST)")
+    
+    support_hours_sunday = StringField('Sunday Support Hours', validators=[
+        Optional(),
+        Length(max=50)
+    ], description="e.g. Closed")
+    
+    urgent_email = StringField('Urgent Support Email', validators=[
+        Optional(),
+        Length(max=100)
+    ], description="Email for urgent matters outside support hours")
+    
     submit = SubmitField('Save Content Settings')
