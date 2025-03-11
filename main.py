@@ -14,6 +14,10 @@ from flask import send_from_directory
 @app.route('/uploads/<path:filename>')
 def serve_uploads(filename):
     """Serve uploaded files."""
+    # If the path starts with 'branding', use the uploads directory directly
+    if filename.startswith('branding/'):
+        return send_from_directory('uploads', filename)
+    # Otherwise use the config.UPLOAD_FOLDER
     return send_from_directory(config.UPLOAD_FOLDER, filename)
 
 # Configure app to serve CSS files
