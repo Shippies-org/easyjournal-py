@@ -492,6 +492,9 @@ def branding_settings():
             # Handle logo upload if provided
             logo_file = branding_form.custom_logo.data
             if logo_file and logo_file.filename:
+                # Print debug information
+                print(f"Logo file received: {logo_file.filename}")
+                
                 filename = secure_filename(logo_file.filename)
                 # Create timestamp to prevent browser caching
                 timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
@@ -508,17 +511,26 @@ def branding_settings():
                 # Create a URL path that's properly accessible in templates
                 url_path = f"/uploads/branding/{filename}"
                 
-                # Save file
-                logo_file.save(save_path)
-                
-                # Update database with URL path (not file system path)
-                SystemSetting.set_value('logo_url', url_path)
-                # Update logo_url for template rendering
-                logo_url = url_path
+                try:
+                    # Save file
+                    logo_file.save(save_path)
+                    print(f"Logo file saved to: {save_path}")
+                    
+                    # Update database with URL path (not file system path)
+                    SystemSetting.set_value('logo_url', url_path)
+                    # Update logo_url for template rendering
+                    logo_url = url_path
+                    print(f"Logo URL set to: {url_path}")
+                except Exception as e:
+                    print(f"Error saving logo file: {str(e)}")
+                    flash(f"Error saving logo image: {str(e)}", "danger")
             
             # Handle banner upload if provided
             banner_file = branding_form.banner_image.data
             if banner_file and banner_file.filename:
+                # Print debug information
+                print(f"Banner file received: {banner_file.filename}")
+                
                 filename = secure_filename(banner_file.filename)
                 # Create timestamp to prevent browser caching
                 timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
@@ -535,13 +547,19 @@ def branding_settings():
                 # Create a URL path that's properly accessible in templates
                 url_path = f"/uploads/branding/{filename}"
                 
-                # Save file
-                banner_file.save(save_path)
-                
-                # Update database with URL path (not file system path)
-                SystemSetting.set_value('banner_url', url_path)
-                # Update banner_url for template rendering
-                banner_url = url_path
+                try:
+                    # Save file
+                    banner_file.save(save_path)
+                    print(f"Banner file saved to: {save_path}")
+                    
+                    # Update database with URL path (not file system path)
+                    SystemSetting.set_value('banner_url', url_path)
+                    # Update banner_url for template rendering
+                    banner_url = url_path
+                    print(f"Banner URL set to: {url_path}")
+                except Exception as e:
+                    print(f"Error saving banner file: {str(e)}")
+                    flash(f"Error saving banner image: {str(e)}", "danger")
             
             flash('Branding settings updated successfully.', 'success')
             return redirect(url_for('admin.branding_settings'))
