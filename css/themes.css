@@ -142,20 +142,19 @@ footer[style*="background-color"] {
   border-top: 2px solid #ffff00;
 }
 
-/* CUSTOM THEME OVERRIDE - Must be at the end to ensure it takes precedence */
-/* Ensure custom theme override takes highest priority regardless of data-bs-theme */
-html[data-bs-theme] .navbar[style*="background-color"],
-html[data-bs-theme] footer[style*="background-color"],
-html[data-bs-theme] .sidebar[style*="background-color"] {
-  background-image: none !important;
-  background: var(--bs-primary) !important;
+/* Theme Consistency Enhancements */
+/* Ensure consistent styling regardless of the chosen theme */
+html[data-bs-theme] .navbar {
+  background-color: var(--bs-primary) !important;
+  color: var(--bs-light);
 }
 
-html[data-bs-theme] footer[style*="background-color"] {
-  background: var(--bs-secondary) !important;
+html[data-bs-theme] footer {
+  background-color: var(--bs-secondary) !important;
+  color: var(--bs-light);
 }
 
 /* Ensure sidebar styles are consistently applied */
-html[data-bs-theme] .sidebar[style*="background-color"] .nav-link {
+html[data-bs-theme] .sidebar .nav-link {
   color: rgba(255, 255, 255, 0.8);
 }
