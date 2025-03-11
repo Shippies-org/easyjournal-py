@@ -84,19 +84,19 @@
                 <h3 class="card-title mb-4">Journal Information</h3>
                 <dl class="row">
                     <dt class="col-sm-5">Established:</dt>
-                    <dd class="col-sm-7">2023</dd>
+                    <dd class="col-sm-7">{{ journal_established|default('2023') }}</dd>
                     
                     <dt class="col-sm-5">Publication Frequency:</dt>
-                    <dd class="col-sm-7">Quarterly</dd>
+                    <dd class="col-sm-7">{{ journal_frequency|default('Quarterly') }}</dd>
                     
                     <dt class="col-sm-5">Open Access:</dt>
-                    <dd class="col-sm-7">Yes</dd>
+                    <dd class="col-sm-7">{{ journal_open_access|default('Yes') }}</dd>
                     
                     <dt class="col-sm-5">Indexed In:</dt>
-                    <dd class="col-sm-7">Google Scholar, CrossRef, DOAJ</dd>
+                    <dd class="col-sm-7">{{ journal_indexing|default('Google Scholar, CrossRef, DOAJ') }}</dd>
                     
                     <dt class="col-sm-5">ISSN (Online):</dt>
-                    <dd class="col-sm-7">2023-XXXX</dd>
+                    <dd class="col-sm-7">{{ journal_issn|default('2023-XXXX') }}</dd>
                 </dl>
             </div>
         </div>
@@ -104,17 +104,21 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h3 class="card-title mb-4">Editorial Board</h3>
-                <h5>Editor-in-Chief</h5>
-                <p>Prof. Jane Smith<br>University of Excellence</p>
-                
-                <h5>Associate Editors</h5>
-                <ul class="list-unstyled">
-                    <li class="mb-2">Dr. John Doe<br>Research Institute of Science</li>
-                    <li class="mb-2">Prof. Maria Garcia<br>National University</li>
-                    <li class="mb-2">Dr. Robert Johnson<br>International College</li>
-                    <li class="mb-2">Prof. Sarah Chen<br>Technical University</li>
-                </ul>
-                <a href="#" class="btn btn-outline-primary btn-sm mt-2">View Full Editorial Board</a>
+                {% if editorial_board %}
+                    {{ editorial_board|safe }}
+                {% else %}
+                    <h5>Editor-in-Chief</h5>
+                    <p>Prof. Jane Smith<br>University of Excellence</p>
+                    
+                    <h5>Associate Editors</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">Dr. John Doe<br>Research Institute of Science</li>
+                        <li class="mb-2">Prof. Maria Garcia<br>National University</li>
+                        <li class="mb-2">Dr. Robert Johnson<br>International College</li>
+                        <li class="mb-2">Prof. Sarah Chen<br>Technical University</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline-primary btn-sm mt-2">View Full Editorial Board</a>
+                {% endif %}
             </div>
         </div>
 

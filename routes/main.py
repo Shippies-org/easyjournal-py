@@ -67,18 +67,34 @@ def about():
     # Get content from system settings
     from models import SystemSetting
     
+    # Basic page content
     about_content = SystemSetting.get_value('about_content')
-    # Other settings that might be used on the about page
     submission_guidelines = SystemSetting.get_value('submission_guidelines')
     review_policy = SystemSetting.get_value('review_policy')
     ethics_policy = SystemSetting.get_value('ethics_policy')
+    
+    # Journal information
+    journal_established = SystemSetting.get_value('journal_established')
+    journal_frequency = SystemSetting.get_value('journal_frequency')
+    journal_open_access = SystemSetting.get_value('journal_open_access')
+    journal_indexing = SystemSetting.get_value('journal_indexing')
+    journal_issn = SystemSetting.get_value('journal_issn')
+    
+    # Editorial board
+    editorial_board = SystemSetting.get_value('editorial_board')
     
     return render_template(
         'main/about.html',
         about_content=about_content,
         submission_guidelines=submission_guidelines,
         review_policy=review_policy,
-        ethics_policy=ethics_policy
+        ethics_policy=ethics_policy,
+        journal_established=journal_established,
+        journal_frequency=journal_frequency,
+        journal_open_access=journal_open_access,
+        journal_indexing=journal_indexing,
+        journal_issn=journal_issn,
+        editorial_board=editorial_board
     )
 
 

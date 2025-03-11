@@ -578,6 +578,16 @@ def content_management():
         form.twitter_url.data = SystemSetting.get_value('twitter_url')
         form.facebook_url.data = SystemSetting.get_value('facebook_url')
         form.linkedin_url.data = SystemSetting.get_value('linkedin_url')
+        
+        # Journal Information fields
+        form.journal_established.data = SystemSetting.get_value('journal_established', '2023')
+        form.journal_frequency.data = SystemSetting.get_value('journal_frequency', 'Quarterly')
+        form.journal_open_access.data = SystemSetting.get_value('journal_open_access', 'Yes')
+        form.journal_indexing.data = SystemSetting.get_value('journal_indexing', 'Google Scholar, CrossRef, DOAJ')
+        form.journal_issn.data = SystemSetting.get_value('journal_issn', '2023-XXXX')
+        
+        # Editorial Board
+        form.editorial_board.data = SystemSetting.get_value('editorial_board')
     
     if form.validate_on_submit():
         try:
@@ -593,6 +603,16 @@ def content_management():
             SystemSetting.set_value('twitter_url', form.twitter_url.data)
             SystemSetting.set_value('facebook_url', form.facebook_url.data)
             SystemSetting.set_value('linkedin_url', form.linkedin_url.data)
+            
+            # Save Journal Information fields
+            SystemSetting.set_value('journal_established', form.journal_established.data)
+            SystemSetting.set_value('journal_frequency', form.journal_frequency.data)
+            SystemSetting.set_value('journal_open_access', form.journal_open_access.data)
+            SystemSetting.set_value('journal_indexing', form.journal_indexing.data)
+            SystemSetting.set_value('journal_issn', form.journal_issn.data)
+            
+            # Save Editorial Board
+            SystemSetting.set_value('editorial_board', form.editorial_board.data)
             
             flash('Content settings updated successfully.', 'success')
             return redirect(url_for('admin.content_management'))

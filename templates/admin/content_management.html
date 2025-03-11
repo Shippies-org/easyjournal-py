@@ -177,6 +177,98 @@
                     </div>
                 </div>
                 
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Journal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ form.journal_established.label(class="form-label") }}
+                                {{ form.journal_established(class="form-control") }}
+                                {% if form.journal_established.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.journal_established.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                {{ form.journal_frequency.label(class="form-label") }}
+                                {{ form.journal_frequency(class="form-control") }}
+                                {% if form.journal_frequency.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.journal_frequency.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                {{ form.journal_open_access.label(class="form-label") }}
+                                {{ form.journal_open_access(class="form-control") }}
+                                {% if form.journal_open_access.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.journal_open_access.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.journal_indexing.label(class="form-label") }}
+                                {{ form.journal_indexing(class="form-control") }}
+                                {% if form.journal_indexing.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.journal_indexing.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Comma-separated list of indexing services</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.journal_issn.label(class="form-label") }}
+                                {{ form.journal_issn(class="form-control") }}
+                                {% if form.journal_issn.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.journal_issn.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Editorial Board</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {{ form.editorial_board.label(class="form-label") }}
+                            {{ form.editorial_board(class="form-control", rows=8) }}
+                            {% if form.editorial_board.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.editorial_board.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">{{ form.editorial_board.description }}</small>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary btn-lg">
                         <i class="bi bi-save me-2"></i>Save Content Settings
