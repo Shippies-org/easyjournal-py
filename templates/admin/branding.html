@@ -4,130 +4,6 @@
 
 {% block extra_css %}
 <style>
-    .color-preview {
-        display: inline-block;
-        width: 30px;
-        height: 30px;
-        border-radius: 4px;
-        border: 1px solid #dee2e6;
-        vertical-align: middle;
-        margin-right: 10px;
-    }
-    
-    .color-palettes {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        margin: 20px 0;
-    }
-    
-    .color-palette {
-        position: relative;
-        display: flex;
-        border-radius: 6px;
-        overflow: hidden;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        height: 48px;
-    }
-    
-    .color-palette:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-    
-    .color-palette.selected {
-        box-shadow: 0 0 0 3px var(--bs-primary);
-    }
-    
-    .color-role {
-        position: absolute;
-        font-size: 0.6rem;
-        color: white;
-        text-shadow: 0 0 3px rgba(0,0,0,0.7);
-        text-align: center;
-        bottom: 3px;
-        width: 33.33%;
-    }
-    
-    .color-role.primary {
-        left: 0;
-    }
-    
-    .color-role.secondary {
-        left: 33.33%;
-    }
-    
-    .color-role.accent {
-        left: 66.66%;
-    }
-    
-    .color-swatch {
-        flex: 1;
-        height: 100%;
-    }
-    
-    .palette-name {
-        font-size: 0.75rem;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(0, 0, 0, 0.5);
-        color: white;
-        padding: 2px 8px;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }
-    
-    .color-palette:hover .palette-name {
-        opacity: 1;
-    }
-    
-    .palette-tabs {
-        display: flex;
-        border-bottom: 2px solid var(--bs-border-color);
-        margin-bottom: 20px;
-    }
-    
-    .palette-tab {
-        padding: 8px 16px;
-        font-weight: 500;
-        cursor: pointer;
-        border-bottom: 2px solid transparent;
-        margin-bottom: -2px;
-    }
-    
-    .palette-tab.active {
-        border-bottom-color: var(--bs-primary);
-        color: var(--bs-primary);
-    }
-    
-    .color-preview-box {
-        display: flex;
-        margin-bottom: 20px;
-        border-radius: 6px;
-        overflow: hidden;
-        height: 60px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .tab-content {
-        background-color: var(--bs-body-bg);
-        border-left: 1px solid var(--bs-border-color);
-        border-right: 1px solid var(--bs-border-color);
-        border-bottom: 1px solid var(--bs-border-color);
-        border-bottom-left-radius: 0.25rem;
-        border-bottom-right-radius: 0.25rem;
-        padding: 1.5rem;
-    }
-    
-    .nav-tabs .nav-link {
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
-    }
-    
     .current-logo, .current-banner {
         max-height: 150px;
         max-width: 100%;
@@ -176,6 +52,49 @@
         font-size: 1rem;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         max-width: 80%;
+    }
+    
+    .theme-preview {
+        border: 1px solid var(--bs-border-color);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+    }
+    
+    .theme-preview:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .theme-preview.selected {
+        border: 2px solid var(--bs-primary);
+    }
+    
+    .theme-swatch {
+        height: 30px;
+        border-radius: 4px;
+        margin-right: 5px;
+    }
+    
+    .theme-colors {
+        display: flex;
+        margin-top: 10px;
+    }
+    
+    .tab-content {
+        background-color: var(--bs-body-bg);
+        border-left: 1px solid var(--bs-border-color);
+        border-right: 1px solid var(--bs-border-color);
+        border-bottom: 1px solid var(--bs-border-color);
+        border-bottom-left-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+        padding: 1.5rem;
+    }
+    
+    .nav-tabs .nav-link {
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
     }
 </style>
 {% endblock %}
@@ -241,257 +160,94 @@
                                 </div>
                                 
                                 <div class="mb-4">
-                                    <h5>Brand Colors</h5>
+                                    <h5>Theme Settings</h5>
                                     <hr>
                                     
                                     <div class="mb-3">
-                                        {{ branding_form.override_theme(class="form-check-input") }}
-                                        {{ branding_form.override_theme.label(class="form-check-label") }}
+                                        {{ branding_form.theme.label(class="form-label") }}
+                                        {{ branding_form.theme(class="form-select") }}
                                         <small class="form-text text-muted d-block">
-                                            When enabled, the system theme will be replaced with these custom colors.
+                                            Select a predefined theme for your journal. Each theme has carefully designed colors that work well together.
                                         </small>
                                     </div>
                                     
-                                    <!-- Navbar Gradient Options -->
-                                    <div class="mb-3 mt-4 gradient-controls" {% if not branding_form.override_theme.data %}style="display: none;"{% endif %}>
-                                        <h5>Navbar Gradient Options</h5>
-                                        
-                                        <div class="mb-3 form-check">
-                                            {{ branding_form.use_navbar_gradient(class="form-check-input") }}
-                                            {{ branding_form.use_navbar_gradient.label(class="form-check-label") }}
-                                            <small class="form-text text-muted d-block">
-                                                Apply a gradient background to the navigation bar instead of a solid color.
-                                            </small>
-                                        </div>
-                                        
-                                        <div class="gradient-options" {% if not branding_form.use_navbar_gradient.data %}style="display: none;"{% endif %}>
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    {{ branding_form.gradient_direction.label(class="form-label") }}
-                                                    {{ branding_form.gradient_direction(class="form-select") }}
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    {{ branding_form.gradient_from_color.label(class="form-label") }}
-                                                    <div class="d-flex">
-                                                        <span class="color-preview gradient-from-preview me-2" style="background-color: {% if branding_form.gradient_from_color.data %}{{ branding_form.gradient_from_color.data }}{% else %}{% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %}{% endif %};"></span>
-                                                        <input type="text" class="form-control custom-color-input" id="gradient_from_color_custom" value="{% if branding_form.gradient_from_color.data %}{{ branding_form.gradient_from_color.data }}{% else %}{% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %}{% endif %}">
-                                                    </div>
-                                                    <input type="hidden" name="gradient_from_color" id="gradient_from_color" value="{% if branding_form.gradient_from_color.data %}{{ branding_form.gradient_from_color.data }}{% else %}{% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %}{% endif %}">
-                                                </div>
-                                                
-                                                <div class="col-md-6 mb-3">
-                                                    {{ branding_form.gradient_to_color.label(class="form-label") }}
-                                                    <div class="d-flex">
-                                                        <span class="color-preview gradient-to-preview me-2" style="background-color: {% if branding_form.gradient_to_color.data %}{{ branding_form.gradient_to_color.data }}{% else %}{% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %}{% endif %};"></span>
-                                                        <input type="text" class="form-control custom-color-input" id="gradient_to_color_custom" value="{% if branding_form.gradient_to_color.data %}{{ branding_form.gradient_to_color.data }}{% else %}{% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %}{% endif %}">
-                                                    </div>
-                                                    <input type="hidden" name="gradient_to_color" id="gradient_to_color" value="{% if branding_form.gradient_to_color.data %}{{ branding_form.gradient_to_color.data }}{% else %}{% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %}{% endif %}">
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Gradient Preview -->
-                                            <div class="mb-3">
-                                                <label class="form-label">Gradient Preview</label>
-                                                <div class="gradient-preview-box" style="height: 50px; border-radius: 6px; overflow: hidden;">
-                                                    <div id="gradient-preview" style="width: 100%; height: 100%;"></div>
+                                    <!-- Theme Preview -->
+                                    <div class="mb-4">
+                                        <h6>Theme Preview</h6>
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <div class="p-3 rounded" style="background-color: var(--bs-primary); color: white;">Primary</div>
+                                                    <div class="p-3 rounded" style="background-color: var(--bs-secondary); color: white;">Secondary</div>
+                                                    <div class="p-3 rounded" style="background-color: var(--bs-success); color: white;">Success</div>
+                                                    <div class="p-3 rounded" style="background-color: var(--bs-info); color: white;">Info</div>
+                                                    <div class="p-3 rounded" style="background-color: var(--bs-warning);">Warning</div>
+                                                    <div class="p-3 rounded" style="background-color: var(--bs-danger); color: white;">Danger</div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <!-- Current color preview -->
-                                    <div class="color-preview-box mb-4">
-                                        <div class="color-swatch primary-preview" style="background-color: {% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %};"></div>
-                                        <div class="color-swatch secondary-preview" style="background-color: {% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %};"></div>
-                                        <div class="color-swatch accent-preview" style="background-color: {% if branding_form.accent_color.data %}{{ branding_form.accent_color.data }}{% else %}#28a745{% endif %};"></div>
-                                    </div>
-                                    
-                                    <!-- Hidden color inputs -->
-                                    <div class="d-none">
-                                        {{ branding_form.primary_color(class="colorpicker", id="primary_color") }}
-                                        {{ branding_form.secondary_color(class="colorpicker", id="secondary_color") }}
-                                        {{ branding_form.accent_color(class="colorpicker", id="accent_color") }}
-                                    </div>
-                                    
-                                    <!-- Color palette tabs -->
-                                    <div class="palette-tabs">
-                                        <div class="palette-tab active" id="tab-presets">Presets</div>
-                                        <div class="palette-tab" id="tab-custom">Custom</div>
-                                    </div>
-                                    
-                                    <!-- Preset palettes -->
-                                    <div class="palette-content" id="content-presets">
-                                        <div class="color-palettes">
-                                            <!-- Nature palette -->
-                                            <div class="color-palette" data-primary="#2E7D32" data-secondary="#4B6455" data-accent="#FFC107">
-                                                <div class="color-swatch" style="background-color: #2E7D32;"></div>
-                                                <div class="color-swatch" style="background-color: #4B6455;"></div>
-                                                <div class="color-swatch" style="background-color: #FFC107;"></div>
-                                                <div class="palette-name">Nature</div>
-                                                <div class="color-role primary">Primary</div>
-                                                <div class="color-role secondary">Secondary</div>
-                                                <div class="color-role accent">Accent</div>
-                                            </div>
-                                            
-                                            <!-- Ocean palette -->
-                                            <div class="color-palette" data-primary="#0277BD" data-secondary="#455A64" data-accent="#FF8F00">
-                                                <div class="color-swatch" style="background-color: #0277BD;"></div>
-                                                <div class="color-swatch" style="background-color: #455A64;"></div>
-                                                <div class="color-swatch" style="background-color: #FF8F00;"></div>
-                                                <div class="palette-name">Ocean</div>
-                                                <div class="color-role primary">Primary</div>
-                                                <div class="color-role secondary">Secondary</div>
-                                                <div class="color-role accent">Accent</div>
-                                            </div>
-                                            
-                                            <!-- Sunset palette -->
-                                            <div class="color-palette" data-primary="#F57C00" data-secondary="#5D4037" data-accent="#7B1FA2">
-                                                <div class="color-swatch" style="background-color: #F57C00;"></div>
-                                                <div class="color-swatch" style="background-color: #5D4037;"></div>
-                                                <div class="color-swatch" style="background-color: #7B1FA2;"></div>
-                                                <div class="palette-name">Sunset</div>
-                                                <div class="color-role primary">Primary</div>
-                                                <div class="color-role secondary">Secondary</div>
-                                                <div class="color-role accent">Accent</div>
-                                            </div>
-                                            
-                                            <!-- Modern palette -->
-                                            <div class="color-palette" data-primary="#1976D2" data-secondary="#212121" data-accent="#E53935">
-                                                <div class="color-swatch" style="background-color: #1976D2;"></div>
-                                                <div class="color-swatch" style="background-color: #212121;"></div>
-                                                <div class="color-swatch" style="background-color: #E53935;"></div>
-                                                <div class="palette-name">Modern</div>
-                                                <div class="color-role primary">Primary</div>
-                                                <div class="color-role secondary">Secondary</div>
-                                                <div class="color-role accent">Accent</div>
-                                            </div>
-                                            
-                                            <!-- Elegant palette -->
-                                            <div class="color-palette" data-primary="#5D4037" data-secondary="#263238" data-accent="#9E9E9E">
-                                                <div class="color-swatch" style="background-color: #5D4037;"></div>
-                                                <div class="color-swatch" style="background-color: #263238;"></div>
-                                                <div class="color-swatch" style="background-color: #9E9E9E;"></div>
-                                                <div class="palette-name">Elegant</div>
-                                                <div class="color-role primary">Primary</div>
-                                                <div class="color-role secondary">Secondary</div>
-                                                <div class="color-role accent">Accent</div>
-                                            </div>
-                                            
-                                            <!-- Vibrant palette -->
-                                            <div class="color-palette" data-primary="#D32F2F" data-secondary="#303F9F" data-accent="#009688">
-                                                <div class="color-swatch" style="background-color: #D32F2F;"></div>
-                                                <div class="color-swatch" style="background-color: #303F9F;"></div>
-                                                <div class="color-swatch" style="background-color: #009688;"></div>
-                                                <div class="palette-name">Vibrant</div>
-                                                <div class="color-role primary">Primary</div>
-                                                <div class="color-role secondary">Secondary</div>
-                                                <div class="color-role accent">Accent</div>
-                                            </div>
-                                            
-                                            <!-- Classic palette -->
-                                            <div class="color-palette" data-primary="#0D47A1" data-secondary="#004D40" data-accent="#FF6F00">
-                                                <div class="color-swatch" style="background-color: #0D47A1;"></div>
-                                                <div class="color-swatch" style="background-color: #004D40;"></div>
-                                                <div class="color-swatch" style="background-color: #FF6F00;"></div>
-                                                <div class="palette-name">Classic</div>
-                                                <div class="color-role primary">Primary</div>
-                                                <div class="color-role secondary">Secondary</div>
-                                                <div class="color-role accent">Accent</div>
-                                            </div>
-                                            
-                                            <!-- Monochrome palette -->
-                                            <div class="color-palette" data-primary="#424242" data-secondary="#212121" data-accent="#9E9E9E">
-                                                <div class="color-swatch" style="background-color: #424242;"></div>
-                                                <div class="color-swatch" style="background-color: #212121;"></div>
-                                                <div class="color-swatch" style="background-color: #9E9E9E;"></div>
-                                                <div class="palette-name">Monochrome</div>
-                                                <div class="color-role primary">Primary</div>
-                                                <div class="color-role secondary">Secondary</div>
-                                                <div class="color-role accent">Accent</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Custom colors content -->
-                                    <div class="palette-content" id="content-custom" style="display: none;">
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label">{{ branding_form.primary_color.label.text }}</label>
-                                                <div class="d-flex">
-                                                    <span class="color-preview primary-preview-custom me-2" style="background-color: {% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %};"></span>
-                                                    <input type="text" class="form-control custom-color-input" id="primary_color_custom" value="{% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %}">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label">{{ branding_form.secondary_color.label.text }}</label>
-                                                <div class="d-flex">
-                                                    <span class="color-preview secondary-preview-custom me-2" style="background-color: {% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %};"></span>
-                                                    <input type="text" class="form-control custom-color-input" id="secondary_color_custom" value="{% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %}">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label">{{ branding_form.accent_color.label.text }}</label>
-                                                <div class="d-flex">
-                                                    <span class="color-preview accent-preview-custom me-2" style="background-color: {% if branding_form.accent_color.data %}{{ branding_form.accent_color.data }}{% else %}#28a745{% endif %};"></span>
-                                                    <input type="text" class="form-control custom-color-input" id="accent_color_custom" value="{% if branding_form.accent_color.data %}{{ branding_form.accent_color.data }}{% else %}#28a745{% endif %}">
+                                    <!-- Theme Cards Display -->
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'dark' }}">
+                                                <h6>Dark Theme</h6>
+                                                <div class="theme-colors">
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #121212;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #343a40;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #007bff;"></div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Navbar Gradient options -->
-                                <div class="mb-4">
-                                    <h5>Navbar Gradient</h5>
-                                    <hr>
-                                    
-                                    <div class="mb-3">
-                                        <div class="form-check form-switch">
-                                            {{ branding_form.use_navbar_gradient(class="form-check-input") }}
-                                            {{ branding_form.use_navbar_gradient.label(class="form-check-label") }}
+                                        <div class="col-md-4 mb-3">
+                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'light' }}">
+                                                <h6>Light Theme</h6>
+                                                <div class="theme-colors">
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #f8f9fa;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #e9ecef;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #0d6efd;"></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <small class="form-text text-muted d-block">
-                                            Apply a gradient background to the navigation bar instead of a solid color.
-                                        </small>
-                                    </div>
-                                    
-                                    <div class="gradient-controls" style="display: {% if branding_form.use_navbar_gradient.data %}block{% else %}none{% endif %};">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                {{ branding_form.gradient_direction.label(class="form-label") }}
-                                                {{ branding_form.gradient_direction(class="form-select") }}
-                                            </div>
-                                            
-                                            <div class="col-12">
-                                                <!-- Gradient preview -->
-                                                <div class="rounded mb-3 p-3 text-center text-white" id="gradientPreview" style="height: 80px; line-height: 60px; font-weight: bold; {% if branding_form.gradient_direction.data == 'radial' %}background-image: radial-gradient(ellipse at center, {{ branding_form.gradient_from_color.data or '#007bff' }}, {{ branding_form.gradient_to_color.data or '#6c757d' }});{% else %}background-image: linear-gradient({{ branding_form.gradient_direction.data or 'to right' }}, {{ branding_form.gradient_from_color.data or '#007bff' }}, {{ branding_form.gradient_to_color.data or '#6c757d' }});{% endif %}">
-                                                    Navigation Bar Gradient Preview
+                                        <div class="col-md-4 mb-3">
+                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'journal' }}">
+                                                <h6>Journal Theme</h6>
+                                                <div class="theme-colors">
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #f8f5f0;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #8e8c84;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #325d88;"></div>
                                                 </div>
                                             </div>
-                                            
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">{{ branding_form.gradient_from_color.label.text }}</label>
-                                                <div class="d-flex">
-                                                    <span class="color-preview gradient-from-preview me-2" style="background-color: {% if branding_form.gradient_from_color.data %}{{ branding_form.gradient_from_color.data }}{% else %}#007bff{% endif %};"></span>
-                                                    <input type="text" class="form-control custom-color-input" id="gradient_from_color_custom" value="{% if branding_form.gradient_from_color.data %}{{ branding_form.gradient_from_color.data }}{% else %}#007bff{% endif %}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'modern' }}">
+                                                <h6>Modern Theme</h6>
+                                                <div class="theme-colors">
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #212529;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #444444;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #2780e3;"></div>
                                                 </div>
-                                                <small class="form-text text-muted">{{ branding_form.gradient_from_color.description }}</small>
-                                                {{ branding_form.gradient_from_color(class="d-none", id="gradient_from_color") }}
                                             </div>
-                                            
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">{{ branding_form.gradient_to_color.label.text }}</label>
-                                                <div class="d-flex">
-                                                    <span class="color-preview gradient-to-preview me-2" style="background-color: {% if branding_form.gradient_to_color.data %}{{ branding_form.gradient_to_color.data }}{% else %}#6c757d{% endif %};"></span>
-                                                    <input type="text" class="form-control custom-color-input" id="gradient_to_color_custom" value="{% if branding_form.gradient_to_color.data %}{{ branding_form.gradient_to_color.data }}{% else %}#6c757d{% endif %}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'elegant' }}">
+                                                <h6>Elegant Theme</h6>
+                                                <div class="theme-colors">
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #2b3e50;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #4e5d6c;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #df691a;"></div>
                                                 </div>
-                                                <small class="form-text text-muted">{{ branding_form.gradient_to_color.description }}</small>
-                                                {{ branding_form.gradient_to_color(class="d-none", id="gradient_to_color") }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'high-contrast' }}">
+                                                <h6>High Contrast Theme</h6>
+                                                <div class="theme-colors">
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #000000;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #ffffff;"></div>
+                                                    <div class="theme-swatch flex-grow-1" style="background-color: #ffff00;"></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -521,7 +277,7 @@
                                         <small class="form-text text-muted">Recommended size: 200x60px. SVG format is preferred for best quality.</small>
                                     </div>
                                     
-                                    <div class="mb-3">
+                                    <div class="mb-3 form-check">
                                         {{ branding_form.use_logo_text(class="form-check-input") }}
                                         {{ branding_form.use_logo_text.label(class="form-check-label") }}
                                     </div>
@@ -816,275 +572,65 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% block scripts %}
 <script>
-    $(document).ready(function() {
-        // Get the override theme checkbox
-        const overrideThemeCheckbox = document.getElementById('override_theme');
-        const colorSections = $('.color-preview-box, .palette-tabs, .palette-content');
-        
-        // Function to toggle visibility of color palettes based on override checkbox
-        function toggleColorPalettes() {
-            if (overrideThemeCheckbox.checked) {
-                colorSections.show();
-            } else {
-                colorSections.hide();
-            }
-        }
-        
-        // Initialize on page load
-        toggleColorPalettes();
-        
-        // Add event listener to checkbox
-        overrideThemeCheckbox.addEventListener('change', toggleColorPalettes);
-        
-        // Handle tab switching
-        $('.palette-tab').click(function() {
-            // Update active tab
-            $('.palette-tab').removeClass('active');
-            $(this).addClass('active');
-            
-            // Show relevant content
-            $('.palette-content').hide();
-            $(`#content-${$(this).attr('id').split('-')[1]}`).show();
-        });
-        
-        // Handle palette selection
-        $('.color-palette').click(function() {
-            // Get color values from data attributes
-            const primaryColor = $(this).data('primary');
-            const secondaryColor = $(this).data('secondary');
-            const accentColor = $(this).data('accent');
-            
-            // Update the hidden input values
-            $('#primary_color').val(primaryColor);
-            $('#secondary_color').val(secondaryColor);
-            $('#accent_color').val(accentColor);
-            
-            // Update the custom input values
-            $('#primary_color_custom').val(primaryColor);
-            $('#secondary_color_custom').val(secondaryColor);
-            $('#accent_color_custom').val(accentColor);
-            
-            // Update the preview swatches
-            $('.primary-preview').css('background-color', primaryColor);
-            $('.secondary-preview').css('background-color', secondaryColor);
-            $('.accent-preview').css('background-color', accentColor);
-            $('.primary-preview-custom').css('background-color', primaryColor);
-            $('.secondary-preview-custom').css('background-color', secondaryColor);
-            $('.accent-preview-custom').css('background-color', accentColor);
-            
-            // Add selected class to this palette and remove from siblings
-            $('.color-palette').removeClass('selected');
-            $(this).addClass('selected');
-        });
-        
-        // Mark the currently selected palette
-        function markSelectedPalette() {
-            const currentPrimary = $('#primary_color').val().toLowerCase();
-            const currentSecondary = $('#secondary_color').val().toLowerCase();
-            const currentAccent = $('#accent_color').val().toLowerCase();
-            
-            // Check each palette to see if it matches current colors
-            $('.color-palette').each(function() {
-                const palettePrimary = $(this).data('primary').toLowerCase();
-                const paletteSecondary = $(this).data('secondary').toLowerCase();
-                const paletteAccent = $(this).data('accent').toLowerCase();
-                
-                if (palettePrimary === currentPrimary && 
-                    paletteSecondary === currentSecondary && 
-                    paletteAccent === currentAccent) {
-                    $(this).addClass('selected');
-                }
-            });
-        }
-        
-        // Handle custom color input
-        $('.custom-color-input').on('input', function() {
-            const color = $(this).val();
-            const inputId = $(this).attr('id');
-            
-            if (inputId === 'primary_color_custom') {
-                $('#primary_color').val(color);
-                $('.primary-preview').css('background-color', color);
-                $('.primary-preview-custom').css('background-color', color);
-                
-            } else if (inputId === 'secondary_color_custom') {
-                $('#secondary_color').val(color);
-                $('.secondary-preview').css('background-color', color);
-                $('.secondary-preview-custom').css('background-color', color);
-                
-            } else if (inputId === 'accent_color_custom') {
-                $('#accent_color').val(color);
-                $('.accent-preview').css('background-color', color);
-                $('.accent-preview-custom').css('background-color', color);
-            }
-            
-            // Remove selected class from all palettes
-            $('.color-palette').removeClass('selected');
-        });
-        
-        // Call function to mark selected palette
-        markSelectedPalette();
-        
-        // Set initial preview colors
-        $('.colorpicker').each(function() {
-            const input = $(this);
-            if (input.attr('id') === 'primary_color') {
-                $('.primary-preview').css('background-color', input.val() || '#007bff');
-            } else if (input.attr('id') === 'secondary_color') {
-                $('.secondary-preview').css('background-color', input.val() || '#6c757d');
-            } else if (input.attr('id') === 'accent_color') {
-                $('.accent-preview').css('background-color', input.val() || '#28a745');
-            }
-        });
-        
-        // Toggle logo text field based on checkbox
+    document.addEventListener('DOMContentLoaded', function() {
+        // Logo text toggle
         const useLogoTextCheckbox = document.getElementById('use_logo_text');
         const logoTextField = document.getElementById('logoTextField');
         
-        function toggleLogoTextField() {
-            if (useLogoTextCheckbox.checked) {
-                logoTextField.style.display = 'block';
-            } else {
-                logoTextField.style.display = 'none';
-            }
+        if (useLogoTextCheckbox && logoTextField) {
+            logoTextField.style.display = useLogoTextCheckbox.checked ? 'block' : 'none';
+            
+            useLogoTextCheckbox.addEventListener('change', function() {
+                logoTextField.style.display = this.checked ? 'block' : 'none';
+            });
         }
         
-        useLogoTextCheckbox.addEventListener('change', toggleLogoTextField);
-        toggleLogoTextField(); // Initial state
+        // Theme previews
+        const themeSelect = document.getElementById('theme');
+        const themePreviews = document.querySelectorAll('.theme-preview');
         
-        // Banner title and subtitle dynamic update
-        const bannerTitleInput = document.getElementById('banner_title');
-        const bannerSubtitleInput = document.getElementById('banner_subtitle');
-        const siteNameInput = document.getElementById('site_name');
-        const siteDescriptionInput = document.getElementById('site_description');
-        
-        if (bannerTitleInput) {
-            bannerTitleInput.addEventListener('input', function() {
-                document.querySelectorAll('.banner-overlay h2').forEach(el => {
-                    el.textContent = this.value || (siteNameInput ? siteNameInput.value : '');
+        if (themeSelect && themePreviews.length) {
+            // Update selection when dropdown changes
+            themeSelect.addEventListener('change', function() {
+                const selectedTheme = this.value;
+                
+                themePreviews.forEach(preview => {
+                    preview.classList.remove('selected');
+                    
+                    if (preview.querySelector('h6').textContent.toLowerCase().includes(selectedTheme)) {
+                        preview.classList.add('selected');
+                    }
+                });
+            });
+            
+            // Update dropdown when preview clicked
+            themePreviews.forEach(preview => {
+                preview.addEventListener('click', function() {
+                    const themeName = this.querySelector('h6').textContent.toLowerCase().split(' ')[0];
+                    themeSelect.value = themeName;
+                    
+                    // Trigger change event to update UI
+                    const event = new Event('change');
+                    themeSelect.dispatchEvent(event);
                 });
             });
         }
-        
-        if (bannerSubtitleInput) {
-            bannerSubtitleInput.addEventListener('input', function() {
-                document.querySelectorAll('.banner-overlay p').forEach(el => {
-                    el.textContent = this.value || (siteDescriptionInput ? siteDescriptionInput.value : '');
-                });
-            });
-        }
-        
-        // Initialize banner titles from site name/description if blank
-        if (siteNameInput) {
-            siteNameInput.addEventListener('input', function() {
-                if (!bannerTitleInput || !bannerTitleInput.value) {
-                    document.querySelectorAll('.banner-overlay h2').forEach(el => {
-                        el.textContent = this.value;
-                    });
-                }
-            });
-        }
-        
-        if (siteDescriptionInput) {
-            siteDescriptionInput.addEventListener('input', function() {
-                if (!bannerSubtitleInput || !bannerSubtitleInput.value) {
-                    document.querySelectorAll('.banner-overlay p').forEach(el => {
-                        el.textContent = this.value;
-                    });
-                }
-            });
-        }
-    
-        // ===== Gradient Options Handling =====
-        const useGradientCheckbox = document.getElementById('use_navbar_gradient');
-        const gradientControls = document.querySelector('.gradient-controls');
-        const gradientDirectionSelect = document.getElementById('gradient_direction');
-        const gradientPreview = document.getElementById('gradient-preview');
-        const gradientFromColorInput = document.getElementById('gradient_from_color_custom');
-        const gradientToColorInput = document.getElementById('gradient_to_color_custom');
-        const gradientFromColorHidden = document.getElementById('gradient_from_color');
-        const gradientToColorHidden = document.getElementById('gradient_to_color');
-        
-        // Toggle gradient controls visibility
-        function toggleGradientControls() {
-            if (useGradientCheckbox && useGradientCheckbox.checked) {
-                gradientControls.style.display = 'block';
-            } else if (useGradientCheckbox) {
-                gradientControls.style.display = 'none';
-            }
-        }
-        
-        // Update gradient preview
-        function updateGradientPreview() {
-            if (!gradientPreview) return;
-            
-            const direction = gradientDirectionSelect ? gradientDirectionSelect.value : 'to right';
-            const fromColor = gradientFromColorInput ? gradientFromColorInput.value : '#007bff';
-            const toColor = gradientToColorInput ? gradientToColorInput.value : '#6c757d';
-            
-            // Update hidden fields
-            if (gradientFromColorHidden) gradientFromColorHidden.value = fromColor;
-            if (gradientToColorHidden) gradientToColorHidden.value = toColor;
-            
-            // Apply gradient to preview
-            if (direction === 'radial') {
-                gradientPreview.style.backgroundImage = `radial-gradient(ellipse at center, ${fromColor}, ${toColor})`;
-            } else {
-                gradientPreview.style.backgroundImage = `linear-gradient(${direction}, ${fromColor}, ${toColor})`;
-            }
-        }
-        
-        // Initialize gradient controls
-        if (useGradientCheckbox) {
-            useGradientCheckbox.addEventListener('change', toggleGradientControls);
-            toggleGradientControls();
-        }
-        
-        // Add event listeners for gradient inputs
-        if (gradientDirectionSelect) {
-            gradientDirectionSelect.addEventListener('change', updateGradientPreview);
-        }
-        
-        if (gradientFromColorInput) {
-            gradientFromColorInput.addEventListener('input', function() {
-                const color = this.value;
-                document.querySelector('.gradient-from-preview').style.backgroundColor = color;
-                updateGradientPreview();
-            });
-        }
-        
-        if (gradientToColorInput) {
-            gradientToColorInput.addEventListener('input', function() {
-                const color = this.value;
-                document.querySelector('.gradient-to-preview').style.backgroundColor = color;
-                updateGradientPreview();
-            });
-        }
-        
-        // Initialize gradient preview
-        updateGradientPreview();
     });
     
-    // Function to preview banner image when selected
+    // Banner preview function
     function previewBanner(input) {
-        const previewContainer = document.getElementById('bannerPreviewContainer');
-        const preview = document.getElementById('bannerPreview');
+        const bannerPreviewContainer = document.getElementById('bannerPreviewContainer');
+        const bannerPreview = document.getElementById('bannerPreview');
         
-        if (input.files && input.files[0]) {
+        if (input.files && input.files[0] && bannerPreviewContainer && bannerPreview) {
             const reader = new FileReader();
             
             reader.onload = function(e) {
-                preview.style.backgroundImage = 'url(' + e.target.result + ')';
-                previewContainer.style.display = 'block';
-                
-                // Scroll to preview
-                setTimeout(() => {
-                    previewContainer.scrollIntoView({behavior: 'smooth', block: 'center'});
-                }, 100);
-            }
+                bannerPreviewContainer.style.display = 'block';
+                bannerPreview.style.backgroundImage = `url('${e.target.result}')`;
+            };
             
             reader.readAsDataURL(input.files[0]);
         }
