@@ -88,7 +88,20 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4" {% if g.override_theme and g.primary_color %}style="background-color: {{ g.primary_color }} !important;"{% endif %}>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4" 
+        {% if g.override_theme %}
+            {% if g.use_navbar_gradient == 'true' and g.gradient_from_color and g.gradient_to_color %}
+                {% set direction = g.gradient_direction %}
+                {% if direction == 'radial' %}
+                    {% set gradient = 'radial-gradient(circle, ' ~ g.gradient_from_color ~ ', ' ~ g.gradient_to_color ~ ')' %}
+                {% else %}
+                    {% set gradient = 'linear-gradient(' ~ direction ~ ', ' ~ g.gradient_from_color ~ ', ' ~ g.gradient_to_color ~ ')' %}
+                {% endif %}
+                style="background: {{ gradient }} !important;"
+            {% elif g.primary_color %}
+                style="background-color: {{ g.primary_color }} !important;"
+            {% endif %}
+        {% endif %}>
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('main.index') }}">
                 {% if g.logo_url and not g.use_logo_text == 'true' %}

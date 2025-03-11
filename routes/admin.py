@@ -495,6 +495,12 @@ def branding_settings():
             SystemSetting.set_value('banner_subtitle', branding_form.banner_subtitle.data)
             SystemSetting.set_value('override_theme', 'true' if branding_form.override_theme.data else 'false')
             
+            # Save gradient settings
+            SystemSetting.set_value('use_navbar_gradient', 'true' if branding_form.use_navbar_gradient.data else 'false')
+            SystemSetting.set_value('gradient_direction', branding_form.gradient_direction.data)
+            SystemSetting.set_value('gradient_from_color', branding_form.gradient_from_color.data)
+            SystemSetting.set_value('gradient_to_color', branding_form.gradient_to_color.data)
+            
             # Handle logo upload if provided
             logo_file = branding_form.custom_logo.data
             if logo_file and logo_file.filename:
