@@ -496,15 +496,25 @@ def branding_settings():
                 # Create timestamp to prevent browser caching
                 timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
                 filename = f"{timestamp}_{filename}"
-                filepath = os.path.join('uploads', 'branding', filename)
+                
+                # Ensure uploads directory exists
+                upload_dir = os.path.join('uploads', 'branding')
+                os.makedirs(upload_dir, exist_ok=True)
+                
+                # Define the file path
+                filepath = os.path.join(upload_dir, filename)
+                save_path = filepath  # Actual path to save the file
+                
+                # Create a URL path that's properly accessible in templates
+                url_path = f"/uploads/branding/{filename}"
                 
                 # Save file
-                logo_file.save(filepath)
+                logo_file.save(save_path)
                 
-                # Update database with new path
-                SystemSetting.set_value('logo_url', filepath)
+                # Update database with URL path (not file system path)
+                SystemSetting.set_value('logo_url', url_path)
                 # Update logo_url for template rendering
-                logo_url = filepath
+                logo_url = url_path
             
             # Handle banner upload if provided
             banner_file = branding_form.banner_image.data
@@ -513,15 +523,25 @@ def branding_settings():
                 # Create timestamp to prevent browser caching
                 timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
                 filename = f"{timestamp}_{filename}"
-                filepath = os.path.join('uploads', 'branding', filename)
+                
+                # Ensure uploads directory exists
+                upload_dir = os.path.join('uploads', 'branding')
+                os.makedirs(upload_dir, exist_ok=True)
+                
+                # Define the file path
+                filepath = os.path.join(upload_dir, filename)
+                save_path = filepath  # Actual path to save the file
+                
+                # Create a URL path that's properly accessible in templates
+                url_path = f"/uploads/branding/{filename}"
                 
                 # Save file
-                banner_file.save(filepath)
+                banner_file.save(save_path)
                 
-                # Update database with new path
-                SystemSetting.set_value('banner_url', filepath)
+                # Update database with URL path (not file system path)
+                SystemSetting.set_value('banner_url', url_path)
                 # Update banner_url for template rendering
-                banner_url = filepath
+                banner_url = url_path
             
             flash('Branding settings updated successfully.', 'success')
             return redirect(url_for('admin.branding_settings'))
