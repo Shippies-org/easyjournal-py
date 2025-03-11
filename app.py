@@ -187,6 +187,13 @@ def create_app():
         override_theme_setting = get_setting('override_theme')
         g.override_theme = override_theme_setting == 'true' if override_theme_setting is not None else False
         
+        # Load gradient settings for navbar
+        use_navbar_gradient = get_setting('use_navbar_gradient')
+        g.use_navbar_gradient = use_navbar_gradient == 'true' if use_navbar_gradient is not None else False
+        g.gradient_direction = get_setting('gradient_direction', 'to right')
+        g.gradient_from_color = get_setting('gradient_from_color', g.primary_color)
+        g.gradient_to_color = get_setting('gradient_to_color', g.secondary_color)
+        
         # Load content settings
         g.about_content = get_setting('about_content')
         g.submission_guidelines = get_setting('submission_guidelines')
