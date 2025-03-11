@@ -395,26 +395,13 @@ def edit_plugin_setting(setting_id):
     )
 
 
-@admin_bp.route('/set-system-theme/<theme>')
-@admin_required
-def set_system_theme(theme):
-    """Set the system-wide theme."""
-    valid_themes = ['dark', 'light', 'journal', 'modern', 'elegant', 'high-contrast']
-    
-    if theme not in valid_themes:
-        flash('Invalid theme selected.', 'danger')
-        return redirect(request.referrer or url_for('admin.dashboard'))
-    
-    try:
-        # Update or create the system theme setting
-        SystemSetting.set_value('theme', theme)
-        flash(f'System theme set to {theme.capitalize()}', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error setting system theme: {str(e)}', 'danger')
-    
-    # Redirect back to the referring page
-    return redirect(request.referrer or url_for('admin.dashboard'))
+# Theme is now managed through the branding settings page
+# @admin_bp.route('/set-system-theme/<theme>')
+# @admin_required
+# def set_system_theme(theme):
+#     """Set the system-wide theme."""
+#     pass
+
 
 
 @admin_bp.route('/doi-health-check', methods=['GET', 'POST'])
@@ -466,19 +453,15 @@ def branding_settings():
     if request.method == 'GET':
         branding_form.site_name.data = SystemSetting.get_value('site_name', 'Academic Journal')
         branding_form.site_description.data = SystemSetting.get_value('site_description', 'A peer-reviewed academic journal')
-        branding_form.primary_color.data = SystemSetting.get_value('primary_color')
-        branding_form.secondary_color.data = SystemSetting.get_value('secondary_color')
-        branding_form.accent_color.data = SystemSetting.get_value('accent_color')
         branding_form.use_logo_text.data = SystemSetting.get_value('use_logo_text') == 'true'
         branding_form.logo_text.data = SystemSetting.get_value('logo_text')
         branding_form.banner_title.data = SystemSetting.get_value('banner_title')
         branding_form.banner_subtitle.data = SystemSetting.get_value('banner_subtitle')
-        branding_form.override_theme.data = SystemSetting.get_value('override_theme') == 'true'
-        # Get gradient options
-        branding_form.use_navbar_gradient.data = SystemSetting.get_value('use_navbar_gradient') == 'true'
-        branding_form.gradient_direction.data = SystemSetting.get_value('gradient_direction', 'to right')
-        branding_form.gradient_from_color.data = SystemSetting.get_value('gradient_from_color')
-        branding_form.gradient_to_color.data = SystemSetting.get_value('gradient_to_color')
+        
+        # Get current theme
+        current_theme = SystemSetting.get_value('theme', 'dark')
+        if current_theme in [theme[0] for theme in branding_form.theme.choices]:
+            branding_form.theme.data = current_theme
     
     # Process branding form submission
     if request.method == 'POST' and branding_form.validate_on_submit():
@@ -486,20 +469,13 @@ def branding_settings():
             # Update text-based settings
             SystemSetting.set_value('site_name', branding_form.site_name.data)
             SystemSetting.set_value('site_description', branding_form.site_description.data)
-            SystemSetting.set_value('primary_color', branding_form.primary_color.data)
-            SystemSetting.set_value('secondary_color', branding_form.secondary_color.data)
-            SystemSetting.set_value('accent_color', branding_form.accent_color.data)
             SystemSetting.set_value('use_logo_text', 'true' if branding_form.use_logo_text.data else 'false')
             SystemSetting.set_value('logo_text', branding_form.logo_text.data)
             SystemSetting.set_value('banner_title', branding_form.banner_title.data)
             SystemSetting.set_value('banner_subtitle', branding_form.banner_subtitle.data)
-            SystemSetting.set_value('override_theme', 'true' if branding_form.override_theme.data else 'false')
             
-            # Save gradient settings
-            SystemSetting.set_value('use_navbar_gradient', 'true' if branding_form.use_navbar_gradient.data else 'false')
-            SystemSetting.set_value('gradient_direction', branding_form.gradient_direction.data)
-            SystemSetting.set_value('gradient_from_color', branding_form.gradient_from_color.data)
-            SystemSetting.set_value('gradient_to_color', branding_form.gradient_to_color.data)
+            # Update theme
+            SystemSetting.set_value('theme', branding_form.theme.data)
             
             # Handle logo upload if provided
             logo_file = branding_form.custom_logo.data
