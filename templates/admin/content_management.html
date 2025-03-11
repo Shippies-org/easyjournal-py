@@ -1,0 +1,189 @@
+{% extends "layouts/fullwidth_layout.html" %}
+
+{% block title %}Content Management - Admin{% endblock %}
+
+{% block fullwidth_content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Content Management</h1>
+            <p class="lead">Manage your journal's content and policies.</p>
+            
+            <form method="POST" action="{{ url_for('admin.content_management') }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">About Page Content</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {{ form.about_content.label(class="form-label") }}
+                            {{ form.about_content(class="form-control", rows=6) }}
+                            {% if form.about_content.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.about_content.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">This content will be displayed on the About page. HTML is supported.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Policies & Guidelines</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {{ form.submission_guidelines.label(class="form-label") }}
+                            {{ form.submission_guidelines(class="form-control", rows=6) }}
+                            {% if form.submission_guidelines.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.submission_guidelines.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.review_policy.label(class="form-label") }}
+                            {{ form.review_policy(class="form-control", rows=6) }}
+                            {% if form.review_policy.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.review_policy.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.ethics_policy.label(class="form-label") }}
+                            {{ form.ethics_policy(class="form-control", rows=6) }}
+                            {% if form.ethics_policy.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.ethics_policy.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.author_guidelines.label(class="form-label") }}
+                            {{ form.author_guidelines(class="form-control", rows=6) }}
+                            {% if form.author_guidelines.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.author_guidelines.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Contact Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.contact_email.label(class="form-label") }}
+                                {{ form.contact_email(class="form-control") }}
+                                {% if form.contact_email.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.contact_email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.contact_phone.label(class="form-label") }}
+                                {{ form.contact_phone(class="form-control") }}
+                                {% if form.contact_phone.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.contact_phone.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.contact_address.label(class="form-label") }}
+                            {{ form.contact_address(class="form-control", rows=3) }}
+                            {% if form.contact_address.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.contact_address.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Social Media</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ form.twitter_url.label(class="form-label") }}
+                                {{ form.twitter_url(class="form-control") }}
+                                {% if form.twitter_url.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.twitter_url.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                {{ form.facebook_url.label(class="form-label") }}
+                                {{ form.facebook_url(class="form-control") }}
+                                {% if form.facebook_url.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.facebook_url.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                {{ form.linkedin_url.label(class="form-label") }}
+                                {{ form.linkedin_url(class="form-control") }}
+                                {% if form.linkedin_url.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.linkedin_url.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-save me-2"></i>Save Content Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

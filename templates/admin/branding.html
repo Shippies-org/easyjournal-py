@@ -82,18 +82,7 @@
             
             <div class="card mb-4">
                 <div class="card-header">
-                    <ul class="nav nav-tabs card-header-tabs" id="brandingTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="branding-tab" data-bs-toggle="tab" data-bs-target="#branding" type="button" role="tab" aria-controls="branding" aria-selected="true">
-                                <i class="bi bi-palette me-2"></i>Branding & Appearance
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="content-tab" data-bs-toggle="tab" data-bs-target="#content" type="button" role="tab" aria-controls="content" aria-selected="false">
-                                <i class="bi bi-file-text me-2"></i>Content & Policies
-                            </button>
-                        </li>
-                    </ul>
+                    <h5 class="mb-0">Branding & Appearance</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="tab-content" id="brandingTabsContent">
@@ -289,9 +278,6 @@
                                 </div>
                             </form>
                         </div>
-                        
-                        <!-- Content & Policies Tab -->
-                        <div class="tab-pane fade" id="content" role="tabpanel" aria-labelledby="content-tab">
                             <form method="POST" action="{{ url_for('admin.content_settings') }}">
                                 {{ content_form.hidden_tag() }}
                                 

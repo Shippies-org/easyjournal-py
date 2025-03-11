@@ -576,7 +576,7 @@ def branding_settings():
 
 @admin_bp.route('/content', methods=['GET', 'POST'])
 @admin_required
-def content_settings():
+def content_management():
     """Manage journal content and policies."""
     form = ContentSettingsForm()
     
@@ -610,14 +610,17 @@ def content_settings():
             SystemSetting.set_value('linkedin_url', form.linkedin_url.data)
             
             flash('Content settings updated successfully.', 'success')
-            return redirect(url_for('admin.branding_settings', _anchor='content'))
+            return redirect(url_for('admin.content_management'))
             
         except Exception as e:
             db.session.rollback()
             flash(f'Error updating content settings: {str(e)}', 'danger')
     
-    # Redirect to the branding page with content tab active
-    return redirect(url_for('admin.branding_settings', _anchor='content'))
+    return render_template(
+        'admin/content_management.html', 
+        title='Content Management',
+        form=form
+    )
 
 
 @admin_bp.route('/analytics')
