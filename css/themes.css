@@ -68,24 +68,14 @@ body {
   --bs-dark: #121212;
 }
 
-/* Use a more specific selector to ensure our custom styles take precedence */
-body[data-bs-theme="modern"] .navbar:not([style*="background-color"]) {
+/* Modern Theme Navbar */
+body[data-bs-theme="modern"] .navbar {
   background: linear-gradient(to right, #3498db, #2c3e50) !important;
 }
 
-/* When custom theme is enabled, it should override the theme background */
-.navbar[style*="background-color"] {
-  background-image: none !important;
-}
-
-/* Use a more specific selector to ensure our custom styles take precedence */
-body[data-bs-theme="modern"] footer:not([style*="background-color"]) {
+/* Modern Theme Footer */
+body[data-bs-theme="modern"] footer {
   background: linear-gradient(to right, #2c3e50, #3498db) !important;
-}
-
-/* When custom theme is enabled, it should override the theme background */
-footer[style*="background-color"] {
-  background-image: none !important;
 }
 
 /* Elegant Theme */

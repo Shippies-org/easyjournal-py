@@ -170,9 +170,6 @@ def create_app():
         # Load branding settings
         g.site_name = get_setting('site_name', 'EasyJournal')
         g.site_description = get_setting('site_description', 'A peer-reviewed academic journal')
-        g.primary_color = get_setting('primary_color')
-        g.secondary_color = get_setting('secondary_color')
-        g.accent_color = get_setting('accent_color')
         g.logo_url = get_setting('logo_url')
         g.use_logo_text = get_setting('use_logo_text')
         g.logo_text = get_setting('logo_text')
@@ -183,16 +180,6 @@ def create_app():
         g.banner_url = banner_url
         g.banner_title = get_setting('banner_title')
         g.banner_subtitle = get_setting('banner_subtitle')
-        # Convert string 'true' to boolean True
-        override_theme_setting = get_setting('override_theme')
-        g.override_theme = override_theme_setting == 'true' if override_theme_setting is not None else False
-        
-        # Load gradient settings for navbar
-        use_navbar_gradient = get_setting('use_navbar_gradient')
-        g.use_navbar_gradient = use_navbar_gradient == 'true' if use_navbar_gradient is not None else False
-        g.gradient_direction = get_setting('gradient_direction', 'to right')
-        g.gradient_from_color = get_setting('gradient_from_color', g.primary_color)
-        g.gradient_to_color = get_setting('gradient_to_color', g.secondary_color)
         
         # Load content settings
         g.about_content = get_setting('about_content')

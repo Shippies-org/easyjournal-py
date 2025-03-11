@@ -54,33 +54,7 @@
         max-width: 80%;
     }
     
-    .theme-preview {
-        border: 1px solid var(--bs-border-color);
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 20px;
-        transition: transform 0.2s;
-    }
-    
-    .theme-preview:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    
-    .theme-preview.selected {
-        border: 2px solid var(--bs-primary);
-    }
-    
-    .theme-swatch {
-        height: 30px;
-        border-radius: 4px;
-        margin-right: 5px;
-    }
-    
-    .theme-colors {
-        display: flex;
-        margin-top: 10px;
-    }
+    /* Theme-related styles removed in favor of simplified theme approach */
     
     .tab-content {
         background-color: var(--bs-body-bg);
@@ -167,89 +141,8 @@
                                         {{ branding_form.theme.label(class="form-label") }}
                                         {{ branding_form.theme(class="form-select") }}
                                         <small class="form-text text-muted d-block">
-                                            Select a predefined theme for your journal. Each theme has carefully designed colors that work well together.
+                                            Select a predefined theme for your journal. The theme will be applied site-wide.
                                         </small>
-                                    </div>
-                                    
-                                    <!-- Theme Preview -->
-                                    <div class="mb-4">
-                                        <h6>Theme Preview</h6>
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="d-flex flex-wrap gap-2">
-                                                    <div class="p-3 rounded" style="background-color: var(--bs-primary); color: white;">Primary</div>
-                                                    <div class="p-3 rounded" style="background-color: var(--bs-secondary); color: white;">Secondary</div>
-                                                    <div class="p-3 rounded" style="background-color: var(--bs-success); color: white;">Success</div>
-                                                    <div class="p-3 rounded" style="background-color: var(--bs-info); color: white;">Info</div>
-                                                    <div class="p-3 rounded" style="background-color: var(--bs-warning);">Warning</div>
-                                                    <div class="p-3 rounded" style="background-color: var(--bs-danger); color: white;">Danger</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Theme Cards Display -->
-                                    <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'dark' }}">
-                                                <h6>Dark Theme</h6>
-                                                <div class="theme-colors">
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #121212;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #343a40;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #007bff;"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'light' }}">
-                                                <h6>Light Theme</h6>
-                                                <div class="theme-colors">
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #f8f9fa;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #e9ecef;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #0d6efd;"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'journal' }}">
-                                                <h6>Journal Theme</h6>
-                                                <div class="theme-colors">
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #f8f5f0;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #8e8c84;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #325d88;"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'modern' }}">
-                                                <h6>Modern Theme</h6>
-                                                <div class="theme-colors">
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #212529;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #444444;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #2780e3;"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'elegant' }}">
-                                                <h6>Elegant Theme</h6>
-                                                <div class="theme-colors">
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #2b3e50;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #4e5d6c;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #df691a;"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <div class="theme-preview {{ 'selected' if branding_form.theme.data == 'high-contrast' }}">
-                                                <h6>High Contrast Theme</h6>
-                                                <div class="theme-colors">
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #000000;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #ffffff;"></div>
-                                                    <div class="theme-swatch flex-grow-1" style="background-color: #ffff00;"></div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                                 
