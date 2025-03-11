@@ -395,12 +395,6 @@ def edit_plugin_setting(setting_id):
     )
 
 
-# Theme is now managed through the branding settings page
-# @admin_bp.route('/set-system-theme/<theme>')
-# @admin_required
-# def set_system_theme(theme):
-#     """Set the system-wide theme."""
-#     pass
 
 
 
