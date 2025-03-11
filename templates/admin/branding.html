@@ -14,29 +14,81 @@
         margin-right: 10px;
     }
     
-    .color-palette {
+    .color-palettes {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin: 10px 0;
+        flex-direction: column;
+        gap: 16px;
+        margin: 20px 0;
     }
     
-    .color-option {
-        width: 36px;
-        height: 36px;
-        border-radius: 4px;
-        border: 1px solid #dee2e6;
+    .color-palette {
+        position: relative;
+        display: flex;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         cursor: pointer;
-        transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 48px;
     }
     
-    .color-option:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    .color-palette:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
     
-    .color-option.selected {
+    .color-palette.selected {
         box-shadow: 0 0 0 3px var(--bs-primary);
+    }
+    
+    .color-swatch {
+        flex: 1;
+        height: 100%;
+    }
+    
+    .palette-name {
+        font-size: 0.75rem;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 2px 8px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    
+    .color-palette:hover .palette-name {
+        opacity: 1;
+    }
+    
+    .palette-tabs {
+        display: flex;
+        border-bottom: 2px solid var(--bs-border-color);
+        margin-bottom: 20px;
+    }
+    
+    .palette-tab {
+        padding: 8px 16px;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+    }
+    
+    .palette-tab.active {
+        border-bottom-color: var(--bs-primary);
+        color: var(--bs-primary);
+    }
+    
+    .color-preview-box {
+        display: flex;
+        margin-bottom: 20px;
+        border-radius: 6px;
+        overflow: hidden;
+        height: 60px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
     
     .tab-content {
@@ -178,89 +230,137 @@
                                         </small>
                                     </div>
                                     
-                                    <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ branding_form.primary_color.label.text }}</label>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="color-preview primary-preview" style="background-color: {% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %};"></span>
-                                                {{ branding_form.primary_color(class="form-control colorpicker", style="width: 100px;") }}
+                                    <!-- Current color preview -->
+                                    <div class="color-preview-box mb-4">
+                                        <div class="color-swatch primary-preview" style="background-color: {% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %};"></div>
+                                        <div class="color-swatch secondary-preview" style="background-color: {% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %};"></div>
+                                        <div class="color-swatch accent-preview" style="background-color: {% if branding_form.accent_color.data %}{{ branding_form.accent_color.data }}{% else %}#28a745{% endif %};"></div>
+                                    </div>
+                                    
+                                    <!-- Hidden color inputs -->
+                                    <div class="d-none">
+                                        {{ branding_form.primary_color(class="colorpicker", id="primary_color") }}
+                                        {{ branding_form.secondary_color(class="colorpicker", id="secondary_color") }}
+                                        {{ branding_form.accent_color(class="colorpicker", id="accent_color") }}
+                                    </div>
+                                    
+                                    <!-- Color palette tabs -->
+                                    <div class="palette-tabs">
+                                        <div class="palette-tab active" id="tab-presets">Presets</div>
+                                        <div class="palette-tab" id="tab-custom">Custom</div>
+                                    </div>
+                                    
+                                    <!-- Preset palettes -->
+                                    <div class="palette-content" id="content-presets">
+                                        <div class="color-palettes">
+                                            <!-- Nature palette -->
+                                            <div class="color-palette" data-primary="#2E7D32" data-secondary="#4B6455" data-accent="#FFC107">
+                                                <div class="color-swatch" style="background-color: #F1F8E9;"></div>
+                                                <div class="color-swatch" style="background-color: #AED581;"></div>
+                                                <div class="color-swatch" style="background-color: #2E7D32;"></div>
+                                                <div class="color-swatch" style="background-color: #4B6455;"></div>
+                                                <div class="color-swatch" style="background-color: #1B5E20;"></div>
+                                                <div class="palette-name">Nature</div>
                                             </div>
                                             
-                                            <div class="color-palette" id="primaryColorPalette">
-                                                <div class="color-option" style="background-color: #007bff;" data-color="#007bff" data-target="primary_color"></div>
-                                                <div class="color-option" style="background-color: #0d6efd;" data-color="#0d6efd" data-target="primary_color"></div>
-                                                <div class="color-option" style="background-color: #6610f2;" data-color="#6610f2" data-target="primary_color"></div>
-                                                <div class="color-option" style="background-color: #6f42c1;" data-color="#6f42c1" data-target="primary_color"></div>
-                                                <div class="color-option" style="background-color: #d63384;" data-color="#d63384" data-target="primary_color"></div>
-                                                <div class="color-option" style="background-color: #dc3545;" data-color="#dc3545" data-target="primary_color"></div>
-                                                <div class="color-option" style="background-color: #fd7e14;" data-color="#fd7e14" data-target="primary_color"></div>
-                                                <div class="color-option" style="background-color: #198754;" data-color="#198754" data-target="primary_color"></div>
+                                            <!-- Ocean palette -->
+                                            <div class="color-palette" data-primary="#0277BD" data-secondary="#455A64" data-accent="#FF8F00">
+                                                <div class="color-swatch" style="background-color: #E1F5FE;"></div>
+                                                <div class="color-swatch" style="background-color: #81D4FA;"></div>
+                                                <div class="color-swatch" style="background-color: #0277BD;"></div>
+                                                <div class="color-swatch" style="background-color: #455A64;"></div>
+                                                <div class="color-swatch" style="background-color: #01579B;"></div>
+                                                <div class="palette-name">Ocean</div>
                                             </div>
                                             
-                                            {% if branding_form.primary_color.errors %}
-                                                <div class="text-danger">
-                                                    {% for error in branding_form.primary_color.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                            <small class="form-text text-muted">{{ branding_form.primary_color.description }}</small>
+                                            <!-- Sunset palette -->
+                                            <div class="color-palette" data-primary="#F57C00" data-secondary="#5D4037" data-accent="#7B1FA2">
+                                                <div class="color-swatch" style="background-color: #FFF3E0;"></div>
+                                                <div class="color-swatch" style="background-color: #FFB74D;"></div>
+                                                <div class="color-swatch" style="background-color: #F57C00;"></div>
+                                                <div class="color-swatch" style="background-color: #5D4037;"></div>
+                                                <div class="color-swatch" style="background-color: #3E2723;"></div>
+                                                <div class="palette-name">Sunset</div>
+                                            </div>
+                                            
+                                            <!-- Modern palette -->
+                                            <div class="color-palette" data-primary="#1976D2" data-secondary="#212121" data-accent="#E53935">
+                                                <div class="color-swatch" style="background-color: #FFFFFF;"></div>
+                                                <div class="color-swatch" style="background-color: #BBDEFB;"></div>
+                                                <div class="color-swatch" style="background-color: #1976D2;"></div>
+                                                <div class="color-swatch" style="background-color: #212121;"></div>
+                                                <div class="color-swatch" style="background-color: #000000;"></div>
+                                                <div class="palette-name">Modern</div>
+                                            </div>
+                                            
+                                            <!-- Elegant palette -->
+                                            <div class="color-palette" data-primary="#5D4037" data-secondary="#263238" data-accent="#9E9E9E">
+                                                <div class="color-swatch" style="background-color: #EFEBE9;"></div>
+                                                <div class="color-swatch" style="background-color: #BCAAA4;"></div>
+                                                <div class="color-swatch" style="background-color: #5D4037;"></div>
+                                                <div class="color-swatch" style="background-color: #263238;"></div>
+                                                <div class="color-swatch" style="background-color: #3E2723;"></div>
+                                                <div class="palette-name">Elegant</div>
+                                            </div>
+                                            
+                                            <!-- Vibrant palette -->
+                                            <div class="color-palette" data-primary="#D32F2F" data-secondary="#303F9F" data-accent="#009688">
+                                                <div class="color-swatch" style="background-color: #FFFFFF;"></div>
+                                                <div class="color-swatch" style="background-color: #F8BBD0;"></div>
+                                                <div class="color-swatch" style="background-color: #D32F2F;"></div>
+                                                <div class="color-swatch" style="background-color: #303F9F;"></div>
+                                                <div class="color-swatch" style="background-color: #1A237E;"></div>
+                                                <div class="palette-name">Vibrant</div>
+                                            </div>
+                                            
+                                            <!-- Classic palette -->
+                                            <div class="color-palette" data-primary="#0D47A1" data-secondary="#004D40" data-accent="#FF6F00">
+                                                <div class="color-swatch" style="background-color: #F5F5F5;"></div>
+                                                <div class="color-swatch" style="background-color: #90CAF9;"></div>
+                                                <div class="color-swatch" style="background-color: #0D47A1;"></div>
+                                                <div class="color-swatch" style="background-color: #004D40;"></div>
+                                                <div class="color-swatch" style="background-color: #000000;"></div>
+                                                <div class="palette-name">Classic</div>
+                                            </div>
+                                            
+                                            <!-- Monochrome palette -->
+                                            <div class="color-palette" data-primary="#424242" data-secondary="#212121" data-accent="#9E9E9E">
+                                                <div class="color-swatch" style="background-color: #FAFAFA;"></div>
+                                                <div class="color-swatch" style="background-color: #E0E0E0;"></div>
+                                                <div class="color-swatch" style="background-color: #9E9E9E;"></div>
+                                                <div class="color-swatch" style="background-color: #424242;"></div>
+                                                <div class="color-swatch" style="background-color: #212121;"></div>
+                                                <div class="palette-name">Monochrome</div>
+                                            </div>
                                         </div>
-                                        
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ branding_form.secondary_color.label.text }}</label>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="color-preview secondary-preview" style="background-color: {% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %};"></span>
-                                                {{ branding_form.secondary_color(class="form-control colorpicker", style="width: 100px;") }}
-                                            </div>
-                                            
-                                            <div class="color-palette" id="secondaryColorPalette">
-                                                <div class="color-option" style="background-color: #6c757d;" data-color="#6c757d" data-target="secondary_color"></div>
-                                                <div class="color-option" style="background-color: #495057;" data-color="#495057" data-target="secondary_color"></div>
-                                                <div class="color-option" style="background-color: #343a40;" data-color="#343a40" data-target="secondary_color"></div>
-                                                <div class="color-option" style="background-color: #212529;" data-color="#212529" data-target="secondary_color"></div>
-                                                <div class="color-option" style="background-color: #f8f9fa;" data-color="#f8f9fa" data-target="secondary_color"></div>
-                                                <div class="color-option" style="background-color: #e9ecef;" data-color="#e9ecef" data-target="secondary_color"></div>
-                                                <div class="color-option" style="background-color: #dee2e6;" data-color="#dee2e6" data-target="secondary_color"></div>
-                                                <div class="color-option" style="background-color: #adb5bd;" data-color="#adb5bd" data-target="secondary_color"></div>
-                                            </div>
-                                            
-                                            {% if branding_form.secondary_color.errors %}
-                                                <div class="text-danger">
-                                                    {% for error in branding_form.secondary_color.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Custom colors content -->
+                                    <div class="palette-content" id="content-custom" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">{{ branding_form.primary_color.label.text }}</label>
+                                                <div class="d-flex">
+                                                    <span class="color-preview primary-preview-custom me-2" style="background-color: {% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %};"></span>
+                                                    <input type="text" class="form-control custom-color-input" id="primary_color_custom" value="{% if branding_form.primary_color.data %}{{ branding_form.primary_color.data }}{% else %}#007bff{% endif %}">
                                                 </div>
-                                            {% endif %}
-                                            <small class="form-text text-muted">{{ branding_form.secondary_color.description }}</small>
-                                        </div>
-                                        
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ branding_form.accent_color.label.text }}</label>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="color-preview accent-preview" style="background-color: {% if branding_form.accent_color.data %}{{ branding_form.accent_color.data }}{% else %}#28a745{% endif %};"></span>
-                                                {{ branding_form.accent_color(class="form-control colorpicker", style="width: 100px;") }}
                                             </div>
                                             
-                                            <div class="color-palette" id="accentColorPalette">
-                                                <div class="color-option" style="background-color: #28a745;" data-color="#28a745" data-target="accent_color"></div>
-                                                <div class="color-option" style="background-color: #20c997;" data-color="#20c997" data-target="accent_color"></div>
-                                                <div class="color-option" style="background-color: #17a2b8;" data-color="#17a2b8" data-target="accent_color"></div>
-                                                <div class="color-option" style="background-color: #0dcaf0;" data-color="#0dcaf0" data-target="accent_color"></div>
-                                                <div class="color-option" style="background-color: #ffc107;" data-color="#ffc107" data-target="accent_color"></div>
-                                                <div class="color-option" style="background-color: #fd7e14;" data-color="#fd7e14" data-target="accent_color"></div>
-                                                <div class="color-option" style="background-color: #dc3545;" data-color="#dc3545" data-target="accent_color"></div>
-                                                <div class="color-option" style="background-color: #6f42c1;" data-color="#6f42c1" data-target="accent_color"></div>
-                                            </div>
-                                            
-                                            {% if branding_form.accent_color.errors %}
-                                                <div class="text-danger">
-                                                    {% for error in branding_form.accent_color.errors %}
-                                                        {{ error }}
-                                                    {% endfor %}
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">{{ branding_form.secondary_color.label.text }}</label>
+                                                <div class="d-flex">
+                                                    <span class="color-preview secondary-preview-custom me-2" style="background-color: {% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %};"></span>
+                                                    <input type="text" class="form-control custom-color-input" id="secondary_color_custom" value="{% if branding_form.secondary_color.data %}{{ branding_form.secondary_color.data }}{% else %}#6c757d{% endif %}">
                                                 </div>
-                                            {% endif %}
-                                            <small class="form-text text-muted">{{ branding_form.accent_color.description }}</small>
+                                            </div>
+                                            
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">{{ branding_form.accent_color.label.text }}</label>
+                                                <div class="d-flex">
+                                                    <span class="color-preview accent-preview-custom me-2" style="background-color: {% if branding_form.accent_color.data %}{{ branding_form.accent_color.data }}{% else %}#28a745{% endif %};"></span>
+                                                    <input type="text" class="form-control custom-color-input" id="accent_color_custom" value="{% if branding_form.accent_color.data %}{{ branding_form.accent_color.data }}{% else %}#28a745{% endif %}">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -588,56 +688,94 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Handle color palette selection
-        $('.color-option').click(function() {
-            // Get the selected color and target input
-            const selectedColor = $(this).data('color');
-            const targetInput = $(this).data('target');
+        // Handle tab switching
+        $('.palette-tab').click(function() {
+            // Update active tab
+            $('.palette-tab').removeClass('active');
+            $(this).addClass('active');
             
-            // Update the input value and preview
-            $(`#${targetInput}`).val(selectedColor);
-            $(`.${targetInput}-preview`).css('background-color', selectedColor);
-            
-            // Add selected class to this option and remove from siblings
-            $(this).addClass('selected').siblings().removeClass('selected');
+            // Show relevant content
+            $('.palette-content').hide();
+            $(`#content-${$(this).attr('id').split('-')[1]}`).show();
         });
         
-        // Mark the current color as selected when page loads
-        function markSelectedColors() {
-            // For each color input
-            ['primary_color', 'secondary_color', 'accent_color'].forEach(function(colorField) {
-                const currentValue = $(`#${colorField}`).val();
-                if (currentValue) {
-                    // Find matching color option and mark as selected
-                    $(`[data-target="${colorField}"]`).each(function() {
-                        if ($(this).data('color').toLowerCase() === currentValue.toLowerCase()) {
-                            $(this).addClass('selected');
-                        }
-                    });
+        // Handle palette selection
+        $('.color-palette').click(function() {
+            // Get color values from data attributes
+            const primaryColor = $(this).data('primary');
+            const secondaryColor = $(this).data('secondary');
+            const accentColor = $(this).data('accent');
+            
+            // Update the hidden input values
+            $('#primary_color').val(primaryColor);
+            $('#secondary_color').val(secondaryColor);
+            $('#accent_color').val(accentColor);
+            
+            // Update the custom input values
+            $('#primary_color_custom').val(primaryColor);
+            $('#secondary_color_custom').val(secondaryColor);
+            $('#accent_color_custom').val(accentColor);
+            
+            // Update the preview swatches
+            $('.primary-preview').css('background-color', primaryColor);
+            $('.secondary-preview').css('background-color', secondaryColor);
+            $('.accent-preview').css('background-color', accentColor);
+            $('.primary-preview-custom').css('background-color', primaryColor);
+            $('.secondary-preview-custom').css('background-color', secondaryColor);
+            $('.accent-preview-custom').css('background-color', accentColor);
+            
+            // Add selected class to this palette and remove from siblings
+            $('.color-palette').removeClass('selected');
+            $(this).addClass('selected');
+        });
+        
+        // Mark the currently selected palette
+        function markSelectedPalette() {
+            const currentPrimary = $('#primary_color').val().toLowerCase();
+            const currentSecondary = $('#secondary_color').val().toLowerCase();
+            const currentAccent = $('#accent_color').val().toLowerCase();
+            
+            // Check each palette to see if it matches current colors
+            $('.color-palette').each(function() {
+                const palettePrimary = $(this).data('primary').toLowerCase();
+                const paletteSecondary = $(this).data('secondary').toLowerCase();
+                const paletteAccent = $(this).data('accent').toLowerCase();
+                
+                if (palettePrimary === currentPrimary && 
+                    paletteSecondary === currentSecondary && 
+                    paletteAccent === currentAccent) {
+                    $(this).addClass('selected');
                 }
             });
         }
         
-        // Initialize color values for direct input
-        $('.colorpicker').on('input', function() {
-            const input = this;
-            const color = $(input).val();
+        // Handle custom color input
+        $('.custom-color-input').on('input', function() {
+            const color = $(this).val();
+            const inputId = $(this).attr('id');
             
-            if (input.id === 'primary_color') {
+            if (inputId === 'primary_color_custom') {
+                $('#primary_color').val(color);
                 $('.primary-preview').css('background-color', color);
-                // Remove selected class from palette options
-                $('[data-target="primary_color"]').removeClass('selected');
-            } else if (input.id === 'secondary_color') {
+                $('.primary-preview-custom').css('background-color', color);
+                
+            } else if (inputId === 'secondary_color_custom') {
+                $('#secondary_color').val(color);
                 $('.secondary-preview').css('background-color', color);
-                $('[data-target="secondary_color"]').removeClass('selected');
-            } else if (input.id === 'accent_color') {
+                $('.secondary-preview-custom').css('background-color', color);
+                
+            } else if (inputId === 'accent_color_custom') {
+                $('#accent_color').val(color);
                 $('.accent-preview').css('background-color', color);
-                $('[data-target="accent_color"]').removeClass('selected');
+                $('.accent-preview-custom').css('background-color', color);
             }
+            
+            // Remove selected class from all palettes
+            $('.color-palette').removeClass('selected');
         });
         
-        // Call the function to mark initially selected colors
-        markSelectedColors();
+        // Call function to mark selected palette
+        markSelectedPalette();
         
         // Set initial preview colors
         $('.colorpicker').each(function() {
