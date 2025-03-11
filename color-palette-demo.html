@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Color Palette Comparison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #212529;
+            color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .comparison {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .version {
+            flex: 1;
+            background-color: #2b3035;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #adb5bd;
+        }
+        
+        .palette-section {
+            margin-bottom: 30px;
+        }
+        
+        .color-preview-box {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+            height: 60px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .color-swatch {
+            flex: 1;
+            height: 100%;
+        }
+        
+        .color-palettes {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        /* Current Style */
+        .current-palette {
+            position: relative;
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 48px;
+        }
+        
+        /* New Style */
+        .new-palette {
+            position: relative;
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 48px;
+        }
+        
+        .palette-name {
+            font-size: 0.75rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 2px 8px;
+        }
+        
+        .color-role {
+            position: absolute;
+            font-size: 0.7rem;
+            color: white;
+            text-shadow: 0 0 3px rgba(0,0,0,0.7);
+            text-align: center;
+            bottom: 3px;
+            width: 33.33%;
+        }
+        
+        .color-role.primary {
+            left: 0;
+        }
+        
+        .color-role.secondary {
+            left: 33.33%;
+        }
+        
+        .color-role.accent {
+            left: 66.66%;
+        }
+        
+        .label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ced4da;
+        }
+        
+        .description {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #343a40;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .benefit {
+            margin-top: 5px;
+            padding-left: 20px;
+        }
+        
+        .benefit:before {
+            content: "✓";
+            color: #28a745;
+            margin-right: 8px;
+            margin-left: -20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Color Palette UI Improvement</h1>
+        
+        <div class="comparison">
+            <div class="version">
+                <h2>Current Version</h2>
+                
+                <div class="palette-section">
+                    <span class="label">Current Selection Preview:</span>
+                    <div class="color-preview-box">
+                        <div class="color-swatch" style="background-color: #2E7D32;"></div>
+                        <div class="color-swatch" style="background-color: #4B6455;"></div>
+                        <div class="color-swatch" style="background-color: #FFC107;"></div>
+                    </div>
+                    
+                    <span class="label">Available Palettes:</span>
+                    <div class="color-palettes">
+                        <div class="current-palette">
+                            <div class="color-swatch" style="background-color: #F1F8E9;"></div>
+                            <div class="color-swatch" style="background-color: #AED581;"></div>
+                            <div class="color-swatch" style="background-color: #2E7D32;"></div>
+                            <div class="color-swatch" style="background-color: #4B6455;"></div>
+                            <div class="color-swatch" style="background-color: #1B5E20;"></div>
+                            <div class="palette-name">Nature</div>
+                        </div>
+                        
+                        <div class="current-palette">
+                            <div class="color-swatch" style="background-color: #E1F5FE;"></div>
+                            <div class="color-swatch" style="background-color: #81D4FA;"></div>
+                            <div class="color-swatch" style="background-color: #0277BD;"></div>
+                            <div class="color-swatch" style="background-color: #455A64;"></div>
+                            <div class="color-swatch" style="background-color: #01579B;"></div>
+                            <div class="palette-name">Ocean</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="description">
+                    <strong>Issues with Current Design:</strong>
+                    <div class="benefit">Shows 5 colors but only uses 3 in the application</div>
+                    <div class="benefit">Not clear which colors are being used as primary/secondary/accent</div>
+                    <div class="benefit">Confusing relationship between palette selection and actual application</div>
+                </div>
+            </div>
+            
+            <div class="version">
+                <h2>Improved Version</h2>
+                
+                <div class="palette-section">
+                    <span class="label">Current Selection Preview:</span>
+                    <div class="color-preview-box">
+                        <div class="color-swatch" style="background-color: #2E7D32;"></div>
+                        <div class="color-swatch" style="background-color: #4B6455;"></div>
+                        <div class="color-swatch" style="background-color: #FFC107;"></div>
+                    </div>
+                    
+                    <span class="label">Available Palettes:</span>
+                    <div class="color-palettes">
+                        <div class="new-palette">
+                            <div class="color-swatch" style="background-color: #2E7D32; flex: 1;"></div>
+                            <div class="color-swatch" style="background-color: #4B6455; flex: 1;"></div>
+                            <div class="color-swatch" style="background-color: #FFC107; flex: 1;"></div>
+                            <div class="palette-name">Nature</div>
+                            <div class="color-role primary">Primary</div>
+                            <div class="color-role secondary">Secondary</div>
+                            <div class="color-role accent">Accent</div>
+                        </div>
+                        
+                        <div class="new-palette">
+                            <div class="color-swatch" style="background-color: #0277BD; flex: 1;"></div>
+                            <div class="color-swatch" style="background-color: #455A64; flex: 1;"></div>
+                            <div class="color-swatch" style="background-color: #FF8F00; flex: 1;"></div>
+                            <div class="palette-name">Ocean</div>
+                            <div class="color-role primary">Primary</div>
+                            <div class="color-role secondary">Secondary</div>
+                            <div class="color-role accent">Accent</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="description">
+                    <strong>Benefits of New Design:</strong>
+                    <div class="benefit">Shows only the 3 colors that are actually used in the application</div>
+                    <div class="benefit">Clearly labels which colors are primary, secondary, and accent</div>
+                    <div class="benefit">Direct visual relationship between palette selection and application</div>
+                    <div class="benefit">More intuitive and less confusing for users</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

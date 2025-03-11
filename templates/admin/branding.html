@@ -41,6 +41,28 @@
         box-shadow: 0 0 0 3px var(--bs-primary);
     }
     
+    .color-role {
+        position: absolute;
+        font-size: 0.6rem;
+        color: white;
+        text-shadow: 0 0 3px rgba(0,0,0,0.7);
+        text-align: center;
+        bottom: 3px;
+        width: 33.33%;
+    }
+    
+    .color-role.primary {
+        left: 0;
+    }
+    
+    .color-role.secondary {
+        left: 33.33%;
+    }
+    
+    .color-role.accent {
+        left: 66.66%;
+    }
+    
     .color-swatch {
         flex: 1;
         height: 100%;
@@ -255,82 +277,90 @@
                                         <div class="color-palettes">
                                             <!-- Nature palette -->
                                             <div class="color-palette" data-primary="#2E7D32" data-secondary="#4B6455" data-accent="#FFC107">
-                                                <div class="color-swatch" style="background-color: #F1F8E9;"></div>
-                                                <div class="color-swatch" style="background-color: #AED581;"></div>
                                                 <div class="color-swatch" style="background-color: #2E7D32;"></div>
                                                 <div class="color-swatch" style="background-color: #4B6455;"></div>
-                                                <div class="color-swatch" style="background-color: #1B5E20;"></div>
+                                                <div class="color-swatch" style="background-color: #FFC107;"></div>
                                                 <div class="palette-name">Nature</div>
+                                                <div class="color-role primary">Primary</div>
+                                                <div class="color-role secondary">Secondary</div>
+                                                <div class="color-role accent">Accent</div>
                                             </div>
                                             
                                             <!-- Ocean palette -->
                                             <div class="color-palette" data-primary="#0277BD" data-secondary="#455A64" data-accent="#FF8F00">
-                                                <div class="color-swatch" style="background-color: #E1F5FE;"></div>
-                                                <div class="color-swatch" style="background-color: #81D4FA;"></div>
                                                 <div class="color-swatch" style="background-color: #0277BD;"></div>
                                                 <div class="color-swatch" style="background-color: #455A64;"></div>
-                                                <div class="color-swatch" style="background-color: #01579B;"></div>
+                                                <div class="color-swatch" style="background-color: #FF8F00;"></div>
                                                 <div class="palette-name">Ocean</div>
+                                                <div class="color-role primary">Primary</div>
+                                                <div class="color-role secondary">Secondary</div>
+                                                <div class="color-role accent">Accent</div>
                                             </div>
                                             
                                             <!-- Sunset palette -->
                                             <div class="color-palette" data-primary="#F57C00" data-secondary="#5D4037" data-accent="#7B1FA2">
-                                                <div class="color-swatch" style="background-color: #FFF3E0;"></div>
-                                                <div class="color-swatch" style="background-color: #FFB74D;"></div>
                                                 <div class="color-swatch" style="background-color: #F57C00;"></div>
                                                 <div class="color-swatch" style="background-color: #5D4037;"></div>
-                                                <div class="color-swatch" style="background-color: #3E2723;"></div>
+                                                <div class="color-swatch" style="background-color: #7B1FA2;"></div>
                                                 <div class="palette-name">Sunset</div>
+                                                <div class="color-role primary">Primary</div>
+                                                <div class="color-role secondary">Secondary</div>
+                                                <div class="color-role accent">Accent</div>
                                             </div>
                                             
                                             <!-- Modern palette -->
                                             <div class="color-palette" data-primary="#1976D2" data-secondary="#212121" data-accent="#E53935">
-                                                <div class="color-swatch" style="background-color: #FFFFFF;"></div>
-                                                <div class="color-swatch" style="background-color: #BBDEFB;"></div>
                                                 <div class="color-swatch" style="background-color: #1976D2;"></div>
                                                 <div class="color-swatch" style="background-color: #212121;"></div>
-                                                <div class="color-swatch" style="background-color: #000000;"></div>
+                                                <div class="color-swatch" style="background-color: #E53935;"></div>
                                                 <div class="palette-name">Modern</div>
+                                                <div class="color-role primary">Primary</div>
+                                                <div class="color-role secondary">Secondary</div>
+                                                <div class="color-role accent">Accent</div>
                                             </div>
                                             
                                             <!-- Elegant palette -->
                                             <div class="color-palette" data-primary="#5D4037" data-secondary="#263238" data-accent="#9E9E9E">
-                                                <div class="color-swatch" style="background-color: #EFEBE9;"></div>
-                                                <div class="color-swatch" style="background-color: #BCAAA4;"></div>
                                                 <div class="color-swatch" style="background-color: #5D4037;"></div>
                                                 <div class="color-swatch" style="background-color: #263238;"></div>
-                                                <div class="color-swatch" style="background-color: #3E2723;"></div>
+                                                <div class="color-swatch" style="background-color: #9E9E9E;"></div>
                                                 <div class="palette-name">Elegant</div>
+                                                <div class="color-role primary">Primary</div>
+                                                <div class="color-role secondary">Secondary</div>
+                                                <div class="color-role accent">Accent</div>
                                             </div>
                                             
                                             <!-- Vibrant palette -->
                                             <div class="color-palette" data-primary="#D32F2F" data-secondary="#303F9F" data-accent="#009688">
-                                                <div class="color-swatch" style="background-color: #FFFFFF;"></div>
-                                                <div class="color-swatch" style="background-color: #F8BBD0;"></div>
                                                 <div class="color-swatch" style="background-color: #D32F2F;"></div>
                                                 <div class="color-swatch" style="background-color: #303F9F;"></div>
-                                                <div class="color-swatch" style="background-color: #1A237E;"></div>
+                                                <div class="color-swatch" style="background-color: #009688;"></div>
                                                 <div class="palette-name">Vibrant</div>
+                                                <div class="color-role primary">Primary</div>
+                                                <div class="color-role secondary">Secondary</div>
+                                                <div class="color-role accent">Accent</div>
                                             </div>
                                             
                                             <!-- Classic palette -->
                                             <div class="color-palette" data-primary="#0D47A1" data-secondary="#004D40" data-accent="#FF6F00">
-                                                <div class="color-swatch" style="background-color: #F5F5F5;"></div>
-                                                <div class="color-swatch" style="background-color: #90CAF9;"></div>
                                                 <div class="color-swatch" style="background-color: #0D47A1;"></div>
                                                 <div class="color-swatch" style="background-color: #004D40;"></div>
-                                                <div class="color-swatch" style="background-color: #000000;"></div>
+                                                <div class="color-swatch" style="background-color: #FF6F00;"></div>
                                                 <div class="palette-name">Classic</div>
+                                                <div class="color-role primary">Primary</div>
+                                                <div class="color-role secondary">Secondary</div>
+                                                <div class="color-role accent">Accent</div>
                                             </div>
                                             
                                             <!-- Monochrome palette -->
                                             <div class="color-palette" data-primary="#424242" data-secondary="#212121" data-accent="#9E9E9E">
-                                                <div class="color-swatch" style="background-color: #FAFAFA;"></div>
-                                                <div class="color-swatch" style="background-color: #E0E0E0;"></div>
-                                                <div class="color-swatch" style="background-color: #9E9E9E;"></div>
                                                 <div class="color-swatch" style="background-color: #424242;"></div>
                                                 <div class="color-swatch" style="background-color: #212121;"></div>
+                                                <div class="color-swatch" style="background-color: #9E9E9E;"></div>
                                                 <div class="palette-name">Monochrome</div>
+                                                <div class="color-role primary">Primary</div>
+                                                <div class="color-role secondary">Secondary</div>
+                                                <div class="color-role accent">Accent</div>
                                             </div>
                                         </div>
                                     </div>
