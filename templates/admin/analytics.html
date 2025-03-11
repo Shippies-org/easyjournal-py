@@ -31,13 +31,22 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'top',
+                    align: 'end',
+                    labels: {
+                        boxWidth: 15,
+                        padding: 15
+                    }
                 },
                 title: {
                     display: true,
-                    text: 'Site Traffic'
+                    text: 'Site Traffic',
+                    font: {
+                        size: 14
+                    }
                 }
             },
             scales: {
@@ -165,8 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="card-header">
             <h5 class="card-title mb-0">Visitor and Article View Trends</h5>
         </div>
-        <div class="card-body">
-            <canvas id="visitorChart" height="300"></canvas>
+        <div class="card-body" style="height: 250px; padding: 10px 15px 20px 10px;">
+            <canvas id="visitorChart"></canvas>
         </div>
     </div>
     
