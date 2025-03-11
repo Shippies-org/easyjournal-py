@@ -176,7 +176,11 @@ def create_app():
         g.logo_url = get_setting('logo_url')
         g.use_logo_text = get_setting('use_logo_text')
         g.logo_text = get_setting('logo_text')
-        g.banner_url = get_setting('banner_url')
+        # Fix banner URL path by ensuring it starts with a slash
+        banner_url = get_setting('banner_url')
+        if banner_url and not banner_url.startswith('/'):
+            banner_url = '/' + banner_url
+        g.banner_url = banner_url
         g.banner_title = get_setting('banner_title')
         g.banner_subtitle = get_setting('banner_subtitle')
         # Convert string 'true' to boolean True
