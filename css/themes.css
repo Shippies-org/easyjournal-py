@@ -68,12 +68,24 @@ body {
   --bs-dark: #121212;
 }
 
-[data-bs-theme="modern"] .navbar {
+/* Use a more specific selector to ensure our custom styles take precedence */
+body[data-bs-theme="modern"] .navbar:not([style*="background-color"]) {
   background: linear-gradient(to right, #3498db, #2c3e50) !important;
 }
 
-[data-bs-theme="modern"] .footer {
+/* When custom theme is enabled, it should override the theme background */
+.navbar[style*="background-color"] {
+  background-image: none !important;
+}
+
+/* Use a more specific selector to ensure our custom styles take precedence */
+body[data-bs-theme="modern"] footer:not([style*="background-color"]) {
   background: linear-gradient(to right, #2c3e50, #3498db) !important;
+}
+
+/* When custom theme is enabled, it should override the theme background */
+footer[style*="background-color"] {
+  background-image: none !important;
 }
 
 /* Elegant Theme */
@@ -128,4 +140,22 @@ body {
 [data-bs-theme="high-contrast"] .footer {
   background-color: #000000 !important;
   border-top: 2px solid #ffff00;
+}
+
+/* CUSTOM THEME OVERRIDE - Must be at the end to ensure it takes precedence */
+/* Ensure custom theme override takes highest priority regardless of data-bs-theme */
+html[data-bs-theme] .navbar[style*="background-color"],
+html[data-bs-theme] footer[style*="background-color"],
+html[data-bs-theme] .sidebar[style*="background-color"] {
+  background-image: none !important;
+  background: var(--bs-primary) !important;
+}
+
+html[data-bs-theme] footer[style*="background-color"] {
+  background: var(--bs-secondary) !important;
+}
+
+/* Ensure sidebar styles are consistently applied */
+html[data-bs-theme] .sidebar[style*="background-color"] .nav-link {
+  color: rgba(255, 255, 255, 0.8);
 }
