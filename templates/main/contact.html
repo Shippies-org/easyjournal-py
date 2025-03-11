@@ -55,7 +55,7 @@
                     <div>
                         <h5>Email</h5>
                         {% if contact_email %}
-                            <p class="mb-0">{{ contact_email|safe }}</p>
+                            <p class="mb-0">{{ contact_email|nl2br|safe }}</p>
                         {% else %}
                             <p class="mb-0">General Inquiries: <a href="mailto:info@easyjournal.org">info@easyjournal.org</a></p>
                             <p class="mb-0">Editorial Office: <a href="mailto:editors@easyjournal.org">editors@easyjournal.org</a></p>

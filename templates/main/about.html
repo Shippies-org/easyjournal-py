@@ -15,7 +15,7 @@
             <div class="card-body">
                 <h2 class="card-title mb-4">Our Mission</h2>
                 {% if about_content %}
-                    {{ about_content|safe }}
+                    {{ about_content|nl2br|safe }}
                 {% else %}
                     <p class="lead">EasyJournal is dedicated to advancing knowledge and promoting scholarly communication through an accessible, transparent, and rigorous academic publishing platform.</p>
                     <p>Our mission is to streamline the academic publishing process while maintaining the highest standards of peer review and editorial integrity. We believe that research should be widely accessible, and we are committed to facilitating the efficient dissemination of scholarly work across disciplines.</p>
@@ -41,7 +41,7 @@
                 <h2 class="card-title mb-4">Editorial Policies</h2>
                 
                 {% if review_policy %}
-                    {{ review_policy|safe }}
+                    {{ review_policy|nl2br|safe }}
                 {% else %}
                     <h5>Peer Review Process</h5>
                     <p>All submissions to EasyJournal undergo a rigorous peer review process:</p>
@@ -55,7 +55,7 @@
                 {% endif %}
                 
                 {% if ethics_policy %}
-                    {{ ethics_policy|safe }}
+                    {{ ethics_policy|nl2br|safe }}
                 {% else %}
                     <h5>Publication Ethics</h5>
                     <p>EasyJournal adheres to the highest standards of publication ethics, including:</p>
@@ -69,7 +69,7 @@
                 {% endif %}
                 
                 {% if submission_guidelines %}
-                    {{ submission_guidelines|safe }}
+                    {{ submission_guidelines|nl2br|safe }}
                 {% else %}
                     <h5>Copyright and Licensing</h5>
                     <p>Authors retain copyright of their work while granting EasyJournal a license to publish and distribute the content. We support open access publication models and offer flexible licensing options.</p>
@@ -105,7 +105,7 @@
             <div class="card-body">
                 <h3 class="card-title mb-4">Editorial Board</h3>
                 {% if editorial_board %}
-                    {{ editorial_board|safe }}
+                    {{ editorial_board|nl2br|safe }}
                 {% else %}
                     <h5>Editor-in-Chief</h5>
                     <p>Prof. Jane Smith<br>University of Excellence</p>
