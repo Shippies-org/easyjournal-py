@@ -112,6 +112,21 @@ gunicorn --bind 0.0.0.0:5000 --workers 4 main:app
 
 For HTTPS, use a reverse proxy like Nginx.
 
+### Performance Considerations
+EasyJournal includes several performance optimizations for efficient operation:
+
+- System settings are cached for 10 minutes to reduce database load
+- Request handlers are optimized with early returns and path exclusions
+- Visitor tracking includes frequency limiting to prevent database overload
+
+For detailed information on performance optimizations, see the `PERFORMANCE.md` file.
+
+If deploying for a large journal with many users, consider:
+- Increasing the PostgreSQL connection pool size
+- Using a more powerful database server
+- Implementing a Redis cache for session data
+- Adjusting the cache duration in app.py if needed
+
 ### Database Selection
 - **SQLite**: Best for development or small deployments
 - **PostgreSQL**: Recommended for production use

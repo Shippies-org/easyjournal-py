@@ -38,6 +38,7 @@ EasyJournal is a comprehensive platform designed to streamline the academic publ
 - **Role-Based Access Control**: Different interfaces for authors, reviewers, editors, and administrators
 - **Complete Submission Workflow**: From initial submission to final publication
 - **Comprehensive Admin Controls**: Including user management, issue creation, and system settings
+- **Performance Optimized**: Efficient request handling and database queries for improved response times
 - **Analytics Capabilities**: Track site usage, article views, and other important metrics
 - **Extensive Branding Customization**: Tailor the system to match your journal's identity
 - **GDPR Compliance**: User data management with consent tracking and data portability
@@ -101,6 +102,8 @@ python main.py
 The application will be available at http://localhost:5000
 
 For complete installation instructions, see [INSTALL.md](INSTALL.md)
+
+For details on performance optimizations, see [PERFORMANCE.md](PERFORMANCE.md)
 
 ## Contribution
 
