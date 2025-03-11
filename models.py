@@ -339,6 +339,8 @@ class SystemSetting(db.Model):
     @classmethod
     def set_value(cls, key, value):
         """Set a system setting value."""
+        from flask import current_app
+        
         setting = cls.query.filter_by(setting_key=key).first()
         if setting:
             setting.setting_value = value
@@ -346,6 +348,12 @@ class SystemSetting(db.Model):
             setting = cls(setting_key=key, setting_value=value)
             db.session.add(setting)
         db.session.commit()
+        
+        # Invalidate the system settings cache by setting its time to None
+        if hasattr(current_app, '_system_settings_cache_time'):
+            current_app._system_settings_cache_time = None
+            print(f"Cache invalidated after setting {key} = {value}")
+        
         return value
 
 
