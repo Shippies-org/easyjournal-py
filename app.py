@@ -69,6 +69,16 @@ def create_app():
         import re
         return re.sub(pattern, replacement, s)
     
+    # Add markdown filter for rendering markdown text
+    @app.template_filter('markdown')
+    def markdown_filter(s):
+        """Convert Markdown text to HTML."""
+        if s is None:
+            return ""
+        import markdown
+        # Convert markdown to HTML and mark as safe
+        return Markup(markdown.markdown(s))
+    
     # Add custom context processor for templates
     @app.context_processor
     def utility_processor():

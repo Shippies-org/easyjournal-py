@@ -70,7 +70,7 @@
                     <div>
                         <h5>Phone</h5>
                         {% if contact_phone %}
-                            <p class="mb-0">{{ contact_phone|safe }}</p>
+                            <p class="mb-0">{{ contact_phone|nl2br|safe }}</p>
                         {% else %}
                             <p class="mb-0">Editorial Office: +1 (555) 123-4567</p>
                             <p class="mb-0">Support Desk: +1 (555) 987-6543</p>
@@ -84,7 +84,7 @@
                     <div>
                         <h5>Address</h5>
                         {% if contact_address %}
-                            <p class="mb-0">{{ contact_address|safe|nl2br }}</p>
+                            <p class="mb-0">{{ contact_address|nl2br|safe }}</p>
                         {% else %}
                             <p class="mb-0">
                                 EasyJournal Publishing<br>
