@@ -90,6 +90,18 @@ body {
     font-weight: 500;
 }
 
+/* Ensure form inputs have light background and dark text */
+.form-control, .form-select {
+    background-color: var(--bs-white);
+    color: var(--bs-dark);
+    border-color: var(--bs-gray-300);
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--bs-white);
+    color: var(--bs-dark);
+}
+
 /* Submission status indicators */
 .status-badge {
     padding: 0.35em 0.65em;
