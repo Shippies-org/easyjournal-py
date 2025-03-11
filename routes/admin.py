@@ -460,6 +460,7 @@ def branding_settings():
     # Get current logo and banner URLs if they exist
     logo_url = SystemSetting.get_value('logo_url')
     banner_url = SystemSetting.get_value('banner_url')
+    print(f"Current banner_url from database: {banner_url}")
     
     # Fill form with existing values
     if request.method == 'GET':
