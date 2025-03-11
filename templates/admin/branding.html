@@ -688,6 +688,25 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
+        // Get the override theme checkbox
+        const overrideThemeCheckbox = document.getElementById('override_theme');
+        const colorSections = $('.color-preview-box, .palette-tabs, .palette-content');
+        
+        // Function to toggle visibility of color palettes based on override checkbox
+        function toggleColorPalettes() {
+            if (overrideThemeCheckbox.checked) {
+                colorSections.show();
+            } else {
+                colorSections.hide();
+            }
+        }
+        
+        // Initialize on page load
+        toggleColorPalettes();
+        
+        // Add event listener to checkbox
+        overrideThemeCheckbox.addEventListener('change', toggleColorPalettes);
+        
         // Handle tab switching
         $('.palette-tab').click(function() {
             // Update active tab
