@@ -58,16 +58,7 @@ def create_app():
         # Then convert newlines to <br>
         return Markup(re.sub(r'\r\n|\r|\n', '<br>', s))
     
-    # Add custom filter for converting hex color to RGB values
-    @app.template_filter('int_to_rgb')
-    def int_to_rgb_filter(i):
-        """Convert an integer color value to comma-separated RGB values."""
-        if not isinstance(i, int):
-            return "0, 0, 0"
-        r = (i >> 16) & 255
-        g = (i >> 8) & 255
-        b = i & 255
-        return f"{r}, {g}, {b}"
+    # Legacy color filter removed - no longer needed with simplified theme system
     
     # Add regex replace filter
     @app.template_filter('regex_replace')
