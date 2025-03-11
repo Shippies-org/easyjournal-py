@@ -34,13 +34,71 @@ The system uses Flask's `before_request` handlers to set up each request. These 
    - Reduced memory usage in request handlers
    - Centralized text management for easier updates
 
-## Cache Duration Settings
+## Caching Strategy
 
-The system uses a 10-minute cache for system settings to balance freshness with performance. This duration can be adjusted in `app.py` by modifying the `_CACHE_DURATION` variable:
+### Current Implementation
+
+The system currently uses a 10-minute cache for system settings to balance freshness with performance. This duration can be adjusted in `app.py` by modifying the `_CACHE_DURATION` variable:
 
 ```python
 _CACHE_DURATION = 600  # Default: 10 minutes in seconds
 ```
+
+### In-Memory Cache
+
+EasyJournal uses a simple in-memory caching mechanism for system settings:
+
+```python
+# Cache storage
+_settings_cache = {}
+_settings_cache_time = 0
+
+def load_system_settings():
+    """Load system settings before handling any request."""
+    global _settings_cache, _settings_cache_time
+    
+    # Skip for static files and certain paths
+    if request.path.startswith('/static/') or request.path.startswith('/uploads/'):
+        return
+    
+    # Check if cache is still valid
+    current_time = time.time()
+    if current_time - _settings_cache_time < _CACHE_DURATION and _settings_cache:
+        g.settings = _settings_cache
+        return
+    
+    # If cache expired or empty, fetch from database
+    try:
+        settings = SystemSetting.query.with_entities(
+            SystemSetting.setting_key, 
+            SystemSetting.setting_value
+        ).all()
+        
+        # Update cache
+        _settings_cache = {s.setting_key: s.setting_value for s in settings}
+        _settings_cache_time = current_time
+        g.settings = _settings_cache
+        
+    except Exception as e:
+        # Fallback to empty settings if database error occurs
+        g.settings = {}
+        app.logger.error(f"Error loading system settings: {str(e)}")
+```
+
+### Optimization Considerations
+
+1. **Cache Duration Adjustment**:
+   - For high-traffic sites: Increase cache duration (e.g., 30-60 minutes)
+   - For sites with frequent setting changes: Decrease duration (e.g., 5 minutes)
+   - For development: Set to a low value or 0 to see changes immediately
+
+2. **Cache Invalidation**:
+   After updating system settings in the admin panel, the cache is explicitly invalidated:
+   ```python
+   # After successful settings update
+   global _settings_cache_time
+   _settings_cache_time = 0  # Force cache refresh on next request
+   ```
 
 ## Database Query Optimization
 
@@ -49,6 +107,67 @@ Several database queries have been optimized:
 1. **System Settings**: Using optimized queries with only required columns
 2. **Visitor Tracking**: Reduced data collection and storage to essential fields
 3. **Session Management**: Implemented smart tracking to avoid duplicate entries
+
+### SQL Query Optimization Techniques
+
+The following techniques are used throughout the codebase to ensure optimal database performance:
+
+1. **Selective Column Retrieval**:
+   ```python
+   # Instead of fetching entire rows:
+   settings = SystemSetting.query.all()
+   
+   # We fetch only the columns we need:
+   settings = SystemSetting.query.with_entities(
+       SystemSetting.setting_key, 
+       SystemSetting.setting_value
+   ).all()
+   ```
+
+2. **Strategic Indexing**:
+   Key columns are indexed to improve query performance:
+   ```python
+   class Submission(db.Model):
+       # ... column definitions ...
+       __table_args__ = (
+           db.Index('idx_submission_status', 'status'),
+           db.Index('idx_submission_category', 'category'),
+       )
+   ```
+
+3. **Eager Loading Relationships**:
+   We use joined loads to avoid the N+1 query problem:
+   ```python
+   # Instead of:
+   submissions = Submission.query.all()
+   # and then later: submission.author.name (which creates additional queries)
+   
+   # We use:
+   submissions = Submission.query.options(
+       joinedload(Submission.author)
+   ).all()
+   ```
+
+4. **Query Optimization for Lists**:
+   For listing pages, we use pagination:
+   ```python
+   page = request.args.get('page', 1, type=int)
+   per_page = request.args.get('per_page', 20, type=int)
+   
+   submissions = Submission.query.order_by(
+       Submission.submitted_at.desc()
+   ).paginate(page=page, per_page=per_page)
+   ```
+
+5. **Count Optimization**:
+   For counting records, we use optimized count queries:
+   ```python
+   # Instead of:
+   count = len(Submission.query.all())
+   
+   # We use:
+   count = db.session.query(db.func.count(Submission.id)).scalar()
+   ```
 
 ## Future Optimization Areas
 

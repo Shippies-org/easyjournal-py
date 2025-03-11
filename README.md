@@ -101,9 +101,12 @@ python main.py
 
 The application will be available at http://localhost:5000
 
-For complete installation instructions, see [INSTALL.md](INSTALL.md)
+## Documentation
 
-For details on performance optimizations, see [PERFORMANCE.md](PERFORMANCE.md)
+- [Installation Guide](INSTALL.md) - Complete installation instructions
+- [Performance Optimization](PERFORMANCE.md) - Details on performance tuning
+- [Development Guide](DEVELOPMENT.md) - Information for developers
+- [Scaling Guide](SCALING.md) - Guidance for scaling to larger deployments
 
 ## Contribution
 
