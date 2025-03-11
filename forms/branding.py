@@ -118,4 +118,36 @@ class ContentSettingsForm(FlaskForm):
         Length(max=200)
     ])
     
+    # Journal Information
+    journal_established = StringField('Established Year', validators=[
+        Optional(),
+        Length(max=10)
+    ])
+    
+    journal_frequency = StringField('Publication Frequency', validators=[
+        Optional(),
+        Length(max=50)
+    ])
+    
+    journal_open_access = StringField('Open Access Status', validators=[
+        Optional(),
+        Length(max=10)
+    ])
+    
+    journal_indexing = StringField('Indexing Services', validators=[
+        Optional(),
+        Length(max=200)
+    ])
+    
+    journal_issn = StringField('ISSN Number', validators=[
+        Optional(),
+        Length(max=20)
+    ])
+    
+    # Editorial Board
+    editorial_board = TextAreaField('Editorial Board', validators=[
+        Optional(),
+        Length(max=5000)
+    ], description="HTML formatting is supported")
+    
     submit = SubmitField('Save Content Settings')

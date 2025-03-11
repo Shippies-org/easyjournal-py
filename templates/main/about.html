@@ -39,28 +39,41 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h2 class="card-title mb-4">Editorial Policies</h2>
-                <h5>Peer Review Process</h5>
-                <p>All submissions to EasyJournal undergo a rigorous peer review process:</p>
-                <ol>
-                    <li>Initial screening by editors for scope and basic quality</li>
-                    <li>Double-blind peer review by at least two subject matter experts</li>
-                    <li>Editorial decision based on reviewer recommendations</li>
-                    <li>Revisions and re-review as necessary</li>
-                    <li>Final decision and publication</li>
-                </ol>
                 
-                <h5>Publication Ethics</h5>
-                <p>EasyJournal adheres to the highest standards of publication ethics, including:</p>
-                <ul>
-                    <li>Original content free from plagiarism</li>
-                    <li>Proper attribution and citation of sources</li>
-                    <li>Disclosure of conflicts of interest</li>
-                    <li>Ethical research methodologies</li>
-                    <li>Transparency in reporting results</li>
-                </ul>
+                {% if review_policy %}
+                    {{ review_policy|safe }}
+                {% else %}
+                    <h5>Peer Review Process</h5>
+                    <p>All submissions to EasyJournal undergo a rigorous peer review process:</p>
+                    <ol>
+                        <li>Initial screening by editors for scope and basic quality</li>
+                        <li>Double-blind peer review by at least two subject matter experts</li>
+                        <li>Editorial decision based on reviewer recommendations</li>
+                        <li>Revisions and re-review as necessary</li>
+                        <li>Final decision and publication</li>
+                    </ol>
+                {% endif %}
                 
-                <h5>Copyright and Licensing</h5>
-                <p>Authors retain copyright of their work while granting EasyJournal a license to publish and distribute the content. We support open access publication models and offer flexible licensing options.</p>
+                {% if ethics_policy %}
+                    {{ ethics_policy|safe }}
+                {% else %}
+                    <h5>Publication Ethics</h5>
+                    <p>EasyJournal adheres to the highest standards of publication ethics, including:</p>
+                    <ul>
+                        <li>Original content free from plagiarism</li>
+                        <li>Proper attribution and citation of sources</li>
+                        <li>Disclosure of conflicts of interest</li>
+                        <li>Ethical research methodologies</li>
+                        <li>Transparency in reporting results</li>
+                    </ul>
+                {% endif %}
+                
+                {% if submission_guidelines %}
+                    {{ submission_guidelines|safe }}
+                {% else %}
+                    <h5>Copyright and Licensing</h5>
+                    <p>Authors retain copyright of their work while granting EasyJournal a license to publish and distribute the content. We support open access publication models and offer flexible licensing options.</p>
+                {% endif %}
             </div>
         </div>
     </div>
