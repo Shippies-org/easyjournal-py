@@ -474,6 +474,11 @@ def branding_settings():
         branding_form.banner_title.data = SystemSetting.get_value('banner_title')
         branding_form.banner_subtitle.data = SystemSetting.get_value('banner_subtitle')
         branding_form.override_theme.data = SystemSetting.get_value('override_theme') == 'true'
+        # Get gradient options
+        branding_form.use_navbar_gradient.data = SystemSetting.get_value('use_navbar_gradient') == 'true'
+        branding_form.gradient_direction.data = SystemSetting.get_value('gradient_direction', 'to right')
+        branding_form.gradient_from_color.data = SystemSetting.get_value('gradient_from_color')
+        branding_form.gradient_to_color.data = SystemSetting.get_value('gradient_to_color')
     
     # Process branding form submission
     if request.method == 'POST' and branding_form.validate_on_submit():

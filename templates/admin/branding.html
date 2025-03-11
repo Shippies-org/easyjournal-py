@@ -947,6 +947,75 @@
                 }
             });
         }
+    
+        // ===== Gradient Options Handling =====
+        const useGradientCheckbox = document.getElementById('use_navbar_gradient');
+        const gradientControls = document.querySelector('.gradient-controls');
+        const gradientDirectionSelect = document.getElementById('gradient_direction');
+        const gradientPreview = document.getElementById('gradientPreview');
+        const gradientFromColorInput = document.getElementById('gradient_from_color_custom');
+        const gradientToColorInput = document.getElementById('gradient_to_color_custom');
+        const gradientFromColorHidden = document.getElementById('gradient_from_color');
+        const gradientToColorHidden = document.getElementById('gradient_to_color');
+        
+        // Toggle gradient controls visibility
+        function toggleGradientControls() {
+            if (useGradientCheckbox && useGradientCheckbox.checked) {
+                gradientControls.style.display = 'block';
+            } else if (useGradientCheckbox) {
+                gradientControls.style.display = 'none';
+            }
+        }
+        
+        // Update gradient preview
+        function updateGradientPreview() {
+            if (!gradientPreview) return;
+            
+            const direction = gradientDirectionSelect ? gradientDirectionSelect.value : 'to right';
+            const fromColor = gradientFromColorInput ? gradientFromColorInput.value : '#007bff';
+            const toColor = gradientToColorInput ? gradientToColorInput.value : '#6c757d';
+            
+            // Update hidden fields
+            if (gradientFromColorHidden) gradientFromColorHidden.value = fromColor;
+            if (gradientToColorHidden) gradientToColorHidden.value = toColor;
+            
+            // Apply gradient to preview
+            if (direction === 'radial') {
+                gradientPreview.style.backgroundImage = `radial-gradient(ellipse at center, ${fromColor}, ${toColor})`;
+            } else {
+                gradientPreview.style.backgroundImage = `linear-gradient(${direction}, ${fromColor}, ${toColor})`;
+            }
+        }
+        
+        // Initialize gradient controls
+        if (useGradientCheckbox) {
+            useGradientCheckbox.addEventListener('change', toggleGradientControls);
+            toggleGradientControls();
+        }
+        
+        // Add event listeners for gradient inputs
+        if (gradientDirectionSelect) {
+            gradientDirectionSelect.addEventListener('change', updateGradientPreview);
+        }
+        
+        if (gradientFromColorInput) {
+            gradientFromColorInput.addEventListener('input', function() {
+                const color = this.value;
+                document.querySelector('.gradient-from-preview').style.backgroundColor = color;
+                updateGradientPreview();
+            });
+        }
+        
+        if (gradientToColorInput) {
+            gradientToColorInput.addEventListener('input', function() {
+                const color = this.value;
+                document.querySelector('.gradient-to-preview').style.backgroundColor = color;
+                updateGradientPreview();
+            });
+        }
+        
+        // Initialize gradient preview
+        updateGradientPreview();
     });
     
     // Function to preview banner image when selected
